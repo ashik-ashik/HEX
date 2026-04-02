@@ -1,0 +1,68 @@
+p, 
+th,
+td {
+  color: #0c0c0c;
+}
+
+@keyframes scaleUp {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* managerDashboardMobileMenuIcon */
+#managerDashboardMobileMenuIcon{
+  position: fixed !important;
+  z-index: 9999999 !important;
+}
+
+.animate-scaleUp {
+  animation: scaleUp 0.2s ease-in-out;
+}
+
+.transparent-bg{
+  background-image: 
+  linear-gradient(#ffffffad, #ffffffb6);
+
+background-size: cover, cover;
+background-repeat: no-repeat, no-repeat;
+background-position: center, center;
+background-attachment: fixed;
+background-blend-mode: multiply;
+}
+
+/* Scrollbar width */
+::-webkit-scrollbar {
+  height: 10px;   /* horizontal scrollbar */
+  width: 10px;    /* vertical scrollbar */
+}
+
+/* Scrollbar track */
+::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(6px);
+  border-radius: 20px;
+}
+
+/* Scrollbar thumb */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #10798b, #700f9c);
+  border-radius: 20px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Hover effect */
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+}
+
+/* Active (while dragging) */
+::-webkit-scrollbar-thumb:active {
+  background: #1d4ed8;
+}

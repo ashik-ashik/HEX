@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Website Title -->
+    <title>The Hex Bachelors House</title>
+    <link rel="shortcut icon" href="/src/assets/hex.png" type="image/x-icon">
+
+    <!-- Primary Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="title" content="The Hex Bachelors House ">
+    <meta name="description" content="Welcome to The Hex House! Track deposits, bazar costs, meals, and settlements for six chill bachelors sharing a flat. Fun, simple, and smart mess management for your gang!">
+    <meta name="keywords" content="The Hex House, mess management, bachelors flat, meal tracker, shared flat expenses, six guys, flatmates">
+    <meta name="author" content="The Hex House Residents">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Hex House - Mess Management for Six Bachelors">
+    <meta property="og:description" content="Track deposits, bazar costs, meals, and settlements for six chill bachelors in The Hex House. Keep your flat mess organized and fun!">
+    <meta property="og:image" content="https://your-hexhouse-logo-url.com/logo.png">
+    <meta property="og:url" content="https://your-hexhouse-website.com">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="The Hex House - Mess Management for Six Bachelors">
+    <meta property="twitter:description" content="Track deposits, bazar costs, meals, and settlements for six chill bachelors in The Hex House. Keep your flat mess organized and fun!">
+    <meta property="twitter:image" content="https://your-hexhouse-logo-url.com/logo.png">
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      window.addEventListener("scroll", () => {
+  const scrolled = window.scrollY;
+  document.querySelector("#root").style.setProperty(
+    "--parallax-y",
+    `${scrolled * .14}px`
+  );
+});
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+</html>
