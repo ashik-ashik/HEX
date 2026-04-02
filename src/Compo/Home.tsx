@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
+import Header from "./Header";
 
 // Type for each deposit item
 export type UtilityDeposit = {
@@ -142,6 +143,8 @@ const finalNotices = systemNotice
   : notices;
 
   return (
+    <>
+    <Header />
     <div className="min-h-screen transparent-bg px-2 text-gray-800">
       {/* Hero Section */}
       <section className=" py-20 sm:px-6 px-0">
@@ -501,6 +504,7 @@ const finalNotices = systemNotice
 
       
     </div>
+    </>
   );
 };
 

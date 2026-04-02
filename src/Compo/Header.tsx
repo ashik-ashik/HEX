@@ -1,20 +1,52 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+import {
+  Menu,
+  X,
+  Home,
+  LayoutDashboard,
+  Wrench,
+  LogIn,
+  Gauge,
+} from "lucide-react";
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [managerStatus, setManagerStatus] = useState(false);
 
+  
   useEffect(() => {
+    const tracManagerStatus = () => {
+      // track manager
+      const isManager = sessionStorage.getItem("authenticManager");
+      if(isManager === "This guy is authentic manager of HEX House"){
+        setManagerStatus(true);
+      }else{
+        setManagerStatus(false);
+      }
+    };
+    tracManagerStatus();
+
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+
+    
+  }, [managerStatus]);
+
+  // ✅ Navigation Array
+  const navLinks = [
+    {name: "Home", path: "/", icon: Home},
+    {name: "Dashboard", path: "/dashboard", icon: LayoutDashboard},
+    {name: "Utility", path: "/utility", icon: Wrench},
+  ];
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    `relative transition-colors duration-300 ${
+    `flex items-center gap-2 transition-colors duration-300 ${
       isActive
         ? "text-blue-600 font-semibold"
         : "text-gray-700 hover:text-blue-600"
@@ -30,8 +62,8 @@ const Header = () => {
       }`}
     >
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
-        
-        {/* Logo / Title */}
+
+        {/* Logo */}
         <div className="flex flex-col leading-tight">
           <span
             className={`font-bold tracking-wide transition-all duration-300 
@@ -44,19 +76,80 @@ const Header = () => {
           </span>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex items-center gap-6 text-xs font-medium">
-          <NavLink to="/" end className={navLinkClass}>
-            Home
-          </NavLink>
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-6 text-xs font-medium">
+          {navLinks.map((link, index) => {
+            return (
+              <NavLink
+                key={index}
+                to={link.path}
+                end={link.path === "/"}
+                className={navLinkClass}
+              >
+                
+                {link.name}
+              </NavLink>
+            );
+          })}
+          {
+            managerStatus ? (
+              <NavLink to="/manager" className={navLinkClass}>
+                Manager Panel
+              </NavLink>
+            ) : (
+              <NavLink to="/imanager" className={navLinkClass}>
+                <LogIn size={12} />
+                I'm Manager
+              </NavLink>
+            )
+          }
+        </nav>
 
-          <NavLink to="/dashboard" className={navLinkClass}>
-            Dashboard
-          </NavLink>
+        {/* Mobile Button */}
+        <button
+          className="md:hidden text-gray-700"
+          onClick={() => setMobileOpen(!mobileOpen)}
+        >
+          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
 
-          <NavLink to="/utility" className={navLinkClass}>
-            Utility
-          </NavLink>
+      </div>
+
+      {/* Mobile Menu */}
+      <div
+        className={`md:hidden transition-all duration-300 overflow-hidden
+        ${mobileOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"}
+        bg-white shadow-md`}
+      >
+        <nav className="flex flex-col px-6 py-4 gap-4 text-sm font-medium">
+          {navLinks.map((link, index) => {
+            const Icon = link.icon;
+            return (
+              <NavLink
+                key={index}
+                to={link.path}
+                end={link.path === "/"}
+                className={navLinkClass}
+                onClick={() => setMobileOpen(false)}
+              >
+                <Icon size={14} />
+                {link.name}
+              </NavLink>
+            );
+          })}
+          {
+            managerStatus ? (
+              <NavLink to="/manager" className={navLinkClass}>
+                <Gauge size={12} />
+                Manager Panel
+              </NavLink>
+            ) : (
+              <NavLink to="/imanager" className={navLinkClass}>
+                <LogIn size={12} />
+                I'm Manager
+              </NavLink>
+            )
+          }
         </nav>
       </div>
     </header>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-// import Header from "./Header";
+import Header from "./Header";
 import Footer from "./Footer";
 import UpdateManagerKey from "./UpdateManagerKey";
 import { Link } from "react-router-dom";
@@ -56,7 +56,7 @@ const LoginAsManager: React.FC<ManagerStatus> = ({managerStatus}) => {
 
   return (
     <>
-    {/* <Header /> */}
+    <Header />
 
     <section className="py-24 backdrop-blur-sm bg-purple-700/70 p-2">
         <div className="min-h-[60vh] max-w-2xl m-auto rounded-sm flex items-center justify-center ">
@@ -102,7 +102,7 @@ const LoginAsManager: React.FC<ManagerStatus> = ({managerStatus}) => {
                     </p>
 
                     <div className="mt-10 pt-6 p-2 flex justify-center">
-                      <Link to='/' className="text-xs px-6 py-2 text-white bg-yellow-500">Back to Home</Link>
+                      <Link to='/' className="text-xs px-6 py-2 text-white bg-yellow-500">Back Home</Link>
                     </div>
 
                 </div>
