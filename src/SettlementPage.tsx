@@ -4,7 +4,9 @@ import Header from "./Compo/Header";
 import Footer from "./Compo/Footer";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { AlertTriangle, Settings, X } from "lucide-react";
+import { AlertTriangle, Settings, X, Save, Loader2 } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
+
 
 
 // Type for each deposit item
@@ -48,13 +50,24 @@ const SettlementPage: React.FC<Props> = ({
   isLoading,
   // grandTotalMeals,
 }) => {
-
   /**************************************
    * 🔥 Load Fixed Meal From LocalStorage
    **************************************/
 const [showFixedModal, setShowFixedModal] = useState<boolean>(false);
 const [fixedMealInput, setFixedMealInput] = useState<number>(0);
 const [fixedMeals, setFixedMeals] = useState<number>(0);
+
+/**************************************
+ * 📊 Save History
+ **************************************/
+const [isSavingHistory, setIsSavingHistory] = useState(false);
+const [historySaved, setHistorySaved] = useState(false);
+
+
+
+
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++?
 
 useEffect(() => {
   const savedFixedMeal =
@@ -72,10 +85,14 @@ useEffect(() => {
 
 const handleSetFixedMeal = () => {
   localStorage.setItem("fixedMeal", fixedMealInput.toString());
+
+  toast.success("Fixed meal saved successfully");
+
   setShowFixedModal(false);
 
-  // reload page to apply changes safely
-  window.location.reload();
+  setTimeout(() => {
+    window.location.reload();
+  }, 800);
 };
 
 
@@ -127,7 +144,7 @@ const handleSetFixedMeal = () => {
    **************************************/
   const settlements = members.map((member) => {
     const mealMember = adjustedMeals.find(
-      (m) => m.name === member.name
+      (m) => m.name === member.name || []
     );
 
     const meals = mealMember?.total || 0;
@@ -144,6 +161,118 @@ const handleSetFixedMeal = () => {
       balance,
     };
   });
+
+// ++++++++++++++++++++++++++++++++++++++++++++++++++?
+
+
+/**************************************
+ * 📅 Enable Save Button Logic
+ **************************************/
+const today = new Date();
+const currentDate = today.getDate();
+
+const saveEnabled =
+  currentDate >= 25 || currentDate <= 2;
+  /**************************************
+ * 📊 Save Monthly History
+ **************************************/
+const handleSaveHistory = async () => {
+
+  if (historySaved) {
+    toast("Already saved for this month");
+    return;
+  }
+
+  try {
+    setIsSavingHistory(true);
+
+    toast.loading("Preparing settlement summary...", {
+      id: "saveHistory",
+    });
+
+    
+    const month= new Date().toLocaleDateString("default", {
+        month: "long",
+        year: "numeric",
+      });
+      const memberForHistory = settlements?.map((m) => ({
+          name: m?.name,
+          deposit: m?.deposit || 0,
+          meals: m?.meals || 0,
+          mealCost: Math.ceil(m?.mealCost || 0),
+          balance: Math.ceil(m?.balance || 0),
+          status:
+            m?.balance < 0
+              ? "Needs to Pay"
+              : "Will Receive",
+        }));
+    const contents= {
+      
+  totalDeposit: grandDeposit,
+  totalBazar: totalBazar,
+  netMealBalance: grandDeposit - totalBazar,
+
+  utilityDeposit: totalUtilityDeposit,
+  utilityCost: totalUtilityCost,
+  netUtilityBalance:
+    totalUtilityDeposit - totalUtilityCost,
+
+  fixedMeal: fixedMeals,
+  totalMeal: adjustedGrandTotalMeals,
+  mealRate: mealRate,
+
+  members: memberForHistory
+    }
+
+
+    toast.loading("Sending data to Google Sheet...", {
+      id: "saveHistory",
+    });
+
+    const res = await fetch(
+      "https://script.google.com/macros/s/AKfycbzhPfCKx1pPoGMH9na6qZ8lTlW5mER4P28SM_uMg2UhdfikCKu0Dya3lQWcfl4ajIvs/exec",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+              type: "saveSummary",
+              month: month,
+              contents: contents ? JSON.stringify(contents) : "",
+              
+            }),
+      }
+    );
+
+    toast.loading("Saving monthly history...", {
+      id: "saveHistory",
+    });
+
+    const result = await res.json();
+
+    if (result.status === "success") {
+      toast.success("Monthly settlement saved successfully 🎉", {
+        id: "saveHistory",
+      });
+
+      setHistorySaved(true);
+    } else {
+
+      throw new Error("Save failed");
+    }
+
+  } catch (error) {
+    console.error(error);
+
+    toast.error("Failed to save settlement ❌", {
+      id: "saveHistory",
+    });
+
+  } finally {
+    setIsSavingHistory(false);
+  }
+};
 
 
 
@@ -180,6 +309,14 @@ const handleSetFixedMeal = () => {
   return (
     <section id="settlement-page">
       {/* ================= Fixed Meal Modal ================= */}
+      <Toaster
+  position="top-center"
+  toastOptions={{
+    style: {
+      marginTop: "40vh",
+    },
+  }}
+/>
 
 {showFixedModal && (
 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -455,13 +592,51 @@ Will Receive ৳ {Math.ceil(m.balance)}
 
 </div>
 
-<div className="text-center my-10">
+<div className="text-center my-10 space-y-3">
+
+{/* Save History Button */}
+<button
+onClick={handleSaveHistory}
+disabled={!saveEnabled || isSavingHistory || historySaved}
+className={`text-xs px-5 py-2 rounded-md shadow transition flex items-center gap-2 mx-auto
+${
+saveEnabled
+? "bg-indigo-600 text-white hover:bg-indigo-700"
+: "bg-gray-300 text-gray-500 cursor-not-allowed"
+}`}
+>
+{isSavingHistory ? (
+<>
+<Loader2 size={14} className="animate-spin"/>
+Saving...
+</>
+) : historySaved ? (
+<>
+<Save size={14}/>
+Saved to History
+</>
+) : (
+<>
+<Save size={14}/>
+Save as History
+</>
+)}
+</button>
+
+{/* Helper Text */}
+{!saveEnabled && (
+<p className="text-xs text-gray-500">
+History saving available from 25th to next month 2nd day
+</p>
+)}
+
 <button
 onClick={handlePrintPDF}
 className="bg-purple-600 text-white text-xs px-5 py-2 rounded-md shadow hover:bg-purple-700 transition"
 >
 🖨 Print Report
 </button>
+
 </div>
 
 </section>

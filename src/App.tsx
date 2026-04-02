@@ -16,6 +16,7 @@ import LoginAsManager from './Compo/LoginAsManager';
 import ChangeManager from './Compo/NextManagerSelection';
 import ManagerDashboard from './Compo/ManagerDashboard';
 import PrivateRoute from './Compo/PrivateRoute';
+import Settlement_History from './Compo/Settlement_History';
 
 
 
@@ -332,6 +333,7 @@ type UtilityDeposit = {
         <Route path="/postnotice" element={<NoticePost managerStatus={managerStatus} />} />
         <Route path="/imanager" element={<LoginAsManager managerStatus={managerStatus} />} />
         <Route path="/next-manager" element={<PrivateRoute><ChangeManager managerStatus={managerStatus} /></PrivateRoute>} />
+        <Route path="/history" element={<Settlement_History  />} />
       </Routes>
       <FloatingCalculator />
     </BrowserRouter>

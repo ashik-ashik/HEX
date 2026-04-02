@@ -8,6 +8,8 @@ import {
   Wrench,
   LogIn,
   Gauge,
+  History,
+  LucideCalculator,
 } from "lucide-react";
 
 const Header = () => {
@@ -43,6 +45,7 @@ const Header = () => {
     {name: "Home", path: "/", icon: Home},
     {name: "Dashboard", path: "/dashboard", icon: LayoutDashboard},
     {name: "Utility", path: "/utility", icon: Wrench},
+    {name: "History", path: "/history", icon: History},
   ];
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -92,10 +95,14 @@ const Header = () => {
             );
           })}
           {
-            managerStatus ? (
+            managerStatus ? (<>
+              <NavLink to="/settlement" className={navLinkClass}>
+                Settlement
+              </NavLink>
               <NavLink to="/manager" className={navLinkClass}>
                 Manager Panel
               </NavLink>
+              </>
             ) : (
               <NavLink to="/imanager" className={navLinkClass}>
                 <LogIn size={12} />
@@ -138,14 +145,19 @@ const Header = () => {
             );
           })}
           {
-            managerStatus ? (
+            managerStatus ? (<>
+              <NavLink to="/settlement" className={navLinkClass}>
+                <LucideCalculator size={14} />
+                Settlement
+              </NavLink>
               <NavLink to="/manager" className={navLinkClass}>
-                <Gauge size={12} />
+                <Gauge size={14} />
                 Manager Panel
               </NavLink>
+              </>
             ) : (
               <NavLink to="/imanager" className={navLinkClass}>
-                <LogIn size={12} />
+                <LogIn size={14} />
                 I'm Manager
               </NavLink>
             )
