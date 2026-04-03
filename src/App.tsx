@@ -22,23 +22,13 @@ import Settlement_History from './Compo/Settlement_History';
 
 // ==============================================
 
-const DEPOSIT_CSV =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTneJOLJfmCD5oT3Gj3V_av5H3w7vFrXKds18ZNlkVX4tssaF4TAVbz9En_ekLj8G9nb3RAiBjG8X3x/pub?gid=0&single=true&output=csv";
+const MEAL_DEPOSIT_SHEET = import.meta.env.VITE_MEAL_DEPOSIT_SHEET_READER;
+const BAZAR_COSTS_SHEET = import.meta.env.VITE_BAZAR_COSTS_SHEET_READER;
+const MEAL_CSV = import.meta.env.VITE_MEAL_COUNTS_SHEET_READER;
+const UTILITY_DEPOSIT_SHEET = import.meta.env.VITE_UTILITY_DEPOSIT_SHEET_READER;
+const UTILITY_COST_SHEET_URL = import.meta.env.VITE_UTILITY_COSTS_SHEET_READER;
 
-const BAZAR_CSV =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTneJOLJfmCD5oT3Gj3V_av5H3w7vFrXKds18ZNlkVX4tssaF4TAVbz9En_ekLj8G9nb3RAiBjG8X3x/pub?gid=438303393&single=true&output=csv";
-
-const MEAL_CSV =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTneJOLJfmCD5oT3Gj3V_av5H3w7vFrXKds18ZNlkVX4tssaF4TAVbz9En_ekLj8G9nb3RAiBjG8X3x/pub?output=csv&gid=1465774274";
-
-const DEPOSIT_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTneJOLJfmCD5oT3Gj3V_av5H3w7vFrXKds18ZNlkVX4tssaF4TAVbz9En_ekLj8G9nb3RAiBjG8X3x/pub?gid=645903599&single=true&output=csv";
-
-const COST_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTneJOLJfmCD5oT3Gj3V_av5H3w7vFrXKds18ZNlkVX4tssaF4TAVbz9En_ekLj8G9nb3RAiBjG8X3x/pub?gid=1826027298&single=true&output=csv";
-
-  const NOTICE_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTneJOLJfmCD5oT3Gj3V_av5H3w7vFrXKds18ZNlkVX4tssaF4TAVbz9En_ekLj8G9nb3RAiBjG8X3x/pub?gid=240558188&single=true&output=csv";
+  const NOTICE_URL = import.meta.env.VITE_NOTICE_SHEET_READER;
 
 interface MealRow {
   name: string;
@@ -110,8 +100,8 @@ type UtilityDeposit = {
     const fetchData = async () => {
   try {
     const [depositRes, costRes] = await Promise.all([
-      fetch(DEPOSIT_URL),
-      fetch(COST_URL),
+      fetch(UTILITY_DEPOSIT_SHEET),
+      fetch(UTILITY_COST_SHEET_URL),
     ]);
 
     if (!depositRes.ok || !costRes.ok) {
@@ -202,7 +192,7 @@ type UtilityDeposit = {
         })
 
         // ===== DEPOSITS =====
-        const depositRes = await fetch(DEPOSIT_CSV);
+        const depositRes = await fetch(MEAL_DEPOSIT_SHEET);
         const depositText = await depositRes.text();
         const depositRows = parseCSV(depositText);
 
@@ -224,7 +214,7 @@ type UtilityDeposit = {
         setGrandDeposit(memberData.reduce((sum, m) => sum + m.total, 0));
 
         // ===== BAZAR =====
-        const bazarRes = await fetch(BAZAR_CSV);
+        const bazarRes = await fetch(BAZAR_COSTS_SHEET);
         const bazarText = await bazarRes.text();
         const bazarRows = parseCSV(bazarText);
 

@@ -36,8 +36,7 @@ const History: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const sheetUrl =
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTneJOLJfmCD5oT3Gj3V_av5H3w7vFrXKds18ZNlkVX4tssaF4TAVbz9En_ekLj8G9nb3RAiBjG8X3x/pub?gid=1544310590&single=true&output=csv";
+  const history_sheet_reader = import.meta.env.VITE_HISTORY_SHEET_READER;
 
   // Parse one block of data
   const parseSettlementBlock = (block: string): MonthHistory => {
@@ -111,7 +110,7 @@ const History: React.FC = () => {
     const fetchHistory = async () => {
       try {
         setLoading(true);
-        const res = await fetch(sheetUrl);
+        const res = await fetch(history_sheet_reader);
         if (!res.ok) throw new Error("Failed to fetch history");
         const text = await res.text();
         const parsedHistory = parseSettlementData(text);

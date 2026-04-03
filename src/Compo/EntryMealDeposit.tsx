@@ -38,7 +38,7 @@ const EntryMealDeposit:React.FC<ManagerStatus> = ({managerStatus})=> {
     }
     try {
       setLoadingOnSubmit(true)
-      const response = await fetch("https://script.google.com/macros/s/AKfycbxp4N4sFVbn0iNAfLsRJ0-jlofEnhKgbfYzuTS2dbRlE5LcHJwOYndsQvGMdxmVXLrs/exec", {
+      const response = await fetch(import.meta.env.VITE_INSERT_MEAL_DEPOSIT_API, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",

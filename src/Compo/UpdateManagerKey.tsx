@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
-const UPDATE_KEY_URL = "https://script.google.com/macros/s/AKfycbwnLKNeMG5UYHOgcFCIDApoGNIUBVzlors4chbovmLYLemYR1YoRVUK7gG9gWuki2Ia/exec"; // Replace with your Web App URL
+const UPDATE_KEY_URL = import.meta.env.VITE_UPDATE_MANAGER_KEY_API; // Replace with your Web App URL
 
 interface ManagerStatus {
   managerStatus: boolean;

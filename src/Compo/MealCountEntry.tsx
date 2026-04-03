@@ -60,8 +60,9 @@ const MealCountEntry:React.FC<ManagerStatus> = ({managerStatus}) => {
           .join("&");
 
       // Replace with your Google Apps Script URL
+      
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbx5UawsnHMh9e3h52-Q9yBf1LmfsMa1vI7AI86RAWDq3MZS0jH4Ks9t6C3COm5PtO3J/exec",
+        import.meta.env.VITE_INSERT_MEAL_COUNTS_API,
         {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },

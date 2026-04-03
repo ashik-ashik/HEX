@@ -22,7 +22,7 @@ const members = [
 ]; // 👉 replace with your real members
 
 // bazacost entry api
-const EnsertBazarCostsAPI = 'https://script.google.com/macros/s/AKfycbx5UawsnHMh9e3h52-Q9yBf1LmfsMa1vI7AI86RAWDq3MZS0jH4Ks9t6C3COm5PtO3J/exec';
+const EnsertBazarCostsAPI = import.meta.env.VITE_INSERT_BAZAR_COSTS_API;
 interface ManagerStatus{managerStatus:boolean}
 const EntryBazarCosts:React.FC<ManagerStatus> = ({managerStatus}) => {
   const [formData, setFormData] = useState<FormData>({

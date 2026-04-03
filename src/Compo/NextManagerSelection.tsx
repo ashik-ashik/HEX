@@ -4,8 +4,7 @@ import toast, { Toaster } from "react-hot-toast";
 // import Header from "./Header";
 import Footer from "./Footer";
 
-const API_URL =
-  "https://script.google.com/macros/s/AKfycbwMoUkvbSqTG-_ocLf3_Lqg91QrCnWPz-LwXz99c3u-si49Zw5PYycJPNaUZ2vEaYVk/exec";
+const API_URL = import.meta.env.VITE_CHANGE_MANAGER_API;
 
 interface Member {
   designation: string;
@@ -32,7 +31,7 @@ const ChangeManager:React.FC<ManagerStatus> = ({managerStatus}) => {
 const fetchMembers = async () => {
   try {
     const res = await fetch(
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vTneJOLJfmCD5oT3Gj3V_av5H3w7vFrXKds18ZNlkVX4tssaF4TAVbz9En_ekLj8G9nb3RAiBjG8X3x/pub?gid=907502917&single=true&output=csv"
+      import.meta.env.VITE_CURRENT_MANAGER_FINDER_IN_NEXT_MANAGER_SELECTION
     );
 
     const csvText = await res.text();

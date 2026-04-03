@@ -102,10 +102,11 @@ const handleSetFixedMeal = () => {
    **************************************/
   const adjustedMeals = mealData.map((m) => {
     const actual = Number(m.total || 0);
-
     return {
       name: m.name,
-      total: fixedMeals && actual < fixedMeals ? fixedMeals : actual,
+      total: fixedMeals && actual >= 5 && actual < fixedMeals
+        ? fixedMeals
+        : actual,
     };
   });
 
@@ -142,12 +143,13 @@ const handleSetFixedMeal = () => {
   /**************************************
    * 🔥 Settlement Calculation
    **************************************/
-  const settlements = members.map((member) => {
-    const mealMember = adjustedMeals.find(
-      (m) => m.name === member.name || []
+    const mealMap = Object.fromEntries(
+      adjustedMeals.map(m => [m.name, m])
     );
 
-    const meals = mealMember?.total || 0;
+  const settlements = members.map((member) => {
+    
+    const meals = mealMap[member.name]?.total || 0;
     const mealCost = meals * mealRate;
 
     const balance = member.total - mealCost;
@@ -230,7 +232,7 @@ const handleSaveHistory = async () => {
     });
 
     const res = await fetch(
-      "https://script.google.com/macros/s/AKfycbzhPfCKx1pPoGMH9na6qZ8lTlW5mER4P28SM_uMg2UhdfikCKu0Dya3lQWcfl4ajIvs/exec",
+      import.meta.env.VITE_STORE_SUMMARY_API_SHEET,
       {
         method: "POST",
         headers: {
@@ -252,7 +254,7 @@ const handleSaveHistory = async () => {
     const result = await res.json();
 
     if (result.status === "success") {
-      toast.success("Monthly settlement saved successfully 🎉", {
+      toast.success("Monthly settlement saved successfully", {
         id: "saveHistory",
       });
 

@@ -5,8 +5,7 @@ import Footer from "./Footer";
 import UpdateManagerKey from "./UpdateManagerKey";
 import { Link } from "react-router-dom";
 
-const SHEET_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSiBw4kytTvD4nfq03VjB2jHSvvgAiIbSfKsVDnI_BLDUWMLNwG1MIVYOzt-Gr0X43m8mpLawdSOhSG/pub?gid=0&single=true&output=csv";
+const SHEET_CSV_URL = import.meta.env.VITE_MANAGER_VERIFY_KEY_READER;
 
   interface ManagerStatus {
     managerStatus: boolean

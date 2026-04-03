@@ -2,8 +2,7 @@
 import React, { useState } from "react";
 import { AlertTriangle, RefreshCcw, Loader2, ShieldAlert } from "lucide-react";
 
-const SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbzgzE6gP35O8UwkdFWIK4-RJrzbnQkqpBP2tZdKmLC5QJY7EXEO1393kCm109_1hpq-/exec";
+const RESET_CURRENT_MONTH_DATA_SCRIPT_URL = import.meta.env.VITE_RESET_CURRENT_MONTH_API;
 
 const ResetMonth: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -18,7 +17,7 @@ const ResetMonth: React.FC = () => {
       setLoading(true);
       setMessage(null);
 
-      const response = await fetch(SCRIPT_URL, {
+      const response = await fetch(RESET_CURRENT_MONTH_DATA_SCRIPT_URL, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({

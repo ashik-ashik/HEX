@@ -27,7 +27,7 @@ const UtilityCostEntry:React.FC<ManagerStatus> = ({managerStatus}) => {
     try {
       setLoadingOnSubmit(true)
       const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbyFUdvrZlTsGwaoVAgYxFIpHTnEbuGsCm_SA78XluGO_poDR8mCCNHBvtZ7Dev_U_o/exec",
+        import.meta.env.VITE_INSERT_UTILITY_COSTS_API,
         {
           method: "POST",
           headers: {

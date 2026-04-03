@@ -41,8 +41,7 @@ const EntryUtilityDeposit: React.FC<ManagerStatus> = ({managerStatus}) => {
     const toastId = toast.loading("Submitting deposit...");
 
     try {
-      const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbx5UawsnHMh9e3h52-Q9yBf1LmfsMa1vI7AI86RAWDq3MZS0jH4Ks9t6C3COm5PtO3J/exec",
+      const response = await fetch( import.meta.env.VITE_INSERT_UTILITY_DEPOSIT_API,
         {
           method: "POST",
           headers: {

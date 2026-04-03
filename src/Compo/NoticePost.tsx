@@ -33,7 +33,7 @@ const NoticePost: React.FC <ManagerStatus>= ({managerStatus}) => {
 
   try {
     const res = await fetch(
-      "https://script.google.com/macros/s/AKfycbx5UawsnHMh9e3h52-Q9yBf1LmfsMa1vI7AI86RAWDq3MZS0jH4Ks9t6C3COm5PtO3J/exec",
+      import.meta.env.VITE_POST_NOTICE_API,
       {
         method: "POST",
         headers: {
