@@ -271,64 +271,70 @@ type UtilityDeposit = {
     fetchData();
   }, []);
 
+  const memberNameList = members.map(member => member.name);
+
+
   // ======================================================
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home grandDeposit={grandDeposit} totalBazar={totalBazar} utilityDeposits={utilityDeposits}
-              utilityCosts={utilityCosts} isLoading={isLoading} notices={notices} managerStatus={managerStatus} />} />
-        <Route
-          path="/dashboard"
-          element={
-            <Dashboard
-              members={members}
-              bazarData={bazarData}
-              mealData={mealData}
-              mealDates={mealDates}
-              grandTotalMeals={grandTotalMeals}
-              grandDeposit={grandDeposit}
-              isLoading={isLoading}
-              isError={isError}
-              totalBazar={totalBazar}
-            />
-          }
-        />
-        <Route
-          path="/utility"
-          element={
-            <UtilitySummary
-              utilityDeposits={utilityDeposits}
-              utilityCosts={utilityCosts}
-              isLoading={isLoading}
-              isError={isError}
-            />
-          }
-        />
-        <Route path="/settlement" element={<PrivateRoute><SettlementPage
-          members={members}
-          mealData={mealData}
-          grandDeposit={grandDeposit}
-          totalBazar={totalBazar}
-          utilityDeposits={utilityDeposits}
-          utilityCosts={utilityCosts}
-          grandTotalMeals={grandTotalMeals}
-          isLoading={isLoading}
-        /></PrivateRoute>} />
-        <Route path="/manager" element={<PrivateRoute><ManagerDashboard managerStatus={managerStatus} /></PrivateRoute>}></Route>
-        <Route path="/bazar-costs" element={<PrivateRoute><EntryBazarCosts managerStatus={managerStatus} /></PrivateRoute>} />
-        <Route path="/meal-entry" element={<PrivateRoute><MealCountEntry  managerStatus={managerStatus} /></PrivateRoute>} />
-        <Route path="/meal-deposit-entry" element={<PrivateRoute><EntryMealDeposit  managerStatus={managerStatus} /></PrivateRoute>} />
-        <Route path="/utility-costs-entry" element={<PrivateRoute><UtilityCostEntry  managerStatus={managerStatus} /></PrivateRoute>} />
-        <Route path="/utility-deposit-entry" element={<PrivateRoute><EntryUtilityDeposit  managerStatus={managerStatus} /></PrivateRoute>} />
-        <Route path="/postnotice" element={<NoticePost managerStatus={managerStatus} />} />
-        <Route path="/imanager" element={<LoginAsManager managerStatus={managerStatus} />} />
-        <Route path="/addmember" element={<AddPersonnel />} />
-        <Route path="/next-manager" element={<PrivateRoute><ChangeManager managerStatus={managerStatus} /></PrivateRoute>} />
-        <Route path="/history" element={<Settlement_History  />} />
-      </Routes>
-      <FloatingCalculator />
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home grandDeposit={grandDeposit} totalBazar={totalBazar} utilityDeposits={utilityDeposits}
+                utilityCosts={utilityCosts} isLoading={isLoading} notices={notices} managerStatus={managerStatus} />} />
+          <Route
+            path="/dashboard"
+            element={
+              <Dashboard
+                members={members}
+                bazarData={bazarData}
+                mealData={mealData}
+                mealDates={mealDates}
+                grandTotalMeals={grandTotalMeals}
+                grandDeposit={grandDeposit}
+                isLoading={isLoading}
+                isError={isError}
+                totalBazar={totalBazar}
+                
+              />
+            }
+          />
+          <Route
+            path="/utility"
+            element={
+              <UtilitySummary
+                utilityDeposits={utilityDeposits}
+                utilityCosts={utilityCosts}
+                isLoading={isLoading}
+                isError={isError}
+              />
+            }
+          />
+          <Route path="/settlement" element={<PrivateRoute><SettlementPage
+            members={members}
+            mealData={mealData}
+            grandDeposit={grandDeposit}
+            totalBazar={totalBazar}
+            utilityDeposits={utilityDeposits}
+            utilityCosts={utilityCosts}
+            grandTotalMeals={grandTotalMeals}
+            isLoading={isLoading}
+          /></PrivateRoute>} />
+          <Route path="/manager" element={<PrivateRoute><ManagerDashboard memberNameList={memberNameList} managerStatus={managerStatus} /></PrivateRoute>}></Route>
+          <Route path="/bazar-costs" element={<PrivateRoute><EntryBazarCosts memberNameList={memberNameList} managerStatus={managerStatus} /></PrivateRoute>} />
+          <Route path="/meal-entry" element={<PrivateRoute><MealCountEntry memberNameList={memberNameList}  managerStatus={managerStatus} /></PrivateRoute>} />
+          <Route path="/meal-deposit-entry" element={<PrivateRoute><EntryMealDeposit memberNameList={memberNameList}  managerStatus={managerStatus} /></PrivateRoute>} />
+          <Route path="/utility-costs-entry" element={<PrivateRoute><UtilityCostEntry managerStatus={managerStatus} /></PrivateRoute>} />
+          <Route path="/utility-deposit-entry" element={<PrivateRoute><EntryUtilityDeposit memberNameList={memberNameList}  managerStatus={managerStatus} /></PrivateRoute>} />
+          <Route path="/postnotice" element={<NoticePost managerStatus={managerStatus} />} />
+          <Route path="/imanager" element={<LoginAsManager managerStatus={managerStatus} />} />
+          <Route path="/addmember" element={<AddPersonnel />} />
+          <Route path="/next-manager" element={<PrivateRoute><ChangeManager managerStatus={managerStatus} /></PrivateRoute>} />
+          <Route path="/history" element={<Settlement_History  />} />
+        </Routes>
+        <FloatingCalculator />
+      </BrowserRouter>
+    </>
   );
 }
 

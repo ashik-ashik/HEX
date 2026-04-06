@@ -12,19 +12,15 @@ type FormData = {
   amount: string;
 };
 
-const members = [
-  "Mynul Islam",
-  "Mohammad Ali",
-  "Ashik Ali",
-  "Ahmed Miraj",
-  "Jamal Ahmed",
-  "Tarikul Islam",
-]; // 👉 replace with your real members
+ // 👉 replace with your real members
 
 // bazacost entry api
 const EnsertBazarCostsAPI = import.meta.env.VITE_INSERT_BAZAR_COSTS_API;
 interface ManagerStatus{managerStatus:boolean}
-const EntryBazarCosts:React.FC<ManagerStatus> = ({managerStatus}) => {
+interface MemberNameList{memberNameList:string[]}
+const EntryBazarCosts:React.FC<ManagerStatus & MemberNameList> = ({managerStatus, memberNameList}) => {
+
+  const members = memberNameList; // 👉 replace with your real members
   const [formData, setFormData] = useState<FormData>({
     type: "bazar",
     date: new Date().toISOString().split("T")[0], // auto today

@@ -6,18 +6,11 @@ import Footer from "./Footer";
 import DataEntryWarning from "./DataEntryWarning";
 
 
-const members = [
-  "Ashik Ali",
-  "Ahmed Miraj",
-  "Mynul Islam",
-  "Tarikul Islam",
-  "Mohammad Ali",
-  "Jamal Ahmed",
-];
 interface ManagerStatus{managerStatus:boolean}
+interface MemberNameList{memberNameList:string[]}
 
 
-const EntryUtilityDeposit: React.FC<ManagerStatus> = ({managerStatus}) => {
+const EntryUtilityDeposit: React.FC<ManagerStatus & MemberNameList> = ({managerStatus, memberNameList}) => {
   const [member, setMember] = useState("");
   const [amount, setAmount] = useState("");
   const [loadingOnSubmit, setLoadingOnSubmit] = useState(false)
@@ -141,7 +134,7 @@ const EntryUtilityDeposit: React.FC<ManagerStatus> = ({managerStatus}) => {
                           className="w-full mt-1 p-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
                       >
                           <option value="">-- Choose Member --</option>
-                          {members.map((m) => (
+                          {memberNameList.map((m) => (
                           <option key={m} value={m}>
                               {m}
                           </option>

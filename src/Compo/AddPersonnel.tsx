@@ -1,4 +1,3 @@
-/* eslint-disable no-useless-escape */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { UserPlus, Users, Briefcase, Loader2 } from "lucide-react";
@@ -201,7 +200,7 @@ const AddPersonnel: React.FC = () => {
               <select
                 className="w-full mt-1 border rounded-xl p-2"
                 value={selectedMember}
-                onChange={(e) => setSelectedMember(e.target.value)}
+                onChange={(e) => setSelectedMember(e.target.value.trim())}
               >
                 <option value="">Select Member</option>
                 {memberList.map((m, index) => (
@@ -218,7 +217,7 @@ const AddPersonnel: React.FC = () => {
             <input
               type="text"
               value={newName}
-              onChange={(e) => setNewName(e.target.value)}
+              onChange={(e) => setNewName(e.target.value.trim())}
               className="w-full mt-1 border rounded-xl p-2"
               placeholder="Enter new member name"
             />
@@ -235,7 +234,7 @@ const AddPersonnel: React.FC = () => {
               type="text"
               placeholder="Khala / Paper Boy / Water Man"
               value={designation}
-              onChange={(e) => setDesignation(e.target.value)}
+              onChange={(e) => setDesignation(e.target.value.trim())}
               className="w-full mt-1 border rounded-xl p-2"
             />
           </div>
@@ -245,7 +244,7 @@ const AddPersonnel: React.FC = () => {
             <input
               type="text"
               value={newName}
-              onChange={(e) => setNewName(e.target.value)}
+              onChange={(e) => setNewName(e.target.value.trim())}
               className="w-full mt-1 border rounded-xl p-2"
               placeholder="Enter personnel name"
             />
@@ -260,7 +259,7 @@ const AddPersonnel: React.FC = () => {
           <input
             type="text"
             value={mobile}
-            onChange={(e) => setMobile(e.target.value)}
+            onChange={(e) => setMobile(e.target.value.trim())}
             className="w-full mt-1 border rounded-xl p-2"
             placeholder="01XXXXXXXXX"
           />
@@ -272,7 +271,7 @@ const AddPersonnel: React.FC = () => {
                 <input
                     type="text"
                     value={photo}
-                    onChange={(e) => setPhoto(e.target.value)}
+                    onChange={(e) => setPhoto(e.target.value.trim())}
                     className="w-full mt-1 border rounded-xl p-2"
                     placeholder="Optional"
                 />

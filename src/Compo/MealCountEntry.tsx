@@ -4,24 +4,18 @@ import toast, { Toaster } from "react-hot-toast";
 import Footer from "./Footer";
 import DataEntryWarning from "./DataEntryWarning";
 
-// Member list
-const members = [
-  "Ashik Ali",
-  "Ahmed Miraj",
-  "Mynul Islam",
-  "Tarikul Islam",
-  "Mohammad Ali",
-  "Jamal Ahmed",
-];
+
 
 interface MealEntry {
   [key: string]: string; // <-- store as string to allow fractions
 }
 interface ManagerStatus{managerStatus:boolean}
-
-const MealCountEntry:React.FC<ManagerStatus> = ({managerStatus}) => {
+interface MemberNameList{memberNameList:string[]}
+const MealCountEntry:React.FC<ManagerStatus & MemberNameList> = ({managerStatus, memberNameList}) => {
+  // const members = memberNameList; // 👉 replace with your real members
+  console.log(memberNameList);
   const [mealData, setMealData] = useState<MealEntry>(
-    members.reduce((acc, member) => ({ ...acc, [member]: "" }), {})
+    memberNameList.reduce((acc, member) => ({ ...acc, [member]: "" }), {})
   );
   const [date, setDate] = useState<string>(
     new Date().toISOString().split("T")[0] // default today
@@ -80,7 +74,7 @@ const MealCountEntry:React.FC<ManagerStatus> = ({managerStatus}) => {
           },
         });
         // Reset form
-        setMealData(members.reduce((acc, member) => ({ ...acc, [member]: "" }), {}));
+        setMealData(memberNameList.reduce((acc, member) => ({ ...acc, [member]: "" }), {}));
       } else {
         toast.error("Failed to submit meal counts.");
       }
@@ -151,7 +145,7 @@ const MealCountEntry:React.FC<ManagerStatus> = ({managerStatus}) => {
               />
             </div>
 
-            {members.map((member) => (
+            {memberNameList.map((member) => (
               <div key={member} className="flex justify-between items-center p-2 border-b border-gray-10">
                 <label className="text-sm font-medium">{member}</label>
                 <input

@@ -30,11 +30,13 @@ import AddPersonnel from "./AddPersonnel";
 
 interface Props {
   managerStatus: boolean;
+  memberNameList: string[];
 }
 
-export default function ManagerDashboard({ managerStatus }: Props) {
+export default function ManagerDashboard({ managerStatus, memberNameList }: Props) {
   const [active, setActive] = useState("dashboard");
   const [open, setOpen] = useState(false);
+  console.log(memberNameList);
 
   const menus = [
     { id: "dashboard", name: "Dashboard", icon: LayoutDashboard },
@@ -61,13 +63,13 @@ export default function ManagerDashboard({ managerStatus }: Props) {
   const renderPage = () => {
     switch (active) {
       case "bazar-cost":
-        return <EntryBazarCosts managerStatus={managerStatus} />;
+        return <EntryBazarCosts memberNameList={memberNameList} managerStatus={managerStatus} />;
       case "meal-entry":
-        return <MealCountEntry managerStatus={managerStatus} />;
+        return <MealCountEntry memberNameList={memberNameList} managerStatus={managerStatus} />;
       case "meal-deposit-entry":
-        return <EntryMealDeposit managerStatus={managerStatus} />;
+        return <EntryMealDeposit memberNameList={memberNameList} managerStatus={managerStatus} />;
       case "utility-deposit-entry":
-        return <EntryUtilityDeposit managerStatus={managerStatus} />;
+        return <EntryUtilityDeposit memberNameList={memberNameList} managerStatus={managerStatus} />;
       case "utility-costs-entry":
         return <UtilityCostEntry managerStatus={managerStatus} />;
       case "imanager":

@@ -4,20 +4,12 @@ import Footer from "./Footer";
 // import Header from "./Header";
 import DataEntryWarning from "./DataEntryWarning";
 
-// Example member list – replace or fetch dynamically
-const members = [
-  "Ashik Ali",
-  "Ahmed Miraj",
-  "Mynul Islam",
-  "Tarikul Islam",
-  "Mohammad Ali",
-  "Jamal Ahmed",
-];
 
 
 interface ManagerStatus{managerStatus:boolean}
+interface MemberNameList{memberNameList:string[]}
 
-const EntryMealDeposit:React.FC<ManagerStatus> = ({managerStatus})=> {
+const EntryMealDeposit:React.FC<ManagerStatus & MemberNameList> = ({managerStatus, memberNameList}) => {
   const [member, setMember] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
     const [loadingOnSubmit, setLoadingOnSubmit] = useState(false)
@@ -118,7 +110,7 @@ const EntryMealDeposit:React.FC<ManagerStatus> = ({managerStatus})=> {
                   onChange={(e) => setMember(e.target.value)}
                 >
                   <option value="">Select Member</option>
-                  {members.map((m) => (
+                  {memberNameList.map((m) => (
                     <option key={m} value={m}>
                       {m}
                     </option>
