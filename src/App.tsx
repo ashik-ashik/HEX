@@ -17,6 +17,7 @@ import ChangeManager from './Compo/NextManagerSelection';
 import ManagerDashboard from './Compo/ManagerDashboard';
 import PrivateRoute from './Compo/PrivateRoute';
 import Settlement_History from './Compo/Settlement_History';
+import AddPersonnel from './Compo/AddPersonnel';
 
 
 
@@ -322,6 +323,7 @@ type UtilityDeposit = {
         <Route path="/utility-deposit-entry" element={<PrivateRoute><EntryUtilityDeposit  managerStatus={managerStatus} /></PrivateRoute>} />
         <Route path="/postnotice" element={<NoticePost managerStatus={managerStatus} />} />
         <Route path="/imanager" element={<LoginAsManager managerStatus={managerStatus} />} />
+        <Route path="/addmember" element={<AddPersonnel />} />
         <Route path="/next-manager" element={<PrivateRoute><ChangeManager managerStatus={managerStatus} /></PrivateRoute>} />
         <Route path="/history" element={<Settlement_History  />} />
       </Routes>

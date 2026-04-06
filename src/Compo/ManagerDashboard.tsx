@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
     LayoutDashboard,
   Home,
-  Users,
+  UserCog,
   DollarSign,
   Wallet,
   Utensils,
@@ -14,6 +14,7 @@ import {
   ShoppingCart,
   Target,
   RefreshCcw,
+  UserRoundPlus,
 } from "lucide-react";
 import EntryBazarCosts from "./EntryBazarCosts";
 import MealCountEntry from "./MealCountEntry";
@@ -25,6 +26,7 @@ import UtilityCostEntry from "./EntryUtilityCosts";
 import { Link } from "react-router-dom";
 import SetFixedMeal from "./SetFixedMeal";
 import ResetMonth from "./ResetThisMonth";
+import AddPersonnel from "./AddPersonnel";
 
 interface Props {
   managerStatus: boolean;
@@ -41,7 +43,8 @@ export default function ManagerDashboard({ managerStatus }: Props) {
     { id: "meal-deposit-entry", name: "Meal Deposit", icon: DollarSign },
     { id: "utility-deposit-entry", name: "Utility Deposit", icon: Wallet },
     { id: "utility-costs-entry", name: "Utility Cost", icon: PieChart },
-    { id: "next-manager", name: "Make Manager", icon: Users },
+    { id: "add-member", name: "Add Member", icon: UserRoundPlus },
+    { id: "next-manager", name: "Change Manager", icon: UserCog },
     { id: "imanager", name: "PassKey", icon: Key },
     { id: "setfixedmeal", name: "Set Fixed Meal", icon: Target },
     { id: "resetmonth", name: "Reset Month", icon: RefreshCcw },
@@ -69,6 +72,8 @@ export default function ManagerDashboard({ managerStatus }: Props) {
         return <UtilityCostEntry managerStatus={managerStatus} />;
       case "imanager":
         return <LoginAsManager managerStatus={managerStatus} />;
+      case "add-member":
+        return <AddPersonnel />;
       case "next-manager":
         return <ChangeManager managerStatus={managerStatus} />;
       case "setfixedmeal":

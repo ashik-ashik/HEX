@@ -32,8 +32,7 @@ interface Notice {
   content: string;
 }
 
-const DATA_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTneJOLJfmCD5oT3Gj3V_av5H3w7vFrXKds18ZNlkVX4tssaF4TAVbz9En_ekLj8G9nb3RAiBjG8X3x/pub?gid=907502917&single=true&output=csv";
+const DATA_URL = import.meta.env.VITE_PERSONNEL_SHEET_READER;
 
 const Home: React.FC<HomeProps>  = ({ managerStatus, grandDeposit, totalBazar, utilityDeposits, utilityCosts, isLoading, notices }) => {
   const [members, setMembers] = useState<Person[]>([]);
