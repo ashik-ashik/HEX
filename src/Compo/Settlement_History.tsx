@@ -187,20 +187,20 @@ if (!history.length)
             {/* Content */}
             <div className="relative z-10 flex flex-col md:flex-row md:justify-between md:items-center">
                 {/* Title & Date */}
-                <div className="mb-4 md:mb-0">
-                <h2 className="text-xl lg:text-3xl font-bold mb-1">
-                    {lastMonth.month.replace(/,+$/g, "").trim()} Settlement Overview
-                </h2>
-                <p className="text-xs ">
-                    Last updated: {new Date(lastMonth.savedAt.replace(/,+$/g, "").trim()).toLocaleString("en-US", {
-                    weekday: "short",
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    })}
-                </p>
+                <div className="mb-3 md:mb-0">
+                  <h2 className="text-lg lg:text-3xl font-bold mb-1">
+                     Overview {lastMonth.month.replace(/,+$/g, "").trim()}
+                  </h2>
+                  <p className="text-xs ">
+                      Last updated: {new Date(lastMonth.savedAt.replace(/,+$/g, "").trim()).toLocaleString("en-US", {
+                      weekday: "short",
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      })}
+                  </p>
                 </div>
 
                 
@@ -211,9 +211,9 @@ if (!history.length)
         <p className="text-sm leading-relaxed text-justify">
             Last month, <span className="font-semibold">{totalMembers - absentMembers}</span> members actively participated in meals, {
                 absentMembers > 0 ? (
-                    <>while <span className="font-semibold">{absentMembers}</span> member(s) were absent.</>
+                    <> while <span className="font-semibold">{absentMembers}</span> member(s) were absent. </>
                 ) : (
-                    "with no absentees."
+                    " with no absentees."
                 )
             }
             Among the participants, 
@@ -239,58 +239,76 @@ if (!history.length)
 
         {history.map((h, idx) => (
             <div key={idx} className="border rounded-lg p-4 mb-6 shadow-sm bg-white/90">
-            <h3 className="text-xl font-semibold mb-1">
-            Settlement History: {h.month.replace(/,+$/g, "").trim()}
-            </h3>
-            <p className="text-sm text-gray-600 mb-2">
-            Data saved on: {new Date(h.savedAt.replace(/,+$/g, "").trim()).toLocaleString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-            })}
-            </p>
+              <div className="pb-3 border-b border-red-300 mb-4">
+                <h3 className="text-xl font-semibold mb-1">
+                  Settlement History: {h.month.replace(/,+$/g, "").trim().split("|")[0].trim()}
+                </h3>
+                {/* Manager Name */}
+                <h4 className="text-purple-500 text-sm">
+                  Managed by: {h.month.replace(/,+$/g, "").trim().split("|")[1]?.trim() || "Not Assigned"}
+                </h4>
+                <p className="text-sm text-green-400 mb-2">
+                Archived on: {new Date(h.savedAt.replace(/,+$/g, "").trim()).toLocaleString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                })}
+                </p>
+              </div>
 
             {/* SUMMARY */}
-            <div className="mt-4">
-                <h3 className="text-center font-bold text-sm mb-2">Summary</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4 text-xs">
-                    <div className="p-2 bg-gray-100/70 rounded">Total Deposit: {h.summary.totalDeposit}</div>
-                    <div className="p-2 bg-gray-100/70 rounded">Total Bazar: {h.summary.totalBazar}</div>
-                    <div className="p-2 bg-gray-100/70 rounded">Net Meal Balance: {h.summary.netMealBalance}</div>
-                    <div className="p-2 bg-gray-100/70 rounded">Utility Deposit: {h.summary.utilityDeposit}</div>
-                    <div className="p-2 bg-gray-100/70 rounded">Utility Cost: {h.summary.utilityCost}</div>
-                    <div className="p-2 bg-gray-100/70 rounded">Net Utility Balance: {h.summary.netUtilityBalance}</div>
-                </div>
+            <div className="mt-10 relative border rounded-lg border-green-500 p-4 pt-6 shadow-sm">
+              
+              {/* Title On Border */}
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-700 rounded px-3 text-xs font-semibold text-gray-50 py-1">
+                Deposits and Costs Summary
+              </span>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                <div className="p-2 bg-gray-100/70 rounded">Total Deposit: {h.summary.totalDeposit}</div>
+                <div className="p-2 bg-gray-100/70 rounded">Total Bazar: {h.summary.totalBazar}</div>
+                <div className="p-2 bg-gray-100/70 rounded">Net Meal Balance: {h.summary.netMealBalance}</div>
+                <div className="p-2 bg-gray-100/70 rounded">Utility Deposit: {h.summary.utilityDeposit}</div>
+                <div className="p-2 bg-gray-100/70 rounded">Utility Cost: {h.summary.utilityCost}</div>
+                <div className="p-2 bg-gray-100/70 rounded">Net Utility Balance: {h.summary.netUtilityBalance}</div>
+              </div>
+
             </div>
 
             {/* MEAL SUMMARY */}
-            <div className="mt-4">
-                <h3 className="text-center font-bold text-sm mb-2">Meal Summary</h3>
+            <div className="mt-10 relative border rounded-lg border-orange-500 p-4 pt-6 shadow-sm">
+              
+              {/* Title On Border */}
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-700 rounded px-3 text-xs font-semibold text-gray-50 py-1">
+                Meal Summary
+              </span>
                 <div className="grid grid-cols-3 gap-2 mb-2 text-xs">
                     <div className="p-2 bg-gray-100/70 rounded">Fixed Meal: {h.mealSummary.fixedMeal}</div>
                     <div className="p-2 bg-gray-100/70 rounded">Total Meal: {h.mealSummary.totalMeal}</div>
-                    <div className="p-2 bg-gray-100/70 rounded">Meal Rate: {h.mealSummary.mealRate.toFixed(2)}</div>
+                    <div className="p-2 bg-gray-100/70 rounded shadow-lg text-red-600">Meal Rate: <span className="font-bold">{h.mealSummary.mealRate.toFixed(2)}</span></div>
                 </div>
             </div>
 
             {/* MEMBER SETTLEMENT */}
-            <div className="mt-4">
-                <h3 className="text-center font-bold text-sm mb-2">Member Settlement</h3>
+            <div className="mt-10">
+              <div className="relative border-t border-purple-500 p-4 pt-2 rounded-lg">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-700 rounded px-3 text-xs font-semibold text-gray-50 py-1">Member Settlement</span>
+              </div>
                 {h.members.length > 0 && (
                     <div className="w-full overflow-x-auto">
                         <table className="w-full border-collapse border mt-2 text-sm min-w-[600px]">
                         <thead>
-                            <tr className="bg-gray-100">
-                            <th className="border px-2 py-1">Name</th>
-                            <th className="border px-2 py-1">Deposit</th>
-                            <th className="border px-2 py-1">Meals</th>
-                            <th className="border px-2 py-1">Meal Cost</th>
-                            <th className="border px-2 py-1">Balance</th>
-                            <th className="border px-2 py-1">Status</th>
+                            <tr className="bg-gray-100 text-left">
+                              <th className="border px-2 py-1">Member</th>
+                              <th className="border px-2 py-1">Deposit</th>
+                              <th className="border px-2 py-1">Meals</th>
+                              <th className="border px-2 py-1">Meal Cost</th>
+                              <th className="border px-2 py-1">Balance</th>
+                              <th className="border px-2 py-1">Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -303,7 +321,7 @@ if (!history.length)
                                     <td className="border px-2 py-1">{m.meals}</td>
                                     <td className="border px-2 py-1">{m.mealCost.toFixed(2)}</td>
                                     <td className="border px-2 py-1">{m.balance.toFixed(2)}</td>
-                                    <td className="border px-2 py-1">{m.status}</td>
+                                    <td className={`border px-2 py-1 ${m.balance < 0 ? 'text-red-500' : 'text-green-500'}`}>{m.status}</td>
                                     </tr>
                                 ))}
                         </tbody>

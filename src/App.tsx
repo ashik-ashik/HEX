@@ -55,9 +55,11 @@ interface Notice {
   content: string;
 }
 
+
 // ==============================================
 
 function App() {
+  const [managerThisMonth, setManagerThisMonth] = useState<string>("");;
   const [members, setMembers] = useState<MemberData[]>([]);
   const [grandDeposit, setGrandDeposit] = useState<number>(0);
   const [bazarData, setBazarData] = useState<BazarItem[]>([]);
@@ -273,14 +275,14 @@ type UtilityDeposit = {
 
   const memberNameList = members.map(member => member.name);
 
-
+ 
   // ======================================================
 
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home grandDeposit={grandDeposit} totalBazar={totalBazar} utilityDeposits={utilityDeposits}
+          <Route path="/" element={<Home setManagerThisMonth={setManagerThisMonth} grandDeposit={grandDeposit} totalBazar={totalBazar} utilityDeposits={utilityDeposits}
                 utilityCosts={utilityCosts} isLoading={isLoading} notices={notices} managerStatus={managerStatus} />} />
           <Route
             path="/dashboard"
@@ -311,6 +313,7 @@ type UtilityDeposit = {
             }
           />
           <Route path="/settlement" element={<PrivateRoute><SettlementPage
+            managerThisMonth={managerThisMonth} 
             members={members}
             mealData={mealData}
             grandDeposit={grandDeposit}
@@ -330,7 +333,7 @@ type UtilityDeposit = {
           <Route path="/imanager" element={<LoginAsManager managerStatus={managerStatus} />} />
           <Route path="/addmember" element={<AddPersonnel />} />
           <Route path="/next-manager" element={<PrivateRoute><ChangeManager managerStatus={managerStatus} /></PrivateRoute>} />
-          <Route path="/history" element={<Settlement_History  />} />
+          <Route path="/history" element={<Settlement_History />} />
         </Routes>
         <FloatingCalculator />
       </BrowserRouter>

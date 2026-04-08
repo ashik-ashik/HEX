@@ -24,7 +24,8 @@ interface HomeProps {
   utilityCosts: string[][];
   notices: Notice[];
   isLoading: boolean;
-  managerStatus: boolean
+  managerStatus: boolean;
+  setManagerThisMonth: React.Dispatch<React.SetStateAction<string>>;
 }
 
 interface Notice {
@@ -34,7 +35,7 @@ interface Notice {
 
 const DATA_URL = import.meta.env.VITE_PERSONNEL_SHEET_READER;
 
-const Home: React.FC<HomeProps>  = ({ managerStatus, grandDeposit, totalBazar, utilityDeposits, utilityCosts, isLoading, notices }) => {
+const Home: React.FC<HomeProps>  = ({setManagerThisMonth, managerStatus, grandDeposit, totalBazar, utilityDeposits, utilityCosts, isLoading, notices }) => {
   const [members, setMembers] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,6 +69,7 @@ const Home: React.FC<HomeProps>  = ({ managerStatus, grandDeposit, totalBazar, u
   const manager = members.find((m) =>
     m.designation?.toLowerCase().includes("manager")
   );
+  setManagerThisMonth(manager?.name || "N/A");
   const others = members.filter(
     (m) => !m.designation?.toLowerCase().includes("manager")
   );

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 import React, { useEffect, useState } from "react";
 import Header from "./Compo/Header";
 import Footer from "./Compo/Footer";
@@ -38,6 +37,7 @@ interface Props {
 
   grandTotalMeals: number;
   isLoading: boolean;
+  managerThisMonth: string;
 }
 
 const SettlementPage: React.FC<Props> = ({
@@ -48,6 +48,7 @@ const SettlementPage: React.FC<Props> = ({
   utilityDeposits,
   utilityCosts,
   isLoading,
+  managerThisMonth
   // grandTotalMeals,
 }) => {
   /**************************************
@@ -209,21 +210,16 @@ const handleSaveHistory = async () => {
               : "Will Receive",
         }));
     const contents= {
-      
-  totalDeposit: grandDeposit,
-  totalBazar: totalBazar,
-  netMealBalance: grandDeposit - totalBazar,
-
-  utilityDeposit: totalUtilityDeposit,
-  utilityCost: totalUtilityCost,
-  netUtilityBalance:
-    totalUtilityDeposit - totalUtilityCost,
-
-  fixedMeal: fixedMeals,
-  totalMeal: adjustedGrandTotalMeals,
-  mealRate: mealRate,
-
-  members: memberForHistory
+        totalDeposit: grandDeposit,
+        totalBazar: totalBazar,
+        netMealBalance: grandDeposit - totalBazar,
+        utilityDeposit: totalUtilityDeposit,
+        utilityCost: totalUtilityCost,
+        netUtilityBalance: totalUtilityDeposit - totalUtilityCost,
+        fixedMeal: fixedMeals,
+        totalMeal: adjustedGrandTotalMeals,
+        mealRate: mealRate,
+        members: memberForHistory
     }
 
 
@@ -240,7 +236,7 @@ const handleSaveHistory = async () => {
         },
         body: new URLSearchParams({
               type: "saveSummary",
-              month: month,
+              month: ` ${month} | ${managerThisMonth}`,
               contents: contents ? JSON.stringify(contents) : "",
               
             }),
@@ -275,7 +271,6 @@ const handleSaveHistory = async () => {
     setIsSavingHistory(false);
   }
 };
-
 
 
   /**************************************
@@ -342,7 +337,7 @@ className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
 
 {/* Title */}
 <h3 className="text-lg font-bold text-center text-gray-800 mb-2">
-Set Fixed Meal For This Month
+Set Fixed Meal For This Month <span className="text-sm">{managerThisMonth}</span>
 </h3>
 
 {/* Month */}
