@@ -10,6 +10,7 @@ import {
   Gauge,
   History,
   LucideCalculator,
+  Utensils,
 } from "lucide-react";
 
 const Header = () => {
@@ -43,6 +44,7 @@ const Header = () => {
   // ✅ Navigation Array
   const navLinks = [
     {name: "Home", path: "/", icon: Home},
+    {name: "Meal Plans", path: "/mealplans", icon: Utensils},
     {name: "Dashboard", path: "/dashboard", icon: LayoutDashboard},
     {name: "Utility", path: "/utility", icon: Wrench},
     {name: "History", path: "/history", icon: History},

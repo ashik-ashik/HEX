@@ -18,6 +18,7 @@ import ManagerDashboard from './Compo/ManagerDashboard';
 import PrivateRoute from './Compo/PrivateRoute';
 import Settlement_History from './Compo/Settlement_History';
 import AddPersonnel from './Compo/AddPersonnel';
+import MonthlyMealPlans from './Compo/MonthlyMealPlans';
 
 
 
@@ -284,6 +285,7 @@ type UtilityDeposit = {
         <Routes>
           <Route path="/" element={<Home setManagerThisMonth={setManagerThisMonth} grandDeposit={grandDeposit} totalBazar={totalBazar} utilityDeposits={utilityDeposits}
                 utilityCosts={utilityCosts} isLoading={isLoading} notices={notices} managerStatus={managerStatus} />} />
+          <Route path="/mealplans" element={<MonthlyMealPlans />} />
           <Route
             path="/dashboard"
             element={
