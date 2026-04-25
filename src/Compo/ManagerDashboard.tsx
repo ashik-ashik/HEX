@@ -6,11 +6,11 @@ import {
   DollarSign,
   Wallet,
   Utensils,
-  LogOut,
+  
   Menu,
   X,
   PieChart,
-  Key,
+  
   ShoppingCart,
   Target,
   RefreshCcw,
@@ -21,23 +21,26 @@ import MealCountEntry from "./MealCountEntry";
 import EntryMealDeposit from "./EntryMealDeposit";
 import ChangeManager from "./NextManagerSelection";
 import EntryUtilityDeposit from "./EntryUtilityDeposit";
-import LoginAsManager from "./LoginAsManager";
 import UtilityCostEntry from "./EntryUtilityCosts";
 import { Link } from "react-router-dom";
 import SetFixedMeal from "./SetFixedMeal";
 import ResetMonth from "./ResetThisMonth";
 import AddPersonnel from "./AddPersonnel";
+import useAuth from "../hooks/useAuth";
 
 interface Props {
   managerStatus: boolean;
   memberNameList: string[];
 }
+interface AuthContextType {
+  userRole: string | null;
+}
 
-export default function ManagerDashboard({ managerStatus, memberNameList }: Props) {
+export default function ManagerDashboard({ memberNameList }: Props) {
   const [active, setActive] = useState("dashboard");
   const [open, setOpen] = useState(false);
-  console.log(memberNameList);
-
+    const {userRole} = useAuth() as AuthContextType;
+    console.log(userRole)
   const menus = [
     { id: "dashboard", name: "Dashboard", icon: LayoutDashboard },
     { id: "bazar-cost", name: "Bazar Cost", icon: ShoppingCart },
@@ -47,7 +50,6 @@ export default function ManagerDashboard({ managerStatus, memberNameList }: Prop
     { id: "utility-costs-entry", name: "Utility Cost", icon: PieChart },
     { id: "add-member", name: "Add Member", icon: UserRoundPlus },
     { id: "next-manager", name: "Change Manager", icon: UserCog },
-    { id: "imanager", name: "PassKey", icon: Key },
     { id: "setfixedmeal", name: "Set Fixed Meal", icon: Target },
     { id: "resetmonth", name: "Reset Month", icon: RefreshCcw },
   ];
@@ -63,23 +65,21 @@ export default function ManagerDashboard({ managerStatus, memberNameList }: Prop
   const renderPage = () => {
     switch (active) {
       case "bazar-cost":
-        return <EntryBazarCosts memberNameList={memberNameList} managerStatus={managerStatus} />;
+        return <EntryBazarCosts memberNameList={memberNameList} />;
       case "meal-entry":
-        return <MealCountEntry memberNameList={memberNameList} managerStatus={managerStatus} />;
+        return <MealCountEntry memberNameList={memberNameList} />;
       case "meal-deposit-entry":
-        return <EntryMealDeposit memberNameList={memberNameList} managerStatus={managerStatus} />;
+        return <EntryMealDeposit memberNameList={memberNameList} />;
       case "utility-deposit-entry":
-        return <EntryUtilityDeposit memberNameList={memberNameList} managerStatus={managerStatus} />;
+        return <EntryUtilityDeposit memberNameList={memberNameList} />;
       case "utility-costs-entry":
-        return <UtilityCostEntry managerStatus={managerStatus} />;
-      case "imanager":
-        return <LoginAsManager managerStatus={managerStatus} />;
+        return <UtilityCostEntry />;
       case "add-member":
         return <AddPersonnel />;
       case "next-manager":
-        return <ChangeManager managerStatus={managerStatus} />;
+        return <ChangeManager />;
       case "setfixedmeal":
-        return <SetFixedMeal managerStatus={managerStatus} />;
+        return <SetFixedMeal />;
       case "resetmonth":
         return <ResetMonth  />;
       
@@ -149,13 +149,6 @@ export default function ManagerDashboard({ managerStatus, memberNameList }: Prop
     }
   };
 
-  const logOutofManager = () => {
-    sessionStorage.setItem("authenticManager",'Fake People');
-    // optional redirect
-        setTimeout(() => {
-          window.location.href = "/"; // change if needed
-        }, 1000);
-  }
 
   return (
     <>
@@ -214,12 +207,7 @@ export default function ManagerDashboard({ managerStatus, memberNameList }: Prop
             })}
             </div>
 
-            <div className="p-4">
-            <button onClick={logOutofManager} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 text-red-500">
-                <LogOut size={18} />
-                Logout
-            </button>
-            </div>
+            
         </div>
 
         {/* Content */}

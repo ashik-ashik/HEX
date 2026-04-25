@@ -10,9 +10,8 @@ interface NoticeData {
   content: string;
   type: string;
 }
-interface ManagerStatus{managerStatus:boolean}
 
-const NoticePost: React.FC <ManagerStatus>= ({managerStatus}) => {
+const NoticePost = () => {
   const [notice, setNotice] = useState<NoticeData>({ title: "", content: "", type:"Notice" });
   const [loading, setLoading] = useState(false);
 
@@ -105,7 +104,7 @@ const NoticePost: React.FC <ManagerStatus>= ({managerStatus}) => {
             }} />
         </div>
 
-        <DataEntryWarning managerStatus={managerStatus} />
+        <DataEntryWarning />
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Notice Title</label>

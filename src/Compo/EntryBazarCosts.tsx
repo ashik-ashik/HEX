@@ -4,6 +4,7 @@ import toast, { Toaster } from "react-hot-toast";
 // import Header from "./Header";
 import Footer from "./Footer";
 import DataEntryWarning from "./DataEntryWarning";
+import useAuth from "../hooks/useAuth";
 
 type FormData = {
   type: string,
@@ -16,9 +17,11 @@ type FormData = {
 
 // bazacost entry api
 const EnsertBazarCostsAPI = import.meta.env.VITE_INSERT_BAZAR_COSTS_API;
-interface ManagerStatus{managerStatus:boolean}
+interface AuthContextType {
+  userRole: string | null;
+}
 interface MemberNameList{memberNameList:string[]}
-const EntryBazarCosts:React.FC<ManagerStatus & MemberNameList> = ({managerStatus, memberNameList}) => {
+const EntryBazarCosts:React.FC< MemberNameList> = ({ memberNameList}) => {
 
   const members = memberNameList; // 👉 replace with your real members
   const [formData, setFormData] = useState<FormData>({
@@ -27,6 +30,7 @@ const EntryBazarCosts:React.FC<ManagerStatus & MemberNameList> = ({managerStatus
     doer: "",
     amount: "",
   });
+    const {userRole} = useAuth() as AuthContextType;
 
   const [loadingOnSubmit, setLoadingOnSubmit] = useState(false);
 
@@ -137,10 +141,10 @@ const EntryBazarCosts:React.FC<ManagerStatus & MemberNameList> = ({managerStatus
         </h2>
 
         {/* Warning */}
-        <DataEntryWarning managerStatus={managerStatus} />
+        <DataEntryWarning  />
 
         {
-          managerStatus && 
+          userRole && 
           <>
           
           {/* Form */}

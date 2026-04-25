@@ -10,26 +10,24 @@ import {
   Gauge,
   History,
   LucideCalculator,
-  Utensils,
+  UserCheck,
+  HomeIcon,
 } from "lucide-react";
+import useAuth from "../hooks/useAuth";
+
+
+interface AuthContextType {
+  userRole: string | null;
+}
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [managerStatus, setManagerStatus] = useState(false);
-
+  const {userRole} = useAuth() as AuthContextType;
   
   useEffect(() => {
     const tracManagerStatus = () => {
-      // track manager
-      const isManager = sessionStorage.getItem("authenticManager");
-      if(isManager === "This guy is authentic manager of HEX House"){
-        setManagerStatus(true);
-      }else{
-        setManagerStatus(false);
-      }
-    };
-    tracManagerStatus();
+     
 
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
@@ -37,14 +35,15 @@ const Header = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }
 
+  tracManagerStatus();
     
-  }, [managerStatus]);
+  }, []);
 
   // ✅ Navigation Array
-  const navLinks = [
+  const navLinks =  [
     {name: "Home", path: "/", icon: Home},
-    {name: "Meal Plans", path: "/mealplans", icon: Utensils},
     {name: "Dashboard", path: "/dashboard", icon: LayoutDashboard},
     {name: "Utility", path: "/utility", icon: Wrench},
     {name: "History", path: "/history", icon: History},
@@ -57,6 +56,7 @@ const Header = () => {
         : "text-gray-700 hover:text-blue-600"
     }`;
 
+    console.log(userRole)
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 
@@ -83,7 +83,7 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6 text-xs font-medium">
-          {navLinks.map((link, index) => {
+          {userRole && navLinks.map((link, index) => {
             return (
               <NavLink
                 key={index}
@@ -97,20 +97,39 @@ const Header = () => {
             );
           })}
           {
-            managerStatus ? (<>
+            userRole ==='manager' ? (<>
               <NavLink to="/settlement" className={navLinkClass}>
                 Settlement
               </NavLink>
               <NavLink to="/manager" className={navLinkClass}>
                 Manager Panel
               </NavLink>
-              </>
-            ) : (
-              <NavLink to="/imanager" className={navLinkClass}>
-                <LogIn size={12} />
-                I'm Manager
+              <NavLink to="/login" className={navLinkClass}>
+                <UserCheck size={12} />
+                
               </NavLink>
-            )
+              </>
+            ) : userRole ==='member' ?(
+              <NavLink to="/login" className={navLinkClass}>
+                <UserCheck size={12} />
+                
+              </NavLink>
+            ):
+             userRole !== "member" ? userRole !== "manager" &&(
+              <>
+              <NavLink to="/" className={navLinkClass}>
+                <HomeIcon size={16} />
+                
+              </NavLink>
+              <NavLink to="/login" className={navLinkClass}>
+                <LogIn size={16} />
+                
+              </NavLink>
+              </>
+            
+            ):<></>
+
+            
           }
         </nav>
 
@@ -131,7 +150,7 @@ const Header = () => {
         bg-white shadow-md`}
       >
         <nav className="flex flex-col px-6 py-4 gap-4 text-sm font-medium">
-          {navLinks.map((link, index) => {
+          {userRole ==='member' || userRole ==='manager' && navLinks.map((link, index) => {
             const Icon = link.icon;
             return (
               <NavLink
@@ -147,7 +166,7 @@ const Header = () => {
             );
           })}
           {
-            managerStatus ? (<>
+            userRole ==='manager' ? (<>
               <NavLink to="/settlement" className={navLinkClass}>
                 <LucideCalculator size={14} />
                 Settlement
@@ -156,13 +175,23 @@ const Header = () => {
                 <Gauge size={14} />
                 Manager Panel
               </NavLink>
-              </>
-            ) : (
-              <NavLink to="/imanager" className={navLinkClass}>
-                <LogIn size={14} />
-                I'm Manager
+              <NavLink to="/login" className={navLinkClass}>
+                <UserCheck size={12} />
               </NavLink>
-            )
+              </>
+            ) : userRole !=='member' ? userRole !== "manager" &&(
+              <>
+              <NavLink to="/" className={navLinkClass}>
+                <LogIn size={16} />
+                
+              </NavLink>
+              <NavLink to="/login" className={navLinkClass}>
+                <LogIn size={16} />
+                
+              </NavLink>
+              </>
+            
+            ):<></>
           }
         </nav>
       </div>

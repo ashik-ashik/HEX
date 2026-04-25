@@ -1,13 +1,17 @@
-import React from "react";
 import { AlertTriangle } from "lucide-react";
+import useAuth from "../hooks/useAuth";
 
-interface ManagerStatus{managerStatus:boolean}
-const DataEntryWarning:React.FC<ManagerStatus> = ({managerStatus}) => {
+interface AuthContextType {
+  userRole: string | null;
+}
+
+const DataEntryWarning = () => {
+    const {userRole} = useAuth() as AuthContextType;
   return (
     <div className="flex items-start gap-3 p-4 mb-5 rounded-xl border border-yellow-300 bg-red-50 shadow-sm">
       
       {
-        managerStatus ? <>
+        userRole === "manager" ? <>
           {/* Icon */}
           <div className="mt-1 text-orange-600">
             <AlertTriangle size={20} />

@@ -4,16 +4,20 @@ import toast, { Toaster } from "react-hot-toast";
 // import Header from "./Header";
 import Footer from "./Footer";
 import DataEntryWarning from "./DataEntryWarning";
+import useAuth from "../hooks/useAuth";
 
 
-interface ManagerStatus{managerStatus:boolean}
+interface AuthContextType {
+  userRole: string | null;
+}
 interface MemberNameList{memberNameList:string[]}
 
 
-const EntryUtilityDeposit: React.FC<ManagerStatus & MemberNameList> = ({managerStatus, memberNameList}) => {
+const EntryUtilityDeposit: React.FC< MemberNameList> = ({ memberNameList}) => {
   const [member, setMember] = useState("");
   const [amount, setAmount] = useState("");
-  const [loadingOnSubmit, setLoadingOnSubmit] = useState(false)
+  const [loadingOnSubmit, setLoadingOnSubmit] = useState(false);
+    const {userRole} = useAuth() as AuthContextType;
   
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -116,10 +120,10 @@ const EntryUtilityDeposit: React.FC<ManagerStatus & MemberNameList> = ({managerS
                 </h2>
 
                 {/* Warning */}
-                <DataEntryWarning managerStatus={managerStatus} />
+                <DataEntryWarning />
 
                 {
-                  managerStatus && <>
+                  userRole === 'manager' && <>
                   
                   <form onSubmit={handleSubmit} className="space-y-4">
                       {/* Member Select */}

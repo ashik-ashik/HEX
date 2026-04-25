@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import Header from "./Header";
+import useAuth from "../hooks/useAuth";
 
 // Type for each deposit item
 export type UtilityDeposit = {
@@ -24,7 +25,6 @@ interface HomeProps {
   utilityCosts: string[][];
   notices: Notice[];
   isLoading: boolean;
-  managerStatus: boolean;
   setManagerThisMonth: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -32,12 +32,28 @@ interface Notice {
   title: string;
   content: string;
 }
+interface UserItem {
+  type:string;
+  email: string;
+  role: string;
+  name: string;
+  photoURL:string;
+  uid	:string;
+  emailVerified:string;
+  phoneNumber:string;
+  provider:string;
+  lastLoginAt:string;
+}
 
 const DATA_URL = import.meta.env.VITE_PERSONNEL_SHEET_READER;
 
-const Home: React.FC<HomeProps>  = ({setManagerThisMonth, managerStatus, grandDeposit, totalBazar, utilityDeposits, utilityCosts, isLoading, notices }) => {
+const OverviewHex: React.FC<HomeProps>  = ({setManagerThisMonth, grandDeposit, totalBazar, utilityDeposits, utilityCosts, isLoading, notices }) => {
   const [members, setMembers] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
+  const {usersList, userRole} = useAuth() as {
+    usersList: UserItem[];
+    userRole: string;
+  };
 
   useEffect(() => {
 
@@ -66,13 +82,12 @@ const Home: React.FC<HomeProps>  = ({setManagerThisMonth, managerStatus, grandDe
 
 }, []);
 
-  const manager = members.find((m) =>
-    m.designation?.toLowerCase().includes("manager")
+  const manager = usersList.find((m) =>
+    m.role === 'manager'
   );
   setManagerThisMonth(manager?.name || "N/A");
-  const others = members.filter(
-    (m) => !m.designation?.toLowerCase().includes("manager")
-  );
+
+
 
 
   // ===== Utility Deposit Calculation =====
@@ -169,12 +184,7 @@ const finalNotices = systemNotice
               Dashboard
             </Link>
 
-            {!managerStatus ? <Link
-              to="/utility"
-              className="backdrop-blur-sm border border-blue-600/30 text-blue-600 hover:bg-blue-50/10 px-12 py-2 rounded-lg font-medium transition text-xs md:text-sm"
-            >
-              Utility
-            </Link> :
+            {userRole === 'manager' ? 
             <>
             <Link
               to="/manager"
@@ -182,7 +192,13 @@ const finalNotices = systemNotice
             >
               Manager Dsahboard
             </Link>
-            </>
+            </> :
+            <Link
+              to="/utility"
+              className="backdrop-blur-sm border border-blue-600/30 text-blue-600 hover:bg-blue-50/10 px-12 py-2 rounded-lg font-medium transition text-xs md:text-sm"
+            >
+              Utility
+            </Link>
           }
           </div>
         </div>
@@ -391,48 +407,30 @@ const finalNotices = systemNotice
               {/* Manager Card */}
               {manager && (
                 <div className="mb-12">
-  <div className="relative overflow-hidden rounded-3xl shadow-xl border border-gray-200 backdrop-blur-sm bg-gradient-to-br from-slate-800/20 via-slate-900/50 to-blue-900/60 text-white p-10">
+                <div className="max-w-3xl mx-auto relative overflow-hidden rounded-3xl shadow-xl border border-gray-200 backdrop-blur-sm bg-gradient-to-br from-slate-800/20 via-slate-900/50 to-blue-900/60 text-white p-10">
 
-    {/* Top Accent Line */}
-    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400"></div>
+                  {/* Top Accent Line */}
+                  <div className="absolute top-0 left-0 max-w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400"></div>
 
-    <div className="flex flex-col md:flex-row items-center md:justify-between gap-4">
 
-      {/* Left Section */}
-      <div className="flex flex-col items-center md:items-start gap-4">
-        <img src={manager.photo} className="w-20 h-20 sm:w-32 sm:h-32 rounded-full object-cover mb-2" />
-        <span className="inline-block text-xs font-semibold tracking-widest uppercase bg-blue-800/40 text-white-100 px-12 py-1 rounded-full mb-2">
-          {manager.designation}
-        </span>
+                    {/* Left Section */}
+                    <div className="flex flex-col items-center justify-center text-center gap-4">
+                      <img src={manager?.photoURL} className="w-20 h-20 sm:w-32 sm:h-32 rounded-full object-cover mb-2" />
+                      <span className="inline-block text-xs font-semibold tracking-widest uppercase bg-blue-800/40 text-white-100 px-12 py-1 rounded-full mb-2">
+                        {manager?.role}
+                      </span>
 
-        <h3 className="text-3xl md:text-4xl font-bold tracking-tight mb-1">
-          {manager.name}
-        </h3>
+                      <h3 className="text-3xl md:text-4xl font-bold tracking-tight mb-1">
+                        {manager.name}
+                      </h3>
 
-        <p className="text-gray-100 text-sm max-w-md text-center md:text-left">
-          Responsible for managing monthly meals, expenses, and overall coordination of The Hex Bachelor House operations.
-        </p>
-      </div>
+                      <p className="text-gray-100 text-sm max-w-md text-center md:text-left">
+                        Responsible for managing monthly meals, expenses, and overall coordination of The Hex Bachelor House operations.
+                      </p>
+                    </div>
 
-      {/* Right Section */}
-      {manager.mobile && (
-        <div className="flex flex-col items-center md:items-end gap-3">
-          <p className="text-sm text-gray-100 uppercase tracking-wide">
-            Contact
-          </p>
-
-          <a
-            href={`tel:+880${manager.mobile}`}
-            className="inline-flex items-center tracking-wide gap-2 bg-white text-slate-700 font-semibold px-12 py-2 rounded-xl hover:bg-gray-200 transition shadow-md"
-          >
-            📞 0{manager.mobile}
-          </a>
-        </div>
-      )}
-
-    </div>
-  </div>
-</div>
+                    </div>
+              </div>
               )}
 
               {/* Other Members */}
@@ -440,10 +438,10 @@ const finalNotices = systemNotice
                 <div className="col-span-full text-center text-green-900 italic text-sm py-2 backdrop-blur-sm bg-white-700/10 rounded-xl shadow-md border border-gray-400/10">
                       Essential Members
                     </div>
-                {others.map((person, index) => (
+                {members.map((person, index) => (
                   <>
                   {
-                    index === 5 && <div key={index} className="col-span-full text-center text-green-900 italic text-sm py-2 backdrop-blur-sm bg-white-700/10 rounded-xl shadow-md border border-gray-400/10">
+                    index === 6 && <div key={index} className="col-span-full text-center text-green-900 italic text-sm py-2 backdrop-blur-sm bg-white-700/10 rounded-xl shadow-md border border-gray-400/10">
                       Essential Service Providers
                     </div>
                   }
@@ -509,7 +507,7 @@ const finalNotices = systemNotice
   );
 };
 
-export default Home;
+export default OverviewHex;
 
 /* ---------------- Components ---------------- */
 

@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Calendar, Utensils, Save, CheckCircle, RotateCcw } from "lucide-react";
+import useAuth from "../hooks/useAuth";
 
-interface Props {
-  managerStatus: boolean;
+interface AuthContextType {
+  userRole: string | null;
 }
 
-const SetFixedMeal: React.FC<Props> = ({ managerStatus }) => {
-
+const SetFixedMeal= () => {
+    const {userRole} = useAuth() as AuthContextType;
   // Current Month
   const currentMonth = new Date().toLocaleString("default", {
     month: "long",
@@ -30,7 +31,7 @@ const SetFixedMeal: React.FC<Props> = ({ managerStatus }) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!managerStatus) {
+    if (userRole !== 'manager') {
       toast.error("Only manager can set fixed meal");
       return;
     }
@@ -56,7 +57,7 @@ const SetFixedMeal: React.FC<Props> = ({ managerStatus }) => {
 
   // Reset Handler
   const handleReset = () => {
-    if (!managerStatus) {
+    if (userRole !== "manager") {
       toast.error("Only manager can reset fixed meal");
       return;
     }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   ShieldCheck,
@@ -6,34 +6,28 @@ import {
   LayoutDashboard,
   Sparkles
 } from "lucide-react";
+import useAuth from "../hooks/useAuth";
 
 const Footer: React.FC = () => {
   const location = useLocation();
-  const [managerStatus, setManagerStatus] = useState(false);
+  const {userRole} = useAuth() as {
+    userRole: string;
+  };
 
-  useEffect(() => {
-    const tracManagerStatus = () => {
-      const isManager =
-      sessionStorage.getItem("authenticManager") ===
-      "This guy is authentic manager of HEX House";
 
-    setManagerStatus(isManager);
-    };
-    tracManagerStatus();
-  }, []);
 
   // Dynamic Links
   const links = [
     
-    managerStatus
+    userRole === 'manager'
       ? {
           name: "Manager Dashboard",
           path: "/dashboard",
           icon: LayoutDashboard
         }
       : {
-          name: "I'm Manager",
-          path: "/imanager",
+          name: "Login",
+          path: "/login",
           icon: LogIn
         }
   ];
@@ -83,9 +77,9 @@ const Footer: React.FC = () => {
           <div className="flex items-center gap-1 text-[11px] text-gray-500">
             <ShieldCheck
               size={14}
-              className={managerStatus ? "text-green-500" : "text-gray-400"}
+              className={userRole === 'manager' ? "text-green-500" : "text-gray-400"}
             />
-            {managerStatus ? "Manager Mode" : "Member Mode"}
+            {userRole === 'manager' ? "Manager Mode" : "Member Mode"}
           </div>
 
         </div>

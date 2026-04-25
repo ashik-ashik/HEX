@@ -1,233 +1,298 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
-// import Header from "./Header";
-import Footer from "./Footer";
+import React, { type FormEvent, useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import { FaEnvelope, FaUserShield, FaPaperPlane, FaUser } from "react-icons/fa";
+import useAuth from "../hooks/useAuth";
 
-const API_URL = import.meta.env.VITE_CHANGE_MANAGER_API;
+type RoleType = "member" | "manager";
 
-interface Member {
-  designation: string;
+interface UserItem {
+  type:string;
+  email: string;
+  role: string;
   name: string;
-  mobile: string;
-  photo?: string;
+  photoURL:string;
+  uid	:string;
+  emailVerified:string;
+  phoneNumber:string;
+  provider:string;
+  lastLoginAt:string;
 }
-interface ManagerStatus {
-    managerStatus: boolean
-}
 
-const ChangeManager:React.FC<ManagerStatus> = ({managerStatus}) => {
-  const [members, setMembers] = useState<Member[]>([]);
-  const [selected, setSelected] = useState("");
-  const [currentManager, setCurrentManager] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [confirm, setConfirm] = useState(false);
 
-  /***************************************
- * Fetch Members (CSV)
- ***************************************/
-  useEffect(() => {
+const UpdateUserRole: React.FC = () => {
+  const [email, setEmail] = useState<string>("");
+  const [role, setRole] = useState<RoleType>("member");
+  const [rolePostLoading, setRolePostLoading] = useState<boolean>(false);
 
-const fetchMembers = async () => {
+const { usersList, userIsLoading, setUsersList, user } = useAuth() as {
+    usersList: UserItem[];
+    userIsLoading: boolean;
+    setUsersList: React.Dispatch<React.SetStateAction<UserItem[]>>;
+    user: {
+      email?: string;
+    };
+  };
+
+console.log(usersList, userIsLoading)
+
+  const API_URL = import.meta.env.VITE_USER_SHEET_WRITE_URL as string;
+
+
+  const currentManagerEmail = user?.email || "";
+
+  /**
+   * Filter users:
+   * - remove current manager himself
+   * - keep all other members/users
+   * - reverse for latest-first style
+   */
+  const filteredUsers = useMemo(() => {
+    return [...(usersList || [])]
+      .filter(
+        (item: UserItem) =>
+          item.email &&
+          item.email !== currentManagerEmail
+      )
+      .reverse();
+  }, [usersList, currentManagerEmail]);
+
+  /**
+   * Selected user details
+   */
+  const selectedUser = useMemo(() => {
+    return filteredUsers.find(
+      (item: UserItem) => item.email === email
+    );
+  }, [email, filteredUsers]);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+
+  if (!email) {
+    return toast.error("Please select a user email");
+  }
+
+  if (!role) {
+    return toast.error("Please select a role");
+  }
+
+  if (!API_URL) {
+    return toast.error("API URL is missing");
+  }
+
+  setRolePostLoading(true);
+
+  const toastId = toast.loading("Updating user role...");
+
   try {
-    const res = await fetch(
-      import.meta.env.VITE_CURRENT_MANAGER_FINDER_IN_NEXT_MANAGER_SELECTION
-    );
+    const params = new URLSearchParams();
+    params.append("type", "userRole");
+    params.append("email", email);
+    params.append("role", role);
 
-    const csvText = await res.text();
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
+    });
 
-    const rows = csvText.split("\n").map((row) => row.split(","));
+    const rawText = await response.text();
 
-    // Remove header
-    const data = rows.slice(1);
-
-    const parsedMembers: Member[] = data
-      .filter((row) => row[1]) // remove empty rows
-      .map((row) => ({
-        designation: row[0]?.trim(),
-        name: row[1]?.trim(),
-        mobile: row[2]?.trim(),
-        photo: row[3]?.trim(),
-      }));
-
-    setMembers(parsedMembers);
-
-    const manager = parsedMembers.find(
-      (m) => m.designation === "Manager"
-    );
-
-    if (manager) {
-      setCurrentManager(manager.name);
+    if (!rawText) {
+      throw new Error("Empty server response");
     }
 
-  } catch (err) {
-    toast.error("Failed to load members");
-  }
-};
+    let data: {
+      status?: string;
+      message?: string;
+    };
 
-    fetchMembers();
-  }, []);
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      throw new Error("Server returned invalid JSON response");
+    }
 
-  /***************************************
-   * Change Manager
-   ***************************************/
-  const handleChangeManager = async () => {
-    if (!selected) {
-      toast.error("Please select a member");
+    // Success conditions
+    if (
+      response.ok &&
+      (data?.status === "success" ||
+        data?.status === "updated" ||
+        !data?.status)
+    ) {
+      // update local usersList immediately
+      setUsersList((prev: UserItem[]) =>
+        prev.map((user) =>
+          user.email === email
+            ? { ...user, role: role }
+            : user
+        )
+      );
+      setEmail("");
+      setRole("member");
+
+      toast.success(
+        data?.message || "User role updated successfully!",
+        {
+          id: toastId,
+        }
+      );
+
       return;
     }
 
-    setLoading(true);
-
-    const toastId = toast.loading("Changing Manager...");
-
-    try {
-      const body = new URLSearchParams();
-
-        body.append("type", "changeManager");
-        body.append("name", selected);
-
-
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-        body: body,
-      });
-
-      const data = await res.json();
-
-      if (data.status === "success") {
-        toast.success(data.message, { id: toastId });
-        setConfirm(false);
-        setCurrentManager(selected);
-        setSelected("");
-      } else {
-        toast.error(data.message, { id: toastId });
-      }
-    } catch (error) {
-      toast.error("Something went wrong", { id: toastId });
+    // Server-side handled error
+    if (data?.status === "error") {
+      throw new Error(data?.message || "Failed to update role");
     }
 
-    setLoading(false);
-  };
+    // HTTP failure fallback
+    if (response.ok && data?.status !== "error") {
+      setUsersList((prev: UserItem[]) =>
+          prev.map((item) =>
+            item.email === email
+              ? {
+                  ...item,
+                  role,
+                }
+              : item
+          )
+        );
+      setEmail("");
+      setRole("member");
+
+      toast.success(
+        data?.message || "User role updated successfully!",
+        {
+          id: toastId,
+        }
+      );
+
+      return;
+    }
+
+    throw new Error("Unexpected response from server");
+  } catch (error) {
+    const err = error as Error;
+
+    console.error("Update role error:", err);
+
+    toast.error(
+      err.message || "Something went wrong while updating role",
+      {
+        id: toastId,
+      }
+    );
+  } finally {
+    setRolePostLoading(false);
+  }
+};
+
+
+
+  if (userIsLoading) {
+    return (
+      <div>
+        <h2>Loading...</h2>
+      </div>
+    );
+  }
 
   return (
+    <div className="max-w-xl mx-auto mt-10 bg-white shadow-lg rounded-2xl p-6 border">
+      {/* Header */}
+      <div className="mb-6 text-center">
+        <h2 className="text-2xl font-bold text-gray-800">
+          Update User Role
+        </h2>
 
-    <>
-        {/* <Header /> */}
+        <p className="text-sm text-gray-500 mt-1">
+          Assign or change user access level in the
+          system
+        </p>
+      </div>
 
-        <section className="backdrop-blur-sm bg-black/50 py-20 p-2">
-          <div className="min-h-[62vh] lg:min-h-screen">
-            <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-lg">
-            <Toaster
-                position="top-right"
-                containerStyle={{
-                top: 100,
-                right: 20,
-                }}
-            />
+      {/* Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-5"
+      >
+        {/* Email Select */}
+        <div className="relative">
+          <FaEnvelope className="absolute left-3 top-3.5 text-gray-400" />
 
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-                Change Manager
-            </h2>
-
-            {/* Current Manager */}
-            <div className="mb-6 p-4 bg-green-50 rounded-xl border border-green-200">
-                <p className="text-sm text-gray-500">Current Manager</p>
-
-                <div className="flex items-center gap-3 mt-2">
-                <div className="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold">
-                    {currentManager?.charAt(0)}
-                </div>
-
-                <span className="font-semibold text-gray-800">
-                    {currentManager || "Loading..."}
-                </span>
-                </div>
-            </div>
-
-            {/* Select Member */}
-
-            {
-                managerStatus ? <>
-                <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-600 mb-2">
-                    Select New Manager
-                    </label>
-
-                    <select
-                    value={selected}
-                    onChange={(e) => setSelected(e.target.value)}
-                    className="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500"
-                    >
-                    <option value="">Choose Member</option>
-
-                    {members
-                        .slice(0, 6)
-                        .filter((m) => m.designation !== "Manager")
-                        .map((member, index) => (
-                        <option key={index} value={member.name}>
-                            {member.name.trim()}
-                        </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Button */}
-                <button
-                    onClick={() => setConfirm(true)}
-                    disabled={!selected || loading}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-semibold transition"
-                >
-                    Change Manager
-                </button>
-                
-                </> : <>
-                
-                </>
+          <select
+            value={email}
+            onChange={(e) =>
+              setEmail(e.target.value)
             }
+            className="w-full pl-10 pr-3 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="">
+              Select member
+            </option>
 
-            {/* Confirm Modal */}
-            {confirm && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-                <div className="bg-white p-6 rounded-2xl shadow-xl w-96">
-                    <h3 className="text-lg font-semibold mb-3">
-                    Confirm Change
-                    </h3>
-
-                    <p className="text-gray-600 mb-5">
-                    Are you sure you want to make{" "}
-                    <span className="font-semibold">{selected}</span>{" "}
-                    as new manager?
-                    </p>
-
-                    <div className="flex justify-end gap-3">
-                    <button
-                        onClick={() => setConfirm(false)}
-                        className="px-4 py-2 rounded-md text-xs border"
-                    >
-                        Cancel
-                    </button>
-
-                    <button
-                        onClick={handleChangeManager}
-                        className="px-4 py-2 bg-orange-600 text-white rounded-md text-xs"
-                    >
-                        Confirm
-                    </button>
-                    </div>
-                </div>
-                </div>
+            {filteredUsers.map(
+              (item: UserItem, index: number) => (
+                <option
+                  key={index}
+                  value={item.email}
+                >
+                  {item.name || item.email}
+                </option>
+              )
             )}
-            </div>
-          </div>
-        </section>
+          </select>
+        </div>
 
-        <Footer />
-    </>
+        {/* Selected User Name Output */}
+        <div className="relative">
+          <FaUser className="absolute left-3 top-3.5 text-gray-400" />
+
+          <div className="w-full pl-10 pr-3 py-2.5 border rounded-lg bg-gray-50 text-gray-700 min-h-[46px] flex items-center">
+            {selectedUser?.email || "Selected user Email will appear here"}
+          </div>
+        </div>
+
+        {/* Role Select */}
+        <div className="relative">
+          <FaUserShield className="absolute left-3 top-3.5 text-gray-400" />
+
+          <select
+            value={role}
+            onChange={(e) =>
+              setRole(
+                e.target.value as RoleType
+              )
+            }
+            className="w-full pl-10 pr-3 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="member">
+              Member
+            </option>
+            <option value="manager">
+              Manager
+            </option>
+          </select>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={rolePostLoading}
+          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-60"
+        >
+          <FaPaperPlane />
+
+          {rolePostLoading
+            ? "Updating..."
+            : "Update Role"}
+        </button>
+      </form>
+    </div>
   );
 };
 
-export default ChangeManager;
+export default UpdateUserRole;

@@ -3,12 +3,16 @@ import toast, { Toaster } from "react-hot-toast";
 import Footer from "./Footer";
 // import Header from "./Header";
 import DataEntryWarning from "./DataEntryWarning";
-interface ManagerStatus{managerStatus:boolean}
+import useAuth from "../hooks/useAuth";
+interface AuthContextType {
+  userRole: string | null;
+}
 
-const UtilityCostEntry:React.FC<ManagerStatus> = ({managerStatus}) => {
+const UtilityCostEntry = () => {
   const [costSection, setCostSection] = useState("");
   const [amount, setAmount] = useState("");
-  const [loadingOnSubmit, setLoadingOnSubmit] = useState(false)
+  const [loadingOnSubmit, setLoadingOnSubmit] = useState(false);
+    const {userRole} = useAuth() as AuthContextType;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,10 +101,10 @@ const UtilityCostEntry:React.FC<ManagerStatus> = ({managerStatus}) => {
             Add Utility Cost
           </h2>
           {/* warning */}
-          <DataEntryWarning managerStatus={managerStatus} />
+          <DataEntryWarning />
 
           {
-            managerStatus && <>
+            userRole === 'manager' && <>
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

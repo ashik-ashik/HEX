@@ -3,15 +3,18 @@ import toast, { Toaster } from "react-hot-toast";
 // import Header from "./Header";
 import Footer from "./Footer";
 import DataEntryWarning from "./DataEntryWarning";
+import useAuth from "../hooks/useAuth";
 
 
 
 interface MealEntry {
   [key: string]: string; // <-- store as string to allow fractions
 }
-interface ManagerStatus{managerStatus:boolean}
+interface AuthContextType {
+  userRole: string | null;
+}
 interface MemberNameList{memberNameList:string[]}
-const MealCountEntry:React.FC<ManagerStatus & MemberNameList> = ({managerStatus, memberNameList}) => {
+const MealCountEntry:React.FC<MemberNameList> = ({memberNameList}) => {
   // const members = memberNameList; // 👉 replace with your real members
   console.log(memberNameList);
   const [mealData, setMealData] = useState<MealEntry>(
@@ -21,6 +24,7 @@ const MealCountEntry:React.FC<ManagerStatus & MemberNameList> = ({managerStatus,
     new Date().toISOString().split("T")[0] // default today
   );
   const [loadingOnSubmit, setLoadingOnSubmit] = useState(false);
+    const {userRole} = useAuth() as AuthContextType;
 
   const handleChange = (member: string, value: string) => {
     // Allow empty string (user deleting input)
@@ -128,10 +132,10 @@ const MealCountEntry:React.FC<ManagerStatus & MemberNameList> = ({managerStatus,
           Daily Meal Entry
         </h2>
         {/* Warning */}
-        <DataEntryWarning managerStatus={managerStatus} />
+        <DataEntryWarning />
 
         {
-          managerStatus && <>
+          userRole === 'manager' && <>
           
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="flex flex-col">

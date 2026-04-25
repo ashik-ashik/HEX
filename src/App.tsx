@@ -1,6 +1,6 @@
 import { BrowserRouter, Route,  Routes } from 'react-router-dom';
 import './App.css';
-import Home from './Compo/Home';
+import OverviewHex from './Compo/OverviewHex';
 import Dashboard from './Compo/Dashboard';
 import UtilitySummary from './Compo/Utility';
 import FloatingCalculator from './Compo/FloatingCalculator';
@@ -15,10 +15,15 @@ import NoticePost from './Compo/NoticePost';
 import LoginAsManager from './Compo/LoginAsManager';
 import ChangeManager from './Compo/NextManagerSelection';
 import ManagerDashboard from './Compo/ManagerDashboard';
-import PrivateRoute from './Compo/PrivateRoute';
+import AdminRoute from './Compo/AdminRoute';
 import Settlement_History from './Compo/Settlement_History';
 import AddPersonnel from './Compo/AddPersonnel';
-import MonthlyMealPlans from './Compo/MonthlyMealPlans';
+// import MonthlyMealPlans from './Compo/MonthlyMealPlans';
+import GoogleLogin from './Compo/GoogleLogin';
+import useAuth from './hooks/useAuth';
+import PrivateRoute from './Compo/ProvateRoute';
+import { Toaster } from 'react-hot-toast';
+import HomeInitial from './Compo/HomeInitial';
 
 
 
@@ -57,6 +62,10 @@ interface Notice {
 }
 
 
+interface AuthContextType {
+  userIsLoading: boolean;
+  userRole: string;
+}
 // ==============================================
 
 function App() {
@@ -71,6 +80,12 @@ function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
   const [managerStatus, setManagerStatus] = useState<boolean>(false);
+    const {
+    userIsLoading,
+    userRole,
+  } = useAuth() as AuthContextType;
+
+  
 
 type UtilityDeposit = {
   member: string;
@@ -276,20 +291,50 @@ type UtilityDeposit = {
 
   const memberNameList = members.map(member => member.name);
 
- 
+ if(userIsLoading){
+    return <>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center justify-center space-y-5">
+          {/* Spinner */}
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-blue-100 rounded-full"></div>
+            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+          </div>
+
+          {/* Brand Title */}
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Hex Bachelor House
+            </h2>
+
+            <p className="text-sm text-gray-500 mt-1">
+              Loading your dashboard...
+            </p>
+          </div>
+        </div>
+      </div>
+    </>
+  }
   // ======================================================
 
   return (
     <>
       <BrowserRouter>
+      <Toaster position="bottom-right" />
         <Routes>
-          <Route path="/" element={<Home setManagerThisMonth={setManagerThisMonth} grandDeposit={grandDeposit} totalBazar={totalBazar} utilityDeposits={utilityDeposits}
-                utilityCosts={utilityCosts} isLoading={isLoading} notices={notices} managerStatus={managerStatus} />} />
-          <Route path="/mealplans" element={<MonthlyMealPlans />} />
+          {
+            userRole !== "manager" ? userRole !== "member" && <Route path="/" element={<HomeInitial />} />:<></>
+          }
+          <Route path="/" element={<PrivateRoute>
+            <OverviewHex setManagerThisMonth={setManagerThisMonth} grandDeposit={grandDeposit} totalBazar={totalBazar} utilityDeposits={utilityDeposits}
+                utilityCosts={utilityCosts} isLoading={isLoading} notices={notices} />
+          </PrivateRoute>} />
+          <Route path="/login" element={<GoogleLogin />} />
           <Route
             path="/dashboard"
             element={
-              <Dashboard
+              <PrivateRoute>
+                <Dashboard
                 members={members}
                 bazarData={bazarData}
                 mealData={mealData}
@@ -301,20 +346,23 @@ type UtilityDeposit = {
                 totalBazar={totalBazar}
                 
               />
+              </PrivateRoute>
             }
           />
           <Route
             path="/utility"
-            element={
+            element={<PrivateRoute>
               <UtilitySummary
                 utilityDeposits={utilityDeposits}
                 utilityCosts={utilityCosts}
                 isLoading={isLoading}
                 isError={isError}
               />
+            </PrivateRoute>
+              
             }
           />
-          <Route path="/settlement" element={<PrivateRoute><SettlementPage
+          <Route path="/settlement" element={<AdminRoute><SettlementPage
             managerThisMonth={managerThisMonth} 
             members={members}
             mealData={mealData}
@@ -324,18 +372,18 @@ type UtilityDeposit = {
             utilityCosts={utilityCosts}
             grandTotalMeals={grandTotalMeals}
             isLoading={isLoading}
-          /></PrivateRoute>} />
-          <Route path="/manager" element={<PrivateRoute><ManagerDashboard memberNameList={memberNameList} managerStatus={managerStatus} /></PrivateRoute>}></Route>
-          <Route path="/bazar-costs" element={<PrivateRoute><EntryBazarCosts memberNameList={memberNameList} managerStatus={managerStatus} /></PrivateRoute>} />
-          <Route path="/meal-entry" element={<PrivateRoute><MealCountEntry memberNameList={memberNameList}  managerStatus={managerStatus} /></PrivateRoute>} />
-          <Route path="/meal-deposit-entry" element={<PrivateRoute><EntryMealDeposit memberNameList={memberNameList}  managerStatus={managerStatus} /></PrivateRoute>} />
-          <Route path="/utility-costs-entry" element={<PrivateRoute><UtilityCostEntry managerStatus={managerStatus} /></PrivateRoute>} />
-          <Route path="/utility-deposit-entry" element={<PrivateRoute><EntryUtilityDeposit memberNameList={memberNameList}  managerStatus={managerStatus} /></PrivateRoute>} />
-          <Route path="/postnotice" element={<NoticePost managerStatus={managerStatus} />} />
+          /></AdminRoute>} />
+          <Route path="/manager" element={<AdminRoute><ManagerDashboard memberNameList={memberNameList} managerStatus={managerStatus} /></AdminRoute>}></Route>
+          <Route path="/bazar-costs" element={<AdminRoute><EntryBazarCosts memberNameList={memberNameList} /></AdminRoute>} />
+          <Route path="/meal-entry" element={<AdminRoute><MealCountEntry memberNameList={memberNameList}  /></AdminRoute>} />
+          <Route path="/meal-deposit-entry" element={<AdminRoute><EntryMealDeposit memberNameList={memberNameList}  /></AdminRoute>} />
+          <Route path="/utility-costs-entry" element={<AdminRoute><UtilityCostEntry /></AdminRoute>} />
+          <Route path="/utility-deposit-entry" element={<AdminRoute><EntryUtilityDeposit memberNameList={memberNameList} /></AdminRoute>} />
+          <Route path="/postnotice" element={<PrivateRoute><NoticePost /></PrivateRoute>} />
           <Route path="/imanager" element={<LoginAsManager managerStatus={managerStatus} />} />
-          <Route path="/addmember" element={<AddPersonnel />} />
-          <Route path="/next-manager" element={<PrivateRoute><ChangeManager managerStatus={managerStatus} /></PrivateRoute>} />
-          <Route path="/history" element={<Settlement_History />} />
+          <Route path="/addmember" element={<AdminRoute><AddPersonnel /></AdminRoute>} />
+          <Route path="/next-manager" element={<AdminRoute><ChangeManager  /></AdminRoute>} />
+          <Route path="/history" element={<PrivateRoute><Settlement_History /></PrivateRoute>} />
         </Routes>
         <FloatingCalculator />
       </BrowserRouter>
