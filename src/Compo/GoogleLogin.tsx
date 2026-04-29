@@ -132,8 +132,7 @@ const handleLogout = async (): Promise<void> => {
           <div className="relative">
             <img
               src={
-                user.photoURL ||
-                "https://lh3.googleusercontent.com/a/ACg8ocJOctQX6uThuWML9BlvOeQnBGbnis26uqDc_RoqR-kIyLzd4nmK6g=s96-c"
+                !user.photoURL ? "https://i.postimg.cc/7h9pH9T8/guest-ava.png" :user.photoURL
               }
               alt="User"
               className="w-24 h-24 rounded-full border-4 border-blue-100 shadow-lg object-cover"

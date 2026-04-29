@@ -49,7 +49,7 @@ export default function ManagerDashboard({ memberNameList }: Props) {
     { id: "utility-deposit-entry", name: "Utility Deposit", icon: Wallet },
     { id: "utility-costs-entry", name: "Utility Cost", icon: PieChart },
     { id: "add-member", name: "Add Member", icon: UserRoundPlus },
-    { id: "next-manager", name: "Change Manager", icon: UserCog },
+    { id: "next-manager", name: "Change Member Role", icon: UserCog },
     { id: "setfixedmeal", name: "Set Fixed Meal", icon: Target },
     { id: "resetmonth", name: "Reset Month", icon: RefreshCcw },
   ];

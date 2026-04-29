@@ -83,7 +83,20 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6 text-xs font-medium">
-          {userRole && navLinks.map((link, index) => {
+          {userRole === "manager" && navLinks.map((link, index) => {
+            return (
+              <NavLink
+                key={index}
+                to={link.path}
+                end={link.path === "/"}
+                className={navLinkClass}
+              >
+                
+                {link.name}
+              </NavLink>
+            );
+          })}
+          {userRole === "member"&& navLinks.map((link, index) => {
             return (
               <NavLink
                 key={index}
@@ -109,7 +122,7 @@ const Header = () => {
                 
               </NavLink>
               </>
-            ) : userRole ==='member' ?(
+            ) : userRole ?(
               <NavLink to="/login" className={navLinkClass}>
                 <UserCheck size={12} />
                 
@@ -150,7 +163,22 @@ const Header = () => {
         bg-white shadow-md`}
       >
         <nav className="flex flex-col px-6 py-4 gap-4 text-sm font-medium">
-          {userRole ==='member' || userRole ==='manager' && navLinks.map((link, index) => {
+          {userRole ==='member' && navLinks.map((link, index) => {
+            const Icon = link.icon;
+            return (
+              <NavLink
+                key={index}
+                to={link.path}
+                end={link.path === "/"}
+                className={navLinkClass}
+                onClick={() => setMobileOpen(false)}
+              >
+                <Icon size={14} />
+                {link.name}
+              </NavLink>
+            );
+          })}
+          {userRole ==='manager' && navLinks.map((link, index) => {
             const Icon = link.icon;
             return (
               <NavLink
@@ -182,7 +210,7 @@ const Header = () => {
             ) : userRole !=='member' ? userRole !== "manager" &&(
               <>
               <NavLink to="/" className={navLinkClass}>
-                <LogIn size={16} />
+                <Home size={16} />
                 
               </NavLink>
               <NavLink to="/login" className={navLinkClass}>
@@ -191,7 +219,12 @@ const Header = () => {
               </NavLink>
               </>
             
-            ):<></>
+            ):<>{
+              <NavLink to="/login" className={navLinkClass}>
+                <UserCheck size={12} />
+                  Profile
+              </NavLink>
+            }</>
           }
         </nav>
       </div>

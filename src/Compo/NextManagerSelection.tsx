@@ -221,7 +221,7 @@ console.log(usersList, userIsLoading)
       >
         {/* Email Select */}
         <div className="relative">
-          <FaEnvelope className="absolute left-3 top-3.5 text-gray-400" />
+          <FaUser className="absolute left-3 top-3.5 text-gray-400" />
 
           <select
             value={email}
@@ -249,7 +249,7 @@ console.log(usersList, userIsLoading)
 
         {/* Selected User Name Output */}
         <div className="relative">
-          <FaUser className="absolute left-3 top-3.5 text-gray-400" />
+          <FaEnvelope className="absolute left-3 top-3.5 text-gray-400" />
 
           <div className="w-full pl-10 pr-3 py-2.5 border rounded-lg bg-gray-50 text-gray-700 min-h-[46px] flex items-center">
             {selectedUser?.email || "Selected user Email will appear here"}
@@ -274,6 +274,9 @@ console.log(usersList, userIsLoading)
             </option>
             <option value="manager">
               Manager
+            </option>
+            <option value="guest">
+              Guest
             </option>
           </select>
         </div>

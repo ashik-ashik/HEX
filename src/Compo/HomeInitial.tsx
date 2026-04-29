@@ -6,12 +6,41 @@ import {
   FaChartPie,
   FaArrowRight,
   FaHome,
+  FaSignInAlt,
+  FaUserCircle,
 } from "react-icons/fa";
 import HouseLocation from "./HouseLocation";
+import {
+  type User,
+
+} from "firebase/auth";
+import useAuth from "../hooks/useAuth";
 
 const HomeInitial = () => {
+  const { user } = useAuth() as { user: User | null };
   return (
     <div className="min-h-screen bg-white/70 backdrop-blur-sm from-blue-50 via-white to-indigo-50">
+      <nav className="flex items-center justify-end px-6 py-4 shadow-md bg-white gap-x-4">
+      {/* Logo / Home */}
+      <Link
+        to="/"
+        className="text-md font-bold text-green-600 hover:text-green-700"
+      >
+        Home
+      </Link>
+
+      {/* Right Side */}
+      <div>
+        {user ? <Link to="/login" title="Login">
+          <FaUserCircle className="text-xl text-gray-700 hover:text-green-600" />
+        </Link> 
+        : 
+          <Link to="/login" title="Login">
+            <FaSignInAlt className="text-2xl text-gray-700 hover:text-green-600" />
+          </Link>
+        }
+      </div>
+    </nav>
       {/* Hero Section */}
       <section className="pt-28 pb-16 px-4">
         <div className="max-w-6xl mx-auto">
@@ -35,6 +64,8 @@ const HomeInitial = () => {
               </p>
 
               <div className="flex flex-wrap gap-4">
+                {
+                  !user && 
                 <Link
                   to="/login"
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition"
@@ -42,6 +73,7 @@ const HomeInitial = () => {
                   Login with Google
                   <FaArrowRight />
                 </Link>
+                }
 
                 <div className="bg-white border border-gray-200 px-6 py-3 rounded-xl text-gray-600 font-medium">
                   Member & Manager Access Only
