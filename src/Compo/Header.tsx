@@ -109,8 +109,21 @@ const Header = () => {
               </NavLink>
             );
           })}
+          {userRole === "assist_manager"&& navLinks.map((link, index) => {
+            return (
+              <NavLink
+                key={index}
+                to={link.path}
+                end={link.path === "/"}
+                className={navLinkClass}
+              >
+                
+                {link.name}
+              </NavLink>
+            );
+          })}
           {
-            userRole ==='manager' ? (<>
+            userRole ==='manager' || userRole === "assist_manager" ? (<>
               <NavLink to="/settlement" className={navLinkClass}>
                 Settlement
               </NavLink>
@@ -194,7 +207,7 @@ const Header = () => {
             );
           })}
           {
-            userRole ==='manager' ? (<>
+            userRole ==='manager' || userRole === "assist_manager" ? (<>
               <NavLink to="/settlement" className={navLinkClass}>
                 <LucideCalculator size={14} />
                 Settlement

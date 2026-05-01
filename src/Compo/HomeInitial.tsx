@@ -24,9 +24,15 @@ const HomeInitial = () => {
       {/* Logo / Home */}
       <Link
         to="/"
-        className="text-md font-bold text-green-600 hover:text-green-700"
+        className="text-sm font-semibold font-mono text-gray-600 hover:text-green-700"
       >
         Home
+      </Link>
+      <Link
+        to="/history"
+        className="text-sm font-semibold font-mono text-gray-600 hover:text-green-700"
+      >
+        Histry
       </Link>
 
       {/* Right Side */}
@@ -36,7 +42,7 @@ const HomeInitial = () => {
         </Link> 
         : 
           <Link to="/login" title="Login">
-            <FaSignInAlt className="text-2xl text-gray-700 hover:text-green-600" />
+            <FaSignInAlt className="text-xl text-gray-700 hover:text-green-600" />
           </Link>
         }
       </div>

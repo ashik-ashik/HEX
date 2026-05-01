@@ -201,7 +201,7 @@ console.log(usersList, userIsLoading)
   }
 
   return (
-    <div className="max-w-xl mx-auto mt-10 bg-white shadow-lg rounded-2xl p-6 border">
+    <div className="max-w-4xl mx-auto mt-10 bg-white shadow-lg rounded-2xl p-6 border">
       {/* Header */}
       <div className="mb-6 text-center">
         <h2 className="text-2xl font-bold text-gray-800">
@@ -213,6 +213,8 @@ console.log(usersList, userIsLoading)
           system
         </p>
       </div>
+
+     
 
       {/* Form */}
       <form
@@ -275,6 +277,9 @@ console.log(usersList, userIsLoading)
             <option value="manager">
               Manager
             </option>
+            <option value="assist_manager">
+              Assistant Manager
+            </option>
             <option value="guest">
               Guest
             </option>
@@ -294,6 +299,33 @@ console.log(usersList, userIsLoading)
             : "Update Role"}
         </button>
       </form>
+       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 my-6">
+        {usersList?.map((u: UserItem, index: number) => (
+          <div
+            key={u.email || index}
+              className="bg-white rounded-xl shadow-md p-4 flex flex-col items-center text-center gap-3 border border-gray-100"
+          >
+            {/* Profile Image */}
+            <div className="w-14 h-14 rounded-full overflow-hidden border">
+              <img
+                src={u.photoURL || "https://via.placeholder.com/150"}
+                alt={u.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* User Info */}
+            <div>
+              <h2 className="text-md font-semibold text-gray-800">
+                {u.name}
+              </h2>
+              <p className="text-sm text-gray-500 capitalize">
+                {u.role === "assist_manager" ? "Assistant Manager" : u.role}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

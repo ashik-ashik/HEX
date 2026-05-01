@@ -148,7 +148,7 @@ const handleLogout = async (): Promise<void> => {
           </h2>
 
           <p className="text-sm text-blue-600 font-medium capitalize bg-blue-50 px-4 py-1 rounded-full border border-blue-100">
-            {userRole || "viewer"}
+            {userRole ==="assist_manager" ? "Assistant Manager" : userRole}
           </p>
 
           <p className="text-xs text-gray-500 mt-4">

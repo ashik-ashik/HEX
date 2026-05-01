@@ -16,6 +16,9 @@ const AdminRoute: React.FC<Props> = ({ children }) => {
   if (userRole === "manager") {
     return <>{children}</>;
   }
+  if (userRole === "assist_manager") {
+    return <>{children}</>;
+  }
   return <Navigate to="/login" replace />;
 
 };

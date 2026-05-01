@@ -24,6 +24,8 @@ import useAuth from './hooks/useAuth';
 import PrivateRoute from './Compo/ProvateRoute';
 import { Toaster } from 'react-hot-toast';
 import HomeInitial from './Compo/HomeInitial';
+import EditMealDeposit from './Compo/EditMealDeposit';
+import EditLastBazarCost from './Compo/EditBazarCosts';
 
 
 
@@ -322,9 +324,15 @@ type UtilityDeposit = {
       <BrowserRouter>
       <Toaster position="bottom-right" />
         <Routes>
-          {
-            userRole !== "manager" ? userRole !== "member" && <Route path="/" element={<HomeInitial />} />:<></>
-          }
+        {
+          userRole !== "manager" &&
+          userRole !== "member" &&
+          userRole !== "assist_manager" && (
+            <Route path="/" element={<HomeInitial />} />
+          )
+        }
+
+
           <Route path="/" element={<PrivateRoute>
             <OverviewHex setManagerThisMonth={setManagerThisMonth} grandDeposit={grandDeposit} totalBazar={totalBazar} utilityDeposits={utilityDeposits}
                 utilityCosts={utilityCosts} isLoading={isLoading} notices={notices} />
@@ -383,7 +391,9 @@ type UtilityDeposit = {
           <Route path="/imanager" element={<LoginAsManager managerStatus={managerStatus} />} />
           <Route path="/addmember" element={<AdminRoute><AddPersonnel /></AdminRoute>} />
           <Route path="/next-manager" element={<AdminRoute><ChangeManager  /></AdminRoute>} />
-          <Route path="/history" element={<PrivateRoute><Settlement_History /></PrivateRoute>} />
+          <Route path="/edit-meal-deposit" element={<AdminRoute><EditMealDeposit memberNameList={memberNameList} /></AdminRoute>} />
+          <Route path="/edit-mbaza-cost" element={<AdminRoute><EditLastBazarCost memberNameList={memberNameList} /></AdminRoute>} />
+          <Route path="/history" element={<Settlement_History />} />
         </Routes>
         <FloatingCalculator />
       </BrowserRouter>

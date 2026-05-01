@@ -18,7 +18,13 @@ const PrivateRoute: React.FC<Props> = ({ children }) => {
         return 'loading....'
     }
 
-  if (userRole === "member" || userRole === 'manager') {
+    if (userRole === "member") {
+    return <>{children}</>;
+  }
+  if (userRole === 'manager') {
+    return <>{children}</>;
+  }
+  if (userRole === "assist_manager") {
     return <>{children}</>;
   }
   return <Navigate to="/login" replace />;

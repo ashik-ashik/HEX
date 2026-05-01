@@ -15,6 +15,7 @@ import {
   Target,
   RefreshCcw,
   UserRoundPlus,
+  BadgeDollarSignIcon,
 } from "lucide-react";
 import EntryBazarCosts from "./EntryBazarCosts";
 import MealCountEntry from "./MealCountEntry";
@@ -27,6 +28,9 @@ import SetFixedMeal from "./SetFixedMeal";
 import ResetMonth from "./ResetThisMonth";
 import AddPersonnel from "./AddPersonnel";
 import useAuth from "../hooks/useAuth";
+import EditMealDeposit from "./EditMealDeposit";
+import EditLastBazarCost from "./EditBazarCosts";
+import { BiPieChartAlt2 } from "react-icons/bi";
 
 interface Props {
   managerStatus: boolean;
@@ -48,6 +52,8 @@ export default function ManagerDashboard({ memberNameList }: Props) {
     { id: "meal-deposit-entry", name: "Meal Deposit", icon: DollarSign },
     { id: "utility-deposit-entry", name: "Utility Deposit", icon: Wallet },
     { id: "utility-costs-entry", name: "Utility Cost", icon: PieChart },
+    { id: "edit-meal-deposit", name: "Edit Meal Deposit", icon: BadgeDollarSignIcon },
+    { id: "edit-mbaza-cost", name: "Edit Bazar Cost", icon: BiPieChartAlt2 },
     { id: "add-member", name: "Add Member", icon: UserRoundPlus },
     { id: "next-manager", name: "Change Member Role", icon: UserCog },
     { id: "setfixedmeal", name: "Set Fixed Meal", icon: Target },
@@ -74,6 +80,10 @@ export default function ManagerDashboard({ memberNameList }: Props) {
         return <EntryUtilityDeposit memberNameList={memberNameList} />;
       case "utility-costs-entry":
         return <UtilityCostEntry />;
+      case "edit-meal-deposit":
+        return <EditMealDeposit memberNameList={memberNameList} />;
+      case "edit-mbaza-cost":
+        return <EditLastBazarCost memberNameList={memberNameList} />;
       case "add-member":
         return <AddPersonnel />;
       case "next-manager":
