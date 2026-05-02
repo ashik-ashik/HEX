@@ -3,8 +3,9 @@ import Header from "./Compo/Header";
 import Footer from "./Compo/Footer";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { AlertTriangle, Settings, X, Save, Loader2 } from "lucide-react";
+import { AlertTriangle, Settings, X, Save, Loader2, CheckCircle2 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
+import useAuth from "./hooks/useAuth";
 
 
 
@@ -39,6 +40,21 @@ interface Props {
   isLoading: boolean;
   managerThisMonth: string;
 }
+type User = {
+  name: string;
+  email: string;
+  role: string;
+  photoURL: string;
+  uid: string;
+  emailVerified: string;
+  phoneNumber: string;
+  provider: string;
+  lastLoginAt: string;
+};
+type AuthContextType = {
+  usersList: User[];
+};
+
 
 const SettlementPage: React.FC<Props> = ({
   members,
@@ -64,8 +80,16 @@ const [fixedMeals, setFixedMeals] = useState<number>(0);
 const [isSavingHistory, setIsSavingHistory] = useState(false);
 const [historySaved, setHistorySaved] = useState(false);
 
+/**************************************
+ * ✅ NEW: Confirmation Modal State
+ **************************************/
+const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
+const { usersList } = useAuth() as AuthContextType;
 
+const FindManager = usersList?.find(
+  (u) => u?.role?.toLowerCase() === "manager"
+);
 
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++?
@@ -176,6 +200,7 @@ const currentDate = today.getDate();
 
 const saveEnabled =
   currentDate >= 25 || currentDate <= 2;
+
   /**************************************
  * 📊 Save Monthly History
  **************************************/
@@ -210,6 +235,7 @@ const handleSaveHistory = async () => {
               : "Will Receive",
         }));
     const contents= {
+        managerThisMonth: FindManager?.name,
         totalDeposit: grandDeposit,
         totalBazar: totalBazar,
         netMealBalance: grandDeposit - totalBazar,
@@ -393,6 +419,82 @@ Close
 
 </div>
 )}
+
+{/* ================= NEW: Save History Confirmation Modal ================= */}
+{showConfirmModal && (
+<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+
+<div className="bg-white mt-10 rounded-2xl shadow-2xl p-6 w-[95%] max-w-md relative animate-fadeIn">
+
+{/* Close Button */}
+<button
+onClick={() => setShowConfirmModal(false)}
+className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
+>
+<X size={20}/>
+</button>
+
+{/* Icon */}
+<div className="flex justify-center mb-3">
+<div className="bg-green-100 p-3 rounded-full">
+<CheckCircle2 className="text-green-600" size={26}/>
+</div>
+</div>
+
+{/* Title */}
+<h3 className="text-lg font-bold text-center text-gray-800 mb-2">
+Save Monthly Settlement?
+</h3>
+
+{/* Month */}
+<p className="text-xs text-center text-gray-500 mb-3">
+{new Date().toLocaleDateString("default", {
+month: "long",
+year: "numeric",
+})}{" "}
+{managerThisMonth && `| ${managerThisMonth}`}
+</p>
+
+{/* Warning */}
+<div className="flex gap-2 bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-4">
+<AlertTriangle className="text-yellow-600" size={18}/>
+<p className="text-xs text-gray-600">
+This will permanently save the settlement history for this month. 
+This action <span className="font-semibold text-red-600">cannot be undone</span>. Please confirm all values are correct before saving.
+</p>
+</div>
+
+
+
+{/* Buttons */}
+<div className="flex gap-2">
+
+<button
+onClick={() => {
+setShowConfirmModal(false);
+handleSaveHistory();
+}}
+className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-sm hover:bg-indigo-700 transition flex items-center justify-center gap-2"
+>
+<Save size={14}/>
+Yes, Save History
+</button>
+
+<button
+onClick={() => setShowConfirmModal(false)}
+className="flex-1 border py-2 rounded-lg text-sm hover:bg-gray-100 transition"
+>
+Cancel
+</button>
+
+</div>
+
+</div>
+
+</div>
+)}
+{/* ================= END: Save History Confirmation Modal ================= */}
+
       <Header />
 
       <section className="backdrop-blur-sm bg-white/70 py-10">
@@ -591,9 +693,15 @@ Will Receive ৳ {Math.ceil(m.balance)}
 
 <div className="text-center my-10 space-y-3">
 
-{/* Save History Button */}
+{/* Save History Button — now opens confirmation modal */}
 <button
-onClick={handleSaveHistory}
+onClick={() => {
+  if (historySaved) {
+    toast("Already saved for this month");
+    return;
+  }
+  setShowConfirmModal(true);
+}}
 disabled={!saveEnabled || isSavingHistory || historySaved}
 className={`text-xs px-5 py-2 rounded-md shadow transition flex items-center gap-2 mx-auto
 ${

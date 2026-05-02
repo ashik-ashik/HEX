@@ -104,7 +104,7 @@ const UtilityCostEntry = () => {
           <DataEntryWarning />
 
           {
-            userRole === 'manager' && <>
+            userRole === 'manager' || userRole === 'assist_manager' && <>
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>

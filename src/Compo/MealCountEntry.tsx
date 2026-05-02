@@ -135,7 +135,7 @@ const MealCountEntry:React.FC<MemberNameList> = ({memberNameList}) => {
         <DataEntryWarning />
 
         {
-          userRole === 'manager' && <>
+          userRole === 'manager' || userRole === 'assist_manager' && <>
           
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="flex flex-col">

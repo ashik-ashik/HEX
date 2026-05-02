@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import Header from "./Header";
 import useAuth from "../hooks/useAuth";
+import HexSpecialEvents from "./HexSpecialEvents";
 
 // Type for each deposit item
 export type UtilityDeposit = {
@@ -470,6 +471,8 @@ const finalNotices = systemNotice
         </div>
       </section>
       {/* ============================================================ */}
+
+      <HexSpecialEvents />
 
       {/* Features Section */}
       <section className="py-16">

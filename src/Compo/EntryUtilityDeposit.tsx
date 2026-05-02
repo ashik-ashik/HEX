@@ -123,7 +123,7 @@ const EntryUtilityDeposit: React.FC< MemberNameList> = ({ memberNameList}) => {
                 <DataEntryWarning />
 
                 {
-                  userRole === 'manager' && <>
+                  userRole === 'manager' || userRole === 'assist_manager' && <>
                   
                   <form onSubmit={handleSubmit} className="space-y-4">
                       {/* Member Select */}
