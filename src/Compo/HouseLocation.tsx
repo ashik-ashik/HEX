@@ -2,7 +2,7 @@ import { FaMapMarkerAlt, FaDirections, FaHome } from "react-icons/fa";
 
 const HouseLocation = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 pt-24 px-4 pb-16">
+    <div className=" pt-24 px-4 pb-16">
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-12">
@@ -11,11 +11,11 @@ const HouseLocation = () => {
             House Location
           </div>
 
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+          <h1 className="text-4xl font-bold text-gray-100 mb-4">
             Find Hex Bachelor House Easily
           </h1>
 
-          <p className="text-gray-500 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
             Use the live Google Map below to locate our house easily and get
             direct navigation support to reach us without hassle.
           </p>
@@ -24,17 +24,17 @@ const HouseLocation = () => {
         {/* Main Card */}
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           {/* Left Content */}
-          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+          <div className="bg-black/40 rounded-3xl shadow-xl border border-gray-100 p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center text-blue-600 text-xl">
                 <FaMapMarkerAlt />
               </div>
 
               <div>
-                <h2 className="text-2xl font-semibold text-gray-800">
+                <h2 className="text-2xl font-semibold text-gray-100">
                   House Address
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-300">
                   Exact location details
                 </p>
               </div>
@@ -42,10 +42,10 @@ const HouseLocation = () => {
 
             <div className="space-y-5">
               <div>
-                <p className="text-sm text-gray-500 mb-1">
+                <p className="text-sm text-gray-300 mb-1">
                   Full Address
                 </p>
-                <p className="text-gray-700 font-medium leading-relaxed">
+                <p className="text-gray-300 font-medium leading-relaxed">
                   Kathaltola, 1051/1, Monipur,
                   <br />
                   Mirpur-2, Dhaka
@@ -53,19 +53,19 @@ const HouseLocation = () => {
               </div>
 
               <div>
-                <p className="text-sm text-gray-500 mb-1">
+                <p className="text-sm text-gray-300 mb-1">
                   Nearby Landmark
                 </p>
-                <p className="text-gray-700 font-medium">
+                <p className="text-gray-300 font-medium">
                   Monipur School Area, Mirpur-2
                 </p>
               </div>
 
               <div>
-                <p className="text-sm text-gray-500 mb-1">
+                <p className="text-sm text-gray-300 mb-1">
                   Access Support
                 </p>
-                <p className="text-gray-700 font-medium">
+                <p className="text-gray-300 font-medium">
                   Google Maps Navigation Available
                 </p>
               </div>
