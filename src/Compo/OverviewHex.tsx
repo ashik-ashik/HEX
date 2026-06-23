@@ -472,7 +472,8 @@ const finalNotices = systemNotice
       </section>
       {/* ============================================================ */}
 
-      <HexSpecialEvents />
+      <HexSpecialEvents eventLimit={4} />
+      
 
       {/* Features Section */}
       <section className="py-16">

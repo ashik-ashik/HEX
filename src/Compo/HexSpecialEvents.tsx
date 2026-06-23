@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import useAuth from "../hooks/useAuth";
+import { Link } from "react-router-dom";
 
 type EventItem = {
   timestamp: string;
@@ -20,7 +22,7 @@ const getImageSrc = (photo: string): string => {
   return fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : photo;
 };
 
-const HexSpecialEvents = () => {
+const HexSpecialEvents = ({eventLimit}: {eventLimit: number}) => {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
@@ -28,6 +30,23 @@ const HexSpecialEvents = () => {
   const { userRole } = useAuth() as { userRole: string };
 
   const csvUrl = import.meta.env.VITE_HEX_EVENTS_READER;
+
+
+  // fixing modal issue
+  useEffect(() => {
+  if (selectedEvent) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "auto";
+  }
+
+  return () => {
+    document.body.style.overflow = "auto";
+  };
+}, [selectedEvent]);
+
+
+
 
   useEffect(() => {
     const fetchCSVData = async () => {
@@ -45,7 +64,7 @@ const HexSpecialEvents = () => {
             eventPhoto: row[3]?.replace(/"/g, "").trim(),
           }))
           .reverse()
-          .slice(0, 4);
+          .slice(0, eventLimit);
         setEvents(parsedData);
       } catch (error) {
         console.error("Failed to fetch events:", error);
@@ -54,7 +73,7 @@ const HexSpecialEvents = () => {
       }
     };
     fetchCSVData();
-  }, [csvUrl]);
+  }, [csvUrl, eventLimit]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -371,143 +390,184 @@ const HexSpecialEvents = () => {
             </div>
           )}
         </div>
+        {
+          eventLimit < 5 &&
+          <div className="pt-8 flex items-center justify-center">
+            <Link
+              to="/events"
+              className="relative inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white rounded-full 
+              bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 
+              shadow-lg shadow-blue-500/30 
+              hover:shadow-xl hover:shadow-purple-500/40 
+              transition-all duration-300 
+              hover:scale-105 active:scale-95"
+            >
+              {/* Glow Effect */}
+              <span className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 opacity-0 blur-md hover:opacity-70 transition duration-300"></span>
+
+              {/* Text */}
+              <span className="relative z-10">Explore All Events</span>
+
+              {/* Icon */}
+              <svg
+                className="relative z-10 w-4 h-4 transition-transform group-hover:translate-x-1"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+        }
       </section>
 
       {/* ── Modal — rendered in a portal-like pattern using fixed positioning ── */}
       {/* KEY FIX: The modal is outside any `position: relative` parent.          */}
       {/* In HomeInitial, remove the <div className="relative"> wrapper around    */}
       {/* <HexSpecialEvents /> so this fixed overlay covers the full viewport.     */}
-      {selectedEvent && (
-        <div
-          className="modal-overlay"
+     {/* ── Full Screen Modal ── */}
+
+
+          {selectedEvent &&
+  createPortal(
+    <div
+      className="modal-overlay"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 2147483647,
+        backgroundColor: "rgba(15,10,50,0.75)",
+        backdropFilter: "blur(6px)",
+        WebkitBackdropFilter: "blur(6px)",
+        overflowY: "auto",
+      }}
+      onClick={() => setSelectedEvent(null)}
+      role="dialog"
+      aria-modal="true"
+      aria-label={selectedEvent.eventName}
+    >
+      <div
+        className="modal-content w-full"
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          
+          minHeight: "100vh",
+          background: "#ffffff",
+          position: "relative",
+          margin: 0,
+          borderRadius: 0,
+          overflow: "hidden",
+        }}
+      >
+        {/* Close Button */}
+        <button
+          onClick={() => setSelectedEvent(null)}
           style={{
             position: "fixed",
-            inset: 0,
-            zIndex: 9999,
+            top: 20,
+            right: 20,
+            zIndex: 2147483647,
+            background: "#ffffff",
+            border: "none",
+            borderRadius: "9999px",
+            width: 48,
+            height: 48,
+            cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            padding: "1rem",
-            backgroundColor: "rgba(15,10,50,0.7)",
-            backdropFilter: "blur(6px)",
-            WebkitBackdropFilter: "blur(6px)",
+            boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
           }}
-          onClick={() => setSelectedEvent(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-label={selectedEvent.eventName}
+          aria-label="Close modal"
         >
-          <div
-            className="modal-content"
-            style={{
-              background: "#fff",
-              borderRadius: 24,
-              width: "100%",
-              maxWidth: 640,
-              maxHeight: "90vh",
-              overflowY: "auto",
-              position: "relative",
-              boxShadow: "0 32px 80px rgba(0,0,0,0.35)",
-            }}
-            onClick={(e) => e.stopPropagation()}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={22}
+            height={22}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
           >
-            {/* Close button */}
-            <button
-              onClick={() => setSelectedEvent(null)}
-              style={{
-                position: "absolute",
-                top: 14,
-                right: 14,
-                zIndex: 10,
-                background: "rgba(255,255,255,0.92)",
-                backdropFilter: "blur(4px)",
-                border: "none",
-                borderRadius: "50%",
-                width: 36,
-                height: 36,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                color: "#374151",
-                transition: "transform 0.2s, background 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.1)";
-                (e.currentTarget as HTMLButtonElement).style.background = "#fff";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
-                (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.92)";
-              }}
-              aria-label="Close modal"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width={18} height={18} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            {/* Image */}
-            <div style={{ overflow: "hidden", borderRadius: "24px 24px 0 0" }}>
-              <img
-                src={getImageSrc(selectedEvent.eventPhoto)}
-                alt={selectedEvent.eventName}
-                style={{ width: "100%", maxHeight: 320, objectFit: "cover", display: "block" }}
-                referrerPolicy="no-referrer"
-              />
-            </div>
-
-            {/* Accent bar */}
-            <div
-              style={{
-                height: 3,
-                background: "linear-gradient(90deg, #6366f1, #7c3aed, #a5b4fc)",
-              }}
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
             />
+          </svg>
+        </button>
 
-            {/* Content */}
-            <div style={{ padding: "1.75rem 2rem 2rem" }}>
-              <p
-                style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.15em",
-                  textTransform: "uppercase",
-                  color: "#6366f1",
-                  marginBottom: 8,
-                  fontFamily: "Georgia, serif",
-                }}
-              >
-                ✦ {selectedEvent.timestamp?.split(" ")[0]}
-              </p>
-              <h2
-                style={{
-                  fontSize: "1.5rem",
-                  fontWeight: 800,
-                  color: "#1e1b4b",
-                  marginBottom: "1rem",
-                  fontFamily: "Georgia, 'Times New Roman', serif",
-                  letterSpacing: "-0.02em",
-                  lineHeight: 1.2,
-                }}
-              >
-                {selectedEvent.eventName}
-              </h2>
-              <p
-                style={{
-                  color: "#4b5563",
-                  fontSize: 15,
-                  lineHeight: 1.75,
-                  margin: 0,
-                }}
-              >
-                {selectedEvent.eventDescription || "No description available."}
-              </p>
-            </div>
-          </div>
+        {/* Hero Image */}
+        <img
+          src={getImageSrc(selectedEvent.eventPhoto)}
+          alt={selectedEvent.eventName}
+          style={{
+            width: "100%",
+            height: "55vh",
+            objectFit: "cover",
+            display: "block",
+          }}
+          referrerPolicy="no-referrer"
+        />
+
+        {/* Gradient Bar */}
+        <div
+          style={{
+            height: 5,
+            background: "linear-gradient(90deg,#6366f1,#7c3aed,#a855f7)",
+          }}
+        />
+
+        {/* Content */}
+        <div
+          style={{
+            maxWidth: "1100px",
+            margin: "0 auto",
+            padding: "3rem 1.5rem 5rem",
+          }}
+        >
+          <p
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              color: "#6366f1",
+              marginBottom: 12,
+            }}
+          >
+            ✦ {selectedEvent.timestamp?.split(" ")[0]}
+          </p>
+
+          <h2
+            style={{
+              fontSize: "clamp(2rem,5vw,4rem)",
+              fontWeight: 800,
+              color: "#1e1b4b",
+              marginBottom: "1.5rem",
+              lineHeight: 1.15,
+            }}
+          >
+            {selectedEvent.eventName}
+          </h2>
+
+          <p
+            style={{
+              color: "#4b5563",
+              fontSize: 18,
+              lineHeight: 1.9,
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {selectedEvent.eventDescription || "No description available."}
+          </p>
         </div>
-      )}
+      </div>
+    </div>,
+    document.body
+  )}
     </>
   );
 };

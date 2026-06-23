@@ -3,7 +3,7 @@ import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 // import Header from "./Header";
 import Footer from "./Footer";
-import DataEntryWarning from "./DataEntryWarning";
+// import DataEntryWarning from "./DataEntryWarning";
 import useAuth from "../hooks/useAuth";
 
 type FormData = {
@@ -141,7 +141,7 @@ const EntryBazarCosts:React.FC< MemberNameList> = ({ memberNameList}) => {
         </h2>
 
         {/* Warning */}
-        <DataEntryWarning  />
+        {/* <DataEntryWarning  /> */}
 
         {
           userRole && 

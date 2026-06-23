@@ -69,7 +69,7 @@ export default function ManagerDashboard({ memberNameList }: Props) {
   ];
 
   const quickGoMenus = [
-    { id: "/", name: "Home" },
+    { id: "/overview", name: "Home" },
     { id: "/dashboard", name: "Dashboard" },
     { id: "/utility", name: "Utility" },
     { id: "/settlement", name: "Settlement" },
@@ -243,7 +243,7 @@ export default function ManagerDashboard({ memberNameList }: Props) {
           <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-5">
             {/* Back Home */}
             <Link
-              to="/"
+              to="/overview"
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition text-xs font-medium"
             >
               <Home size={16} />

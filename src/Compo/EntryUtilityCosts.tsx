@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import Footer from "./Footer";
 // import Header from "./Header";
-import DataEntryWarning from "./DataEntryWarning";
+// import DataEntryWarning from "./DataEntryWarning";
 import useAuth from "../hooks/useAuth";
 interface AuthContextType {
   userRole: string | null;
@@ -101,7 +101,7 @@ const UtilityCostEntry = () => {
             Add Utility Cost
           </h2>
           {/* warning */}
-          <DataEntryWarning />
+          {/* <DataEntryWarning /> */}
 
           {
             (userRole === "manager" || userRole === "assist_manager") && <>

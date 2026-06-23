@@ -26,6 +26,8 @@ import { Toaster } from 'react-hot-toast';
 import HomeInitial from './Compo/HomeInitial';
 import EditMealDeposit from './Compo/EditMealDeposit';
 import EditLastBazarCost from './Compo/EditBazarCosts';
+import AllEvents from './Compo/AllEvents';
+import PageNotFound from './Compo/PageNotFound';
 
 
 
@@ -84,7 +86,6 @@ function App() {
   const [managerStatus, setManagerStatus] = useState<boolean>(false);
     const {
     userIsLoading,
-    userRole,
   } = useAuth() as AuthContextType;
 
   
@@ -324,16 +325,8 @@ type UtilityDeposit = {
       <BrowserRouter>
       <Toaster position="bottom-right" />
         <Routes>
-        {
-          userRole !== "manager" &&
-          userRole !== "member" &&
-          userRole !== "assist_manager" && (
             <Route path="/" element={<HomeInitial />} />
-          )
-        }
-
-
-          <Route path="/" element={<PrivateRoute>
+           <Route path="/overview" element={<PrivateRoute>
             <OverviewHex setManagerThisMonth={setManagerThisMonth} grandDeposit={grandDeposit} totalBazar={totalBazar} utilityDeposits={utilityDeposits}
                 utilityCosts={utilityCosts} isLoading={isLoading} notices={notices} />
           </PrivateRoute>} />
@@ -394,6 +387,8 @@ type UtilityDeposit = {
           <Route path="/edit-meal-deposit" element={<AdminRoute><EditMealDeposit memberNameList={memberNameList} /></AdminRoute>} />
           <Route path="/edit-mbaza-cost" element={<AdminRoute><EditLastBazarCost memberNameList={memberNameList} /></AdminRoute>} />
           <Route path="/history" element={<Settlement_History />} />
+          <Route path="/events" element={<AllEvents />} />
+          <Route path="/*" element={<PageNotFound />} />
         </Routes>
         <FloatingCalculator />
       </BrowserRouter>

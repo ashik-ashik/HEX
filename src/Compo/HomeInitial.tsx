@@ -6,8 +6,6 @@ import {
   FaChartPie,
   FaArrowRight,
   FaHome,
-  FaSignInAlt,
-  FaUserCircle,
   FaWifi,
   FaNewspaper,
   FaLock,
@@ -19,6 +17,7 @@ import HouseLocation from "./HouseLocation";
 import { type User } from "firebase/auth";
 import useAuth from "../hooks/useAuth";
 import HexSpecialEvents from "./HexSpecialEvents";
+import Header from "./Header";
 
 const HomeInitial = () => {
   const { user } = useAuth() as { user: User | null };
@@ -26,7 +25,8 @@ const HomeInitial = () => {
     <div className="bg-black/80 min-h-screen">
 
       {/* ── Navbar ── */}
-      <nav className="flex items-center justify-end px-6 py-4 shadow-md bg-gray-900 border-b border-gray-700 gap-x-4">
+      <Header />
+      {/* <nav className="flex items-center justify-end px-6 py-4 shadow-md bg-gray-900 border-b border-gray-700 gap-x-4">
         <Link
           to="/"
           className="text-sm font-semibold font-mono text-gray-300 hover:text-green-400 transition-colors"
@@ -50,7 +50,7 @@ const HomeInitial = () => {
             </Link>
           )}
         </div>
-      </nav>
+      </nav> */}
 
       {/* ── Hero Section ── */}
       {/* ── Hero Section ── */}
@@ -213,7 +213,7 @@ const HomeInitial = () => {
       {/* ── Latest Events — portal modal, no wrapper needed ── */}
       
       {/* Events */}
-      <HexSpecialEvents />
+      <HexSpecialEvents eventLimit={4} />
 
       {/* ── Membership Criteria Card ── */}
       <section className="pb-20 px-4">

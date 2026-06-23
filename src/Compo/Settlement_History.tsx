@@ -241,11 +241,11 @@ if (!history.length)
             <div key={idx} className="border rounded-lg p-4 mb-6 shadow-sm bg-white/90">
               <div className="pb-3 border-b border-red-300 mb-4">
                 <h3 className="text-xl font-semibold mb-1">
-                  Settlement History: {h.month.replace(/,+$/g, "").trim().split("|")[0].trim()}
+                  Settlement History: {h?.month.replace(/,+$/g, "")?.trim().split("|")[0]?.trim()}
                 </h3>
                 {/* Manager Name */}
                 <h4 className="text-purple-500 text-sm">
-                  Managed by: {h.month.replace(/,+$/g, "").trim().split("|")[1]?.trim() || "Not Assigned"}
+                  Managed by: {h?.month?.replace(/,+$/g, "")?.split("|")[2] || "Not Assigned"}
                 </h4>
                 <p className="text-sm text-green-400 mb-2">
                 Archived on: {new Date(h.savedAt.replace(/,+$/g, "").trim()).toLocaleString("en-US", {

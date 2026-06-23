@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import Footer from "./Footer";
 // import Header from "./Header";
-import DataEntryWarning from "./DataEntryWarning";
+// import DataEntryWarning from "./DataEntryWarning";
 import useAuth from "../hooks/useAuth";
 
 
@@ -99,7 +99,7 @@ const EntryMealDeposit:React.FC< MemberNameList> = ({ memberNameList}) => {
         </h2>
 
         {/* Warning */}
-        <DataEntryWarning />
+        {/* <DataEntryWarning /> */}
 
         {
           (userRole === "manager" || userRole === "assist_manager") && <>
