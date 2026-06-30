@@ -307,10 +307,10 @@ const Dashboard: React.FC<DashboardProps> = ({
             <div className="rounded-lg border border-[#E4D9C5] overflow-auto max-h-[50vh] bg-white">
               <table className="w-full text-sm">
                 <thead className="bg-[#2B2117] sticky top-0 z-10">
-                  <tr className="text-nowrap text-[11px] uppercase tracking-wide text-white/90">
-                    <th className="p-3 text-left font-medium">Date</th>
-                    <th className="p-3 text-left font-medium">Purchased By</th>
-                    <th className="p-3 text-right font-medium">Amount (৳)</th>
+                  <tr className="text-nowrap text-[11px] uppercase tracking-wide text-white">
+                    <th className="p-3 text-left font-medium text-white">Date</th>
+                    <th className="p-3 text-left font-medium text-white">Purchased By</th>
+                    <th className="p-3 text-right font-medium text-white">Amount (৳)</th>
                   </tr>
                 </thead>
                 <tbody>

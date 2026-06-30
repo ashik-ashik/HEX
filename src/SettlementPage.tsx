@@ -138,8 +138,9 @@ const SettlementPage: React.FC<Props> = ({
         netUtilityBalance: totalUtilityDeposit - totalUtilityCost,
         fixedMeal: fixedMeals,
         totalMeal: adjustedGrandTotalMeals,
-        mealRate,
+        mealRate, 
         members: memberForHistory,
+        utilityDeposits:utilityDeposits
       };
       toast.loading("Sending data to Google Sheet...", { id: "saveHistory" });
       const res = await fetch(import.meta.env.VITE_STORE_SUMMARY_API_SHEET, {
@@ -222,6 +223,16 @@ const SettlementPage: React.FC<Props> = ({
       }
     </button>
   );
+
+
+
+  // utility
+  // Utility derived stats
+  const utilityTotal = utilityDeposits.reduce((sum, u) => sum + u.total, 0);
+  const utilityMax = Math.max(...utilityDeposits.map((u) => u.total), 0);
+  const utilityAvg = utilityDeposits.length > 0 ? utilityTotal / utilityDeposits.length : 0;
+  const sortedUtility = [...utilityDeposits].sort((a, b) => b.total - a.total);
+  const topContributor = sortedUtility[0];
 
   return (
     <section id="settlement-page" className="min-h-screen bg-slate-950 font-sans">
@@ -543,6 +554,95 @@ const SettlementPage: React.FC<Props> = ({
             })}
           </div>
         </section>
+
+        {/* Utility */}
+<section className="mt-9">
+  <div className="flex items-end justify-between mb-4">
+    <div>
+      <p className="text-[11px] font-bold tracking-widest text-slate-400 uppercase">
+        Utility Summary
+      </p>
+      <p className="text-xs text-slate-500 mt-0.5">
+        {utilityDeposits.length} member{utilityDeposits.length !== 1 ? "s" : ""} contributed
+      </p>
+    </div>
+    {utilityDeposits.length > 0 && (
+      <div className="text-right">
+        <p className="text-[10px] uppercase tracking-wide text-slate-500">Total</p>
+        <p className="text-sm font-semibold text-teal-400 tabular-nums">
+          ৳{utilityTotal.toLocaleString()}
+        </p>
+      </div>
+    )}
+  </div>
+
+  {utilityDeposits.length === 0 ? (
+    <div className="border border-dashed border-slate-700 rounded-lg py-8 text-center">
+      <p className="text-sm text-slate-500">No utility deposits recorded for this month.</p>
+    </div>
+  ) : (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {sortedUtility.map((u, idx) => {
+        const pct = utilityMax > 0 ? (u.total / utilityMax) * 100 : 0;
+        const isTop = u.member === topContributor?.member && u.total > 0;
+
+        return (
+          <div
+            key={idx}
+            className={`relative overflow-hidden rounded-lg border bg-slate-800/50 px-4 py-3 transition-colors ${
+              isTop
+                ? "border-amber-400/40 ring-1 ring-amber-400/20"
+                : "border-slate-700 hover:border-slate-600"
+            }`}
+          >
+            {/* Bolt icon + name */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <svg
+                  className={`w-3.5 h-3.5 flex-shrink-0 ${
+                    isTop ? "text-amber-400" : "text-teal-400/70"
+                  }`}
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M13 2 3 14h7l-1 8 11-14h-7l1-6z" />
+                </svg>
+                <p className="text-sm text-slate-200 truncate">{u.member}</p>
+              </div>
+              {isTop && (
+                <span className="text-[9px] font-semibold uppercase tracking-wide text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded flex-shrink-0">
+                  Top
+                </span>
+              )}
+            </div>
+
+            {/* Amount */}
+            <p className="text-lg font-bold text-slate-50 tabular-nums mb-2">
+              ৳{u.total.toLocaleString()}
+            </p>
+
+            {/* Relative bar */}
+            <div className="h-1.5 rounded-full bg-slate-700/60 overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${
+                  isTop ? "bg-amber-400" : "bg-teal-400/70"
+                }`}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  )}
+
+  {/* Average footnote */}
+  {utilityDeposits.length > 1 && (
+    <p className="text-[11px] text-slate-500 mt-3">
+      Average contribution: <span className="text-slate-300 font-medium">৳{utilityAvg.toFixed(0)}</span>
+    </p>
+  )}
+</section>
 
         {/* ════════════════════════════════
             Bottom Actions
