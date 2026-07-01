@@ -149,7 +149,7 @@ const EntryUtilityDeposit: React.FC< MemberNameList> = ({ memberNameList}) => {
                       {/* Amount Input */}
                       <div>
                       <label className="text-xs font-medium text-gray-600">
-                          Amount (৳)
+                          Amount (৳ )
                       </label>
                       <input
                           type="text"

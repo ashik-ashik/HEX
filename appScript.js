@@ -68,7 +68,7 @@ function handleBazar(e) {
     parseFloat(amount),
   ]);
 
-  return jsonResponse("success", "Bazar cost ৳" + amount +" added successfully");
+  return jsonResponse("success", "Bazar cost ৳ " + amount +" added successfully");
 }
 
 
@@ -217,7 +217,7 @@ function addUtilityCost(e) {
     sheet.getRange(nextRow, 2).setValue(e.parameter.amount);
 
     // Optional: show a success message
-    return jsonResponse("success", `Utility Cast added ৳ ${e.parameter.amount}`);
+    return jsonResponse("success", `Utility Cast added ৳  ${e.parameter.amount}`);
     
   } catch (error) {
     Logger.log("Error adding utility cost: " + error);

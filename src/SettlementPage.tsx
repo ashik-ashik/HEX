@@ -120,6 +120,7 @@ const SettlementPage: React.FC<Props> = ({
   const totalUtilityCost = utilityCosts.reduce((sum, item) => sum + (parseFloat(item[1]) || 0), 0);
   const mealRate = adjustedGrandTotalMeals > 0 ? totalBazar / adjustedGrandTotalMeals : 0;
 
+  console.log(members)
   const mealMap = Object.fromEntries(adjustedMeals.map((m) => [m.name, m]));
   const settlements = members.map((member) => {
     const meals = mealMap[member.name]?.total || 0;
@@ -425,17 +426,17 @@ const SettlementPage: React.FC<Props> = ({
                 <span className="text-xs font-medium text-slate-400">Meal Deposits</span>
                 <Wallet size={15} className="text-indigo-400" />
               </div>
-              <p className="text-2xl font-extrabold text-slate-100">৳{grandDeposit.toFixed(0)}</p>
+              <p className="text-2xl font-extrabold text-slate-100">৳ {grandDeposit.toFixed(0)}</p>
               <div className="mt-3 pt-3 border-t border-slate-700 space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-slate-400">Bazar Spent</span>
-                  <span className="text-xs font-semibold text-slate-300">৳{totalBazar.toFixed(0)}</span>
+                  <span className="text-xs font-semibold text-slate-300">৳ {totalBazar.toFixed(0)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-slate-400">Net Balance</span>
                   <span className={`flex items-center gap-1 text-sm font-bold ${netMealBalance >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                     {netMealBalance >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                    ৳{netMealBalance.toFixed(0)}
+                    ৳ {netMealBalance.toFixed(0)}
                   </span>
                 </div>
               </div>
@@ -447,17 +448,17 @@ const SettlementPage: React.FC<Props> = ({
                 <span className="text-xs font-medium text-slate-400">Utility Deposits</span>
                 <Zap size={15} className="text-violet-400" />
               </div>
-              <p className="text-2xl font-extrabold text-slate-100">৳{totalUtilityDeposit.toFixed(0)}</p>
+              <p className="text-2xl font-extrabold text-slate-100">৳ {totalUtilityDeposit.toFixed(0)}</p>
               <div className="mt-3 pt-3 border-t border-slate-700 space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-slate-400">Utility Cost</span>
-                  <span className="text-xs font-semibold text-slate-300">৳{totalUtilityCost.toFixed(0)}</span>
+                  <span className="text-xs font-semibold text-slate-300">৳ {totalUtilityCost.toFixed(0)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-slate-400">Net Balance</span>
                   <span className={`flex items-center gap-1 text-sm font-bold ${netUtilityBalance >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                     {netUtilityBalance >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                    ৳{netUtilityBalance.toFixed(0)}
+                    ৳ {netUtilityBalance.toFixed(0)}
                   </span>
                 </div>
               </div>
@@ -469,7 +470,7 @@ const SettlementPage: React.FC<Props> = ({
                 <span className="text-xs font-medium text-slate-400">Meal Statistics</span>
                 <Utensils size={15} className="text-emerald-400" />
               </div>
-              <p className="text-2xl font-extrabold text-slate-100">৳{mealRate.toFixed(2)}</p>
+              <p className="text-2xl font-extrabold text-slate-100">৳ {mealRate.toFixed(2)}</p>
               <p className="text-[11px] text-slate-500 mt-0.5">per meal</p>
               <div className="mt-3 pt-3 border-t border-slate-700 space-y-2">
                 <div className="flex justify-between items-center">
@@ -537,15 +538,15 @@ const SettlementPage: React.FC<Props> = ({
                           : "bg-emerald-950/60 text-emerald-400"
                         }`}>
                         {isDue
-                          ? `Pay ৳${Math.ceil(m.balance * -1)}`
-                          : `Receive ৳${Math.ceil(m.balance)}`}
+                          ? `Pay ৳ ${Math.ceil(m.balance * -1)}`
+                          : `Receive ৳ ${Math.ceil(m.balance)}`}
                       </span>
                     </div>
 
                     <div className="text-right shrink-0">
                       <p className={`text-lg font-extrabold leading-none
                         ${isDue ? "text-red-400" : "text-emerald-400"}`}>
-                        {isDue ? "-" : "+"}৳{Math.abs(Math.ceil(m.balance))}
+                        {isDue ? "-" : "+"}৳ {Math.abs(Math.ceil(m.balance))}
                       </p>
                       <p className="text-[10px] text-slate-500 mt-0.5">balance</p>
                     </div>
@@ -555,7 +556,7 @@ const SettlementPage: React.FC<Props> = ({
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 p-3">
                     <div className="flex flex-col items-center bg-slate-900 rounded-xl py-2 px-1">
                       <span className="text-[10px] text-slate-400 font-medium mb-1">Deposit</span>
-                      <span className="text-xs font-bold text-slate-200">৳{m.deposit.toFixed(0)}</span>
+                      <span className="text-xs font-bold text-slate-200">৳ {m.deposit.toFixed(0)}</span>
                     </div>
                     <div className="flex flex-col items-center bg-slate-900 rounded-xl py-2 px-1">
                       <span className="text-[10px] text-slate-400 font-medium mb-1">Meals</span>
@@ -563,7 +564,7 @@ const SettlementPage: React.FC<Props> = ({
                     </div>
                     <div className="flex flex-col items-center bg-slate-900 rounded-xl py-2 px-1 col-span-2 sm:col-span-1">
                       <span className="text-[10px] text-slate-400 font-medium mb-1">Meal Cost</span>
-                      <span className="text-xs font-bold text-slate-200">৳{Math.ceil(m.mealCost)}</span>
+                      <span className="text-xs font-bold text-slate-200">৳ {Math.ceil(m.mealCost)}</span>
                     </div>
                   </div>
 
@@ -588,7 +589,7 @@ const SettlementPage: React.FC<Props> = ({
       <div className="text-right">
         <p className="text-[10px] uppercase tracking-wide text-slate-500">Total</p>
         <p className="text-sm font-semibold text-teal-400 tabular-nums">
-          ৳{utilityTotal.toLocaleString()}
+          ৳ {utilityTotal.toLocaleString()}
         </p>
       </div>
     )}
@@ -636,7 +637,7 @@ const SettlementPage: React.FC<Props> = ({
 
             {/* Amount */}
             <p className="text-lg font-bold text-slate-50 tabular-nums mb-2">
-              ৳{u.total.toLocaleString()}
+              ৳ {u.total.toLocaleString()}
             </p>
 
             {/* Relative bar */}
@@ -657,7 +658,7 @@ const SettlementPage: React.FC<Props> = ({
   {/* Average footnote */}
   {utilityDeposits.length > 1 && (
     <p className="text-[11px] text-slate-500 mt-3">
-      Average contribution: <span className="text-slate-300 font-medium">৳{utilityAvg.toFixed(0)}</span>
+      Average contribution: <span className="text-slate-300 font-medium">৳ {utilityAvg.toFixed(0)}</span>
     </p>
   )}
 </section>

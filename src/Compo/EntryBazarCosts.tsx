@@ -189,7 +189,7 @@ const EntryBazarCosts:React.FC< MemberNameList> = ({ memberNameList}) => {
 
           {/* Amount */}
           <div className="flex flex-col">
-            <label className="text-sm text-gray-300 mb-1">Amount (৳)</label>
+            <label className="text-sm text-gray-300 mb-1">Amount (৳ )</label>
             <input
               type="number"
               name="amount"

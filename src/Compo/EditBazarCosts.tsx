@@ -36,7 +36,7 @@ const EditLastBazarCost: React.FC< MemberNameList> = ({ memberNameList}) => {
     }
 
     // const confirmEdit = window.confirm(
-    //   `Are you sure you want to update the last bazar cost?\n\nDate: ${formData.date}\nMember: ${formData.doer}\nAmount: ৳${formData.amount}`
+    //   `Are you sure you want to update the last bazar cost?\n\nDate: ${formData.date}\nMember: ${formData.doer}\nAmount: ৳ ${formData.amount}`
     // );
 
     // if (!confirmEdit) return;

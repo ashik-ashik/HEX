@@ -131,7 +131,7 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
                   Total Deposit
                 </h3>
                 <p className="font-mono text-2xl font-bold text-[#1E2A38] mt-2">
-                  ৳ {fmt(grandDeposit)}
+                  ৳  {fmt(grandDeposit)}
                 </p>
               </div>
               <div className="p-6 text-center">
@@ -139,7 +139,7 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
                   Total Costs
                 </h3>
                 <p className="font-mono text-2xl font-bold text-[#1E2A38] mt-2">
-                  ৳ {fmt(totalCosts)}
+                  ৳  {fmt(totalCosts)}
                 </p>
               </div>
               <div className="p-6 text-center">
@@ -151,7 +151,7 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
                     utilityBalance >= 0 ? "text-[#2D5F8B]" : "text-[#B33A3A]"
                   }`}
                 >
-                  ৳ {fmt(utilityBalance)}
+                  ৳  {fmt(utilityBalance)}
                 </p>
               </div>
             </div>
@@ -229,7 +229,7 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
                       </span>
                     </div>
                     <p className="font-mono text-lg font-bold text-[#2E7D52] mb-2">
-                      ৳ {fmt(person.total)}
+                      ৳  {fmt(person.total)}
                     </p>
                     <div className="h-1.5 rounded-full bg-[#F0EBDD] overflow-hidden">
                       <div
@@ -247,7 +247,7 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
                 Total Deposit
               </span>
               <span className="font-mono font-bold text-[#2E7D52]">
-                ৳ {fmt(grandDeposit)}
+                ৳  {fmt(grandDeposit)}
               </span>
             </div>
           </section>
@@ -310,7 +310,7 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
                             </div>
                           </td>
                           <td className="px-5 py-3 text-right font-mono font-bold text-[#C1502E]">
-                            ৳ {fmt(item.total)}
+                            ৳  {fmt(item.total)}
                           </td>
                         </tr>
                       );
@@ -325,7 +325,7 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
                 Total Costs
               </span>
               <span className="font-mono font-bold text-[#C1502E]">
-                ৳ {fmt(totalCosts)}
+                ৳  {fmt(totalCosts)}
               </span>
             </div>
           </section>

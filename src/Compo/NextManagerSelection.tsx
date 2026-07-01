@@ -280,6 +280,9 @@ console.log(usersList, userIsLoading)
             <option value="assist_manager">
               Assistant Manager
             </option>
+            <option value="EX-Member">
+              EX-Member
+            </option>
             <option value="guest">
               Guest
             </option>
@@ -316,7 +319,7 @@ console.log(usersList, userIsLoading)
 
             {/* User Info */}
             <div>
-              <h2 className="text-md font-semibold text-gray-800">
+              <h2 className="text-md font-semibold text-gray-800 capitalize">
                 {u.name}
               </h2>
               <p className="text-sm text-gray-500 capitalize">

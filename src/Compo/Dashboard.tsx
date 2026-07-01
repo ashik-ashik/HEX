@@ -202,7 +202,7 @@ const Dashboard: React.FC<DashboardProps> = ({
               >
                 <p className="text-[10px] uppercase tracking-wider text-[#6B5E50] font-medium mb-2">{card.label}</p>
                 <p className="font-['JetBrains_Mono'] text-lg font-semibold" style={{ color: card.color }}>
-                  ৳{card.value.toFixed(card.fmt)}
+                  ৳ {card.value.toFixed(card.fmt)}
                 </p>
               </div>
             ))}
@@ -214,18 +214,18 @@ const Dashboard: React.FC<DashboardProps> = ({
               <div className="bg-[#B23A2E]/[0.06] border border-[#B23A2E]/20 rounded-lg p-4">
                 <p className="text-[10px] uppercase tracking-wider text-[#B23A2E] font-semibold mb-1">Owes the most</p>
                 <p className="font-['Fraunces'] text-base text-[#2B2117]">{insights.mostDue.name}</p>
-                <p className="font-['JetBrains_Mono'] text-sm text-[#B23A2E]">৳{Math.abs(insights.mostDue.balance).toFixed(0)} due</p>
+                <p className="font-['JetBrains_Mono'] text-sm text-[#B23A2E]">৳ {Math.abs(insights.mostDue.balance).toFixed(0)} due</p>
               </div>
               <div className="bg-[#4F7A5A]/[0.06] border border-[#4F7A5A]/20 rounded-lg p-4">
                 <p className="text-[10px] uppercase tracking-wider text-[#4F7A5A] font-semibold mb-1">Most in credit</p>
                 <p className="font-['Fraunces'] text-base text-[#2B2117]">{insights.mostCredit.name}</p>
-                <p className="font-['JetBrains_Mono'] text-sm text-[#4F7A5A]">৳{insights.mostCredit.balance.toFixed(0)} to receive</p>
+                <p className="font-['JetBrains_Mono'] text-sm text-[#4F7A5A]">৳ {insights.mostCredit.balance.toFixed(0)} to receive</p>
               </div>
               {insights.topBazarPerson && (
                 <div className="bg-[#C28A2E]/[0.07] border border-[#C28A2E]/25 rounded-lg p-4">
                   <p className="text-[10px] uppercase tracking-wider text-[#C28A2E] font-semibold mb-1">Top bazar contributor</p>
                   <p className="font-['Fraunces'] text-base text-[#2B2117]">{insights.topBazarPerson[0]}</p>
-                  <p className="font-['JetBrains_Mono'] text-sm text-[#C28A2E]">৳{insights.topBazarPerson[1].toFixed(0)} spent</p>
+                  <p className="font-['JetBrains_Mono'] text-sm text-[#C28A2E]">৳ {insights.topBazarPerson[1].toFixed(0)} spent</p>
                 </div>
               )}
             </div>
@@ -265,13 +265,13 @@ const Dashboard: React.FC<DashboardProps> = ({
                         )}
                         {isDue && (
                           <span className="absolute -top-1 -right-1 bg-[#B23A2E] text-white text-[9px] px-1.5 py-[2px] rounded-full font-['JetBrains_Mono']">
-                            ৳{Math.ceil(Math.abs(balance))}
+                            ৳ {Math.ceil(Math.abs(balance))}
                           </span>
                         )}
                       </div>
                       <div className="min-w-0">
                         <h3 className="font-medium text-sm text-[#2B2117] truncate">{member.name}</h3>
-                        <p className="text-xs text-[#6B5E50] font-['JetBrains_Mono']">৳{member.total.toFixed(2)} deposited</p>
+                        <p className="text-xs text-[#6B5E50] font-['JetBrains_Mono']">৳ {member.total.toFixed(2)} deposited</p>
                       </div>
                     </div>
 
@@ -310,7 +310,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <tr className="text-nowrap text-[11px] uppercase tracking-wide text-white">
                     <th className="p-3 text-left font-medium text-white">Date</th>
                     <th className="p-3 text-left font-medium text-white">Purchased By</th>
-                    <th className="p-3 text-right font-medium text-white">Amount (৳)</th>
+                    <th className="p-3 text-right font-medium text-white">Amount (৳ )</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -318,7 +318,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     <tr key={idx} className="border-t border-[#E4D9C5] hover:bg-[#FAF5EB] text-nowrap text-xs">
                       <td className="p-3 text-[#6B5E50] font-['JetBrains_Mono']">{item.date}</td>
                       <td className="p-3 text-[#2B2117]">{item.person}</td>
-                      <td className="p-3 text-right font-['JetBrains_Mono'] font-medium text-[#2B2117]">৳{item.amount}</td>
+                      <td className="p-3 text-right font-['JetBrains_Mono'] font-medium text-[#2B2117]">৳ {item.amount}</td>
                     </tr>
                   ))}
                   {filteredBazar.length === 0 && (
@@ -331,7 +331,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <tr className="border-t-2 border-[#2B2117]/80 bg-[#FAF5EB] sticky bottom-0">
                     <td className="p-3 font-semibold text-[#2B2117]">Total Bazar</td>
                     <td className="p-3"></td>
-                    <td className="p-3 text-right font-['JetBrains_Mono'] font-semibold text-[#C0573B]">৳{totalBazar.toFixed(2)}</td>
+                    <td className="p-3 text-right font-['JetBrains_Mono'] font-semibold text-[#C0573B]">৳ {totalBazar.toFixed(2)}</td>
                   </tr>
                 </tfoot>
               </table>
@@ -390,7 +390,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             <div className="grid sm:grid-cols-3 gap-3 mb-6">
               <div className="bg-white border border-[#E4D9C5] rounded-lg p-4 text-center">
                 <p className="text-[10px] uppercase tracking-wider text-[#6B5E50] mb-1">Total Bazar</p>
-                <p className="font-['JetBrains_Mono'] text-base font-semibold text-[#C0573B]">৳{totalBazar.toFixed(2)}</p>
+                <p className="font-['JetBrains_Mono'] text-base font-semibold text-[#C0573B]">৳ {totalBazar.toFixed(2)}</p>
               </div>
               <div className="bg-white border border-[#E4D9C5] rounded-lg p-4 text-center">
                 <p className="text-[10px] uppercase tracking-wider text-[#6B5E50] mb-1">Total Meals</p>
@@ -398,7 +398,7 @@ const Dashboard: React.FC<DashboardProps> = ({
               </div>
               <div className="bg-white border border-[#E4D9C5] rounded-lg p-4 text-center">
                 <p className="text-[10px] uppercase tracking-wider text-[#6B5E50] mb-1">Meal Rate</p>
-                <p className="font-['JetBrains_Mono'] text-base font-semibold text-[#C28A2E]">৳{mealRate.toFixed(4)}</p>
+                <p className="font-['JetBrains_Mono'] text-base font-semibold text-[#C28A2E]">৳ {mealRate.toFixed(4)}</p>
               </div>
             </div>
 
@@ -409,10 +409,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                     <tr className="text-nowrap text-[11px] uppercase tracking-wide text-[#6B5E50] border-b border-[#E4D9C5]">
                       {[
                         { key: "name" as SortKey, label: "Member", align: "text-left" },
-                        { key: "deposit" as SortKey, label: "Deposit (৳)", align: "text-right" },
+                        { key: "deposit" as SortKey, label: "Deposit (৳ )", align: "text-right" },
                         { key: "meals" as SortKey, label: "Meals", align: "text-right" },
-                        { key: null, label: "Meal Cost (৳)", align: "text-right" },
-                        { key: "balance" as SortKey, label: "Balance (৳)", align: "text-right" },
+                        { key: null, label: "Meal Cost (৳ )", align: "text-right" },
+                        { key: "balance" as SortKey, label: "Balance (৳ )", align: "text-right" },
                         { key: null, label: "Status", align: "text-center" },
                       ].map((col, i) => (
                         <th
@@ -430,11 +430,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                     {sortedSettlements.map((item, idx) => (
                       <tr key={idx} className="border-t border-[#E4D9C5] hover:bg-[#FAF5EB] text-nowrap text-xs">
                         <td className="p-4 font-medium text-left sticky left-0 bg-white text-[#2B2117]">{item.name}</td>
-                        <td className="p-4 text-right font-['JetBrains_Mono'] text-[#2B2117]">৳{item.deposit.toFixed(2)}</td>
+                        <td className="p-4 text-right font-['JetBrains_Mono'] text-[#2B2117]">৳ {item.deposit.toFixed(2)}</td>
                         <td className="p-4 text-right font-['JetBrains_Mono'] text-[#2B2117]">{item.meals}</td>
-                        <td className="p-4 text-right font-['JetBrains_Mono'] text-[#2B2117]">৳{item.mealCost.toFixed(2)}</td>
+                        <td className="p-4 text-right font-['JetBrains_Mono'] text-[#2B2117]">৳ {item.mealCost.toFixed(2)}</td>
                         <td className={`p-4 text-right font-['JetBrains_Mono'] font-semibold ${item.balance >= 0 ? "text-[#4F7A5A]" : "text-[#B23A2E]"}`}>
-                          ৳{Math.ceil(item.balance)}
+                          ৳ {Math.ceil(item.balance)}
                         </td>
                         <td className="p-4 text-center">
                           {item.balance > 0 ? (

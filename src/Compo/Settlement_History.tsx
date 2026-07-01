@@ -62,7 +62,7 @@ const Figure: React.FC<{
   value: number;
   prefix?: string;
   decimals?: number;
-}> = ({ value, prefix = "৳ ", decimals = 0 }) => {
+}> = ({ value, prefix = "৳  ", decimals = 0 }) => {
   const animated = useCountUp(value);
   return (
     <span className="ledger-figure">
@@ -624,7 +624,7 @@ const History: React.FC = () => {
                       <p className="text-sm font-medium">{topReceiver.name}</p>
                     </div>
                     <div className="leader-dots" />
-                    <span className="ledger-figure text-sm" style={{ color: "var(--surplus)" }}>+৳{topReceiver.balance.toFixed(2)}</span>
+                    <span className="ledger-figure text-sm" style={{ color: "var(--surplus)" }}>+৳ {topReceiver.balance.toFixed(2)}</span>
                   </div>
                 )}
                 {topPayer && topPayer.balance < 0 && (
@@ -634,7 +634,7 @@ const History: React.FC = () => {
                       <p className="text-sm font-medium">{topPayer.name}</p>
                     </div>
                     <div className="leader-dots" />
-                    <span className="ledger-figure text-sm" style={{ color: "var(--due)" }}>৳{topPayer.balance.toFixed(2)}</span>
+                    <span className="ledger-figure text-sm" style={{ color: "var(--due)" }}>৳ {topPayer.balance.toFixed(2)}</span>
                   </div>
                 )}
               </div>
@@ -712,7 +712,7 @@ const History: React.FC = () => {
           </div>
 
           {/* ===== PAST ENTRIES ===== */}
-          <h2 className="ledger-display text-2xl lg:text-3xl mb-4 p-4 bg-black text-white rounded">
+          <h2 className="ledger-display text-xl lg:text-3xl mb-4 p-4 bg-black text-white rounded">
             Monthly Settlement History
           </h2>
 
@@ -759,12 +759,12 @@ const History: React.FC = () => {
                   Deposits &amp; Costs
                 </span>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-px text-xs rounded overflow-hidden" style={{ background: "var(--rule)" }}>
-                  <div className="p-2" style={{ background: "var(--paper)" }}>Total Deposit <span className="ledger-figure block">৳{h.summary.totalDeposit}</span></div>
-                  <div className="p-2" style={{ background: "var(--paper)" }}>Total Bazar <span className="ledger-figure block">৳{h.summary.totalBazar}</span></div>
-                  <div className="p-2" style={{ background: "var(--paper)" }}>Net Meal Balance <span className="ledger-figure block">৳{h.summary.netMealBalance}</span></div>
-                  <div className="p-2" style={{ background: "var(--paper)" }}>Utility Deposit <span className="ledger-figure block">৳{h.summary.utilityDeposit}</span></div>
-                  <div className="p-2" style={{ background: "var(--paper)" }}>Utility Cost <span className="ledger-figure block">৳{h.summary.utilityCost}</span></div>
-                  <div className="p-2" style={{ background: "var(--paper)" }}>Net Utility Balance <span className="ledger-figure block">৳{h.summary.netUtilityBalance}</span></div>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Total Deposit <span className="ledger-figure block">৳ {h.summary.totalDeposit}</span></div>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Total Bazar <span className="ledger-figure block">৳ {h.summary.totalBazar}</span></div>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Net Meal Balance <span className="ledger-figure block">৳ {h.summary.netMealBalance}</span></div>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Utility Deposit <span className="ledger-figure block">৳ {h.summary.utilityDeposit}</span></div>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Utility Cost <span className="ledger-figure block">৳ {h.summary.utilityCost}</span></div>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Net Utility Balance <span className="ledger-figure block">৳ {h.summary.netUtilityBalance}</span></div>
                 </div>
               </div>
 
@@ -818,11 +818,11 @@ const History: React.FC = () => {
                             .map((m, i) => (
                               <tr key={i} className="ledger-row-stripe" style={{ borderBottom: "1px dotted var(--rule)" }}>
                                 <td className="px-2 py-2 font-medium">{m.name}</td>
-                                <td className="px-2 py-2 ledger-figure" style={{ color: m.utility < 0 ? "var(--due)" : "var(--surplus)" }}>৳{m.utility}</td>
-                                <td className="px-2 py-2 ledger-figure">৳{m.deposit}</td>
+                                <td className="px-2 py-2 ledger-figure" style={{ color: m.utility < 0 ? "var(--due)" : "var(--surplus)" }}>৳ {m.utility}</td>
+                                <td className="px-2 py-2 ledger-figure">৳ {m.deposit}</td>
                                 <td className="px-2 py-2 ledger-figure">{m.meals}</td>
-                                <td className="px-2 py-2 ledger-figure">৳{m.mealCost.toFixed(2)}</td>
-                                <td className="px-2 py-2 ledger-figure" style={{ color: m.balance < 0 ? "var(--due)" : "var(--surplus)" }}>৳{m.balance.toFixed(2)}</td>
+                                <td className="px-2 py-2 ledger-figure">৳ {m.mealCost.toFixed(2)}</td>
+                                <td className="px-2 py-2 ledger-figure" style={{ color: m.balance < 0 ? "var(--due)" : "var(--surplus)" }}>৳ {m.balance.toFixed(2)}</td>
                                 <td className="px-2 py-2"><StampBadge balance={m.balance} status={m.status} /></td>
                               </tr>
                             ))}
@@ -842,12 +842,12 @@ const History: React.FC = () => {
                             </div>
 
                             <div className="grid grid-cols-2 gap-y-3 gap-x-2 mb-3">
-                              <MemberStat label="Deposit" value={`৳${m.deposit}`} />
+                              <MemberStat label="Deposit" value={`৳ ${m.deposit}`} />
                               <MemberStat label="Meals" value={`${m.meals}`} />
-                              <MemberStat label="Meal Cost" value={`৳${m.mealCost.toFixed(2)}`} />
+                              <MemberStat label="Meal Cost" value={`৳ ${m.mealCost.toFixed(2)}`} />
                               <MemberStat
                                 label="Utility"
-                                value={`৳${m.utility}`}
+                                value={`৳ ${m.utility}`}
                                 tone={m.utility < 0 ? "due" : "surplus"}
                               />
                             </div>
@@ -861,7 +861,7 @@ const History: React.FC = () => {
                                 className="ledger-figure text-base"
                                 style={{ color: m.balance < 0 ? "var(--due)" : "var(--surplus)" }}
                               >
-                                ৳{m.balance.toFixed(2)}
+                                ৳ {m.balance.toFixed(2)}
                               </span>
                             </div>
                           </div>
