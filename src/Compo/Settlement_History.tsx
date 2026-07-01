@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
-import Header from "./Header";
+import { ChevronDown, FileText, Home } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface MemberSettlement {
   name: string;
@@ -109,10 +110,97 @@ const MemberStat: React.FC<{ label: string; value: string; tone?: "default" | "d
   </div>
 );
 
+/* ---------- Custom header for the History page ---------- */
+// Home link + a month dropdown that reads straight off the `history` state,
+// so it automatically picks up any new month the moment it's fetched — no
+// separate list to keep in sync.
+const HistoryHeader: React.FC<{
+  history: MonthHistory[];
+  onSelectMonth: (idx: number) => void;
+}> = ({ history, onSelectMonth }) => {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const monthLabel = (h: MonthHistory) => h?.month.replace(/,+$/g, "")?.trim().split("|")[0]?.trim();
+
+  return (
+    <header
+      className="fixed top-0 left-0 w-full h-16 z-[50] flex items-center justify-between px-4 lg:px-8"
+      style={{ background: "var(--paper, #FBF7EE)", borderBottom: "1px solid var(--rule, #D8CDB4)" }}
+    >
+      <Link
+        to="/"
+        className="flex items-center gap-2 text-sm font-semibold transition-opacity hover:opacity-70"
+        style={{ color: "var(--ink, #2A2118)" }}
+      >
+        <Home className="w-4 h-4" style={{ color: "var(--amber, #C2772E)" }} />
+        Home
+      </Link>
+
+      <p
+        className="ledger-display hidden sm:block text-sm tracking-wide"
+        style={{ color: "var(--ink-soft, #6B5D4F)" }}
+      >
+        Settlement Ledger
+      </p>
+
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setOpen((prev) => !prev)}
+          className="flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-full transition-colors hover:opacity-80"
+          style={{ background: "var(--paper-line, #F2EAD8)", color: "var(--ink, #2A2118)" }}
+        >
+          {history.length > 0 ? monthLabel(history[0]) : "Months"}
+          <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+        </button>
+
+        {open && (
+          <div
+            className="absolute right-0 mt-2 w-56 max-h-72 overflow-y-auto rounded-lg shadow-lg py-1 z-[60]"
+            style={{ background: "var(--paper, #FBF7EE)", border: "1px solid var(--rule, #D8CDB4)" }}
+          >
+            {history.length === 0 && (
+              <p className="px-4 py-2 text-xs" style={{ color: "var(--ink-soft, #6B5D4F)" }}>
+                No months yet
+              </p>
+            )}
+            {history.map((h, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  onSelectMonth(idx);
+                  setOpen(false);
+                }}
+                className="w-full text-left text-sm px-4 py-2 transition-colors hover:opacity-80"
+                style={{ color: "var(--ink, #2A2118)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--paper-line, #F2EAD8)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+              >
+                {monthLabel(h)}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </header>
+  );
+};
+
 const History: React.FC = () => {
   const [history, setHistory] = useState<MonthHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showReport, setShowReport] = useState(false);
 
   const history_sheet_reader = import.meta.env.VITE_HISTORY_SHEET_READER;
 
@@ -131,32 +219,31 @@ const History: React.FC = () => {
     const summaryIndex = lines.findIndex((l) => l === "SUMMARY");
     const summaryDataLine = lines[summaryIndex + 6];
     const [totalDeposit, totalBazar, netMealBalance, utilityDeposit, utilityCost, netUtilityBalance] =
-    summaryDataLine.split(",").map((v) => Number(v.trim()));
-    
+      summaryDataLine.split(",").map((v) => Number(v.trim()));
+
     // MEAL SUMMARY
     const mealIndex = lines.findIndex((l) => l === "MEAL SUMMARY");
     const mealDataLine = lines[mealIndex + 10];
     const [fixedMeal, totalMeal, mealRate] = mealDataLine.split(",").map((v) => Number(v.trim()));
-    
+
     // MEMBER SETTLEMENT
     const memberIndex = lines.findIndex((l) => l === "MEMBER SETTLEMENT");
     const memberLines = lines.slice(memberIndex + 14); // skip header line
 
-
     const members: MemberSettlement[] = memberLines.map((line) => {
-  const parts = line.split(",").map((v) => v.trim()); // split CSV
-  const [name, deposit, meals, mealCost, balance, status, utility] = parts;
+      const parts = line.split(",").map((v) => v.trim()); // split CSV
+      const [name, deposit, meals, mealCost, balance, status, utility] = parts;
 
-  return {
-    name,
-    deposit: Number(deposit),
-    meals: Number(meals),
-    mealCost: Number(mealCost),
-    balance: Number(balance),
-    status: status || undefined, // handle empty status
-    utility: Number(utility) || 0, // handle empty utility
-  };
-});
+      return {
+        name,
+        deposit: Number(deposit),
+        meals: Number(meals),
+        mealCost: Number(mealCost),
+        balance: Number(balance),
+        status: status || undefined, // handle empty status
+        utility: Number(utility) || 0, // handle empty utility
+      };
+    });
 
     return {
       month: monthLine,
@@ -331,6 +418,14 @@ const History: React.FC = () => {
         border-radius: 10px;
       }
 
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+      .nav-pill-active {
+        background: var(--amber) !important;
+        color: #fff !important;
+      }
+
       @keyframes stampLand {
         0% { opacity: 0; transform: scale(1.6) rotate(-10deg); }
         60% { opacity: 1; }
@@ -349,44 +444,53 @@ const History: React.FC = () => {
   );
 
   if (loading)
-  return (
-    <div className="hex-ledger flex flex-col items-center justify-center py-20 w-full mx-auto min-h-screen">
-        <LedgerStyles />
-        <div className="flex flex-col items-center justify-center py-20">
-          <div className="w-10 h-10 border-[3px] border-[#C2772E] border-dashed rounded-full animate-spin mb-4"></div>
-          <p className="ledger-display text-lg" style={{ color: "var(--ink)" }}>Opening the ledger…</p>
-          <p className="text-sm" style={{ color: "var(--ink-soft)" }}>Tallying past settlements.</p>
-        </div>
-    </div>
-  );
-
-if (error)
-  return (
-    <div className="hex-ledger flex flex-col items-center justify-center py-20 w-full mx-auto min-h-screen">
-        <LedgerStyles />
-        <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-          <div className="ledger-stamp stamp-due mb-4" style={{ fontSize: 13, transform: "rotate(-4deg)" }}>
-            Entry failed
+    return (
+      <>
+        <HistoryHeader history={[]} onSelectMonth={() => {}} />
+        <div className="hex-ledger flex flex-col items-center justify-center py-20 pt-32 w-full mx-auto min-h-screen">
+          <LedgerStyles />
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="w-10 h-10 border-[3px] border-[#C2772E] border-dashed rounded-full animate-spin mb-4"></div>
+            <p className="ledger-display text-lg" style={{ color: "var(--ink)" }}>Opening the ledger…</p>
+            <p className="text-sm" style={{ color: "var(--ink-soft)" }}>Tallying past settlements.</p>
           </div>
-          <p className="ledger-display text-lg mb-1" style={{ color: "var(--due)" }}>The ledger wouldn't open.</p>
-          <p className="text-sm" style={{ color: "var(--ink-soft)" }}>{error}</p>
         </div>
-    </div>
-  );
+      </>
+    );
 
-if (!history.length)
-  return (
-    <div className="hex-ledger flex flex-col items-center justify-center py-20 w-full mx-auto min-h-screen">
-        <LedgerStyles />
-        <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-          <div className="ledger-stamp stamp-due mb-4" style={{ borderColor: "var(--amber)", color: "var(--amber-deep)", background: "var(--paper-line)" }}>
-            Blank page
+  if (error)
+    return (
+      <>
+        <HistoryHeader history={[]} onSelectMonth={() => {}} />
+        <div className="hex-ledger flex flex-col items-center justify-center py-20 pt-32 w-full mx-auto min-h-screen">
+          <LedgerStyles />
+          <div className="flex flex-col items-center justify-center py-20 text-center px-4">
+            <div className="ledger-stamp stamp-due mb-4" style={{ fontSize: 13, transform: "rotate(-4deg)" }}>
+              Entry failed
+            </div>
+            <p className="ledger-display text-lg mb-1" style={{ color: "var(--due)" }}>The ledger wouldn't open.</p>
+            <p className="text-sm" style={{ color: "var(--ink-soft)" }}>{error}</p>
           </div>
-          <p className="ledger-display text-lg mb-1">No entries yet</p>
-          <p className="text-sm" style={{ color: "var(--ink-soft)" }}>The ledger has no settlement history on record.</p>
         </div>
-    </div>
-  );
+      </>
+    );
+
+  if (!history.length)
+    return (
+      <>
+        <HistoryHeader history={[]} onSelectMonth={() => {}} />
+        <div className="hex-ledger flex flex-col items-center justify-center py-20 pt-32 w-full mx-auto min-h-screen">
+          <LedgerStyles />
+          <div className="flex flex-col items-center justify-center py-20 text-center px-4">
+            <div className="ledger-stamp stamp-due mb-4" style={{ borderColor: "var(--amber)", color: "var(--amber-deep)", background: "var(--paper-line)" }}>
+              Blank page
+            </div>
+            <p className="ledger-display text-lg mb-1">No entries yet</p>
+            <p className="text-sm" style={{ color: "var(--ink-soft)" }}>The ledger has no settlement history on record.</p>
+          </div>
+        </div>
+      </>
+    );
 
   const lastMonth = history[0];
 
@@ -398,11 +502,9 @@ if (!history.length)
   const averageMealRate = lastMonth?.mealSummary?.mealRate?.toFixed(2);
   const totalMeal = lastMonth?.mealSummary?.totalMeal;
   const fixedMeal = lastMonth?.mealSummary?.fixedMeal;
-  const lessMealPaidMembers = lastMonth?.members?.filter(
-  (m) =>  m.meals < fixedMeal
-);
+  const lessMealPaidMembers = lastMonth?.members?.filter((m) => m.meals < fixedMeal);
 
-// Previous month for trend comparison
+  // Previous month for trend comparison
   const prevMonth = history[1];
 
   const pctChange = (current: number, prev?: number) => {
@@ -422,310 +524,356 @@ if (!history.length)
   const sortedByMeals = [...(lastMonth?.members ?? [])].sort((a, b) => b.meals - a.meals);
   const topMealConsumer = sortedByMeals[0];
 
+  const scrollToEntry = (idx: number) => {
+    document.getElementById(`history-${idx}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <>
-    <Header />
-    <div className="hex-ledger p-2 pt-20 w-full mx-auto">
-      <LedgerStyles />
-      <div className="max-w-5xl mx-auto">
+      <HistoryHeader history={history} onSelectMonth={scrollToEntry} />
+      <div className="hex-ledger p-2 pt-20 w-full mx-auto">
+        <LedgerStyles />
+        <div className="max-w-5xl mx-auto">
+          {/* ===== DOCKET / HERO ===== */}
+          <div className="ledger-card rounded-lg overflow-hidden mb-8">
+            <div className="ledger-perforation" />
+            <div className="p-2 lg:p-4">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-end mb-6 gap-2">
+                <div>
+                  <p className="text-[11px] uppercase tracking-[0.18em] mb-1" style={{ color: "var(--amber-deep)" }}>
+                    Hex Bachelor House · Settlement Docket
+                  </p>
+                  <h2 className="ledger-display text-2xl lg:text-3xl mt-4">
+                    Report: {lastMonth.month.replace(/,+$/g, "").trim().split("|")[0]?.trim()}
+                  </h2>
+                  <p className="text-xs mt-1" style={{ color: "var(--ink-soft)" }}>
+                    Stamped{" "}
+                    {new Date(lastMonth.savedAt.replace(/,+$/g, "").trim()).toLocaleString("en-US", {
+                      weekday: "short",
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
 
-        {/* ===== DOCKET / HERO ===== */}
-        <div className="ledger-card rounded-lg overflow-hidden mb-8">
-          <div className="ledger-perforation" />
-          <div className="p-2 lg:p-4">
-            <div className="flex flex-col md:flex-row md:justify-between md:items-end mb-6 gap-2">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.18em] mb-1" style={{ color: "var(--amber-deep)" }}>
-                  Hex Bachelor House · Settlement Docket
-                </p>
-                <h2 className="ledger-display text-2xl lg:text-3xl">
-                  {lastMonth.month.replace(/,+$/g, "").trim().split("|")[0]?.trim()}
-                </h2>
-                <p className="text-xs mt-1" style={{ color: "var(--ink-soft)" }}>
-                  Stamped{" "}
-                  {new Date(lastMonth.savedAt.replace(/,+$/g, "").trim()).toLocaleString("en-US", {
-                    weekday: "short",
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
+                {prevMonth && (
+                  <span
+                    className="text-[11px] px-2 py-1 rounded self-start"
+                    style={{ background: "var(--paper-line)", color: "var(--ink-soft)" }}
+                  >
+                    Measured against {prevMonth.month.replace(/,+$/g, "").trim().split("|")[0]?.trim()}
+                  </span>
+                )}
               </div>
 
-              {prevMonth && (
-                <span
-                  className="text-[11px] px-2 py-1 rounded self-start"
-                  style={{ background: "var(--paper-line)", color: "var(--ink-soft)" }}
+              {/* Ledger columns */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-px mb-6 rounded-md overflow-hidden" style={{ background: "var(--rule)" }}>
+                <div className="p-3" style={{ background: "var(--paper)" }}>
+                  <p className="text-[10px] uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Total Deposit</p>
+                  <p className="text-lg" style={{ color: "var(--ink)" }}>
+                    <Figure value={lastMonth.summary.totalDeposit} />
+                    <TrendBadge change={depositChange} />
+                  </p>
+                </div>
+
+                <div className="p-3" style={{ background: "var(--paper)" }}>
+                  <p className="text-[10px] uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Total Bazar</p>
+                  <p className="text-lg" style={{ color: "var(--amber-deep)" }}>
+                    <Figure value={lastMonth.summary.totalBazar} />
+                    <TrendBadge change={bazarChange} />
+                  </p>
+                </div>
+
+                <div className="p-3" style={{ background: "var(--paper)" }}>
+                  <p className="text-[10px] uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Meal Rate</p>
+                  <p className="text-lg" style={{ color: "var(--teal)" }}>
+                    <Figure value={lastMonth.mealSummary.mealRate} decimals={2} />
+                    <TrendBadge change={mealRateChange} />
+                  </p>
+                </div>
+
+                <div className="p-3" style={{ background: "var(--paper)" }}>
+                  <p className="text-[10px] uppercase tracking-wide" style={{ color: lastMonth.summary.netMealBalance < 0 ? "var(--due)" : "var(--surplus)" }}>
+                    Net Meal Balance
+                  </p>
+                  <p className="text-lg" style={{ color: lastMonth.summary.netMealBalance < 0 ? "var(--due)" : "var(--surplus)" }}>
+                    <Figure value={lastMonth.summary.netMealBalance} />
+                  </p>
+                </div>
+              </div>
+
+              {/* Highlight stamps */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+                {topMealConsumer && (
+                  <div className="leader-row p-3 rounded border" style={{ borderColor: "var(--rule)" }}>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: "var(--ink-soft)" }}>Most Meals</p>
+                      <p className="text-sm font-medium">{topMealConsumer.name}</p>
+                    </div>
+                    <div className="leader-dots" />
+                    <span className="ledger-figure text-sm" style={{ color: "var(--teal)" }}>{topMealConsumer.meals}</span>
+                  </div>
+                )}
+                {topReceiver && topReceiver.balance > 0 && (
+                  <div className="leader-row p-3 rounded border" style={{ borderColor: "var(--rule)" }}>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: "var(--ink-soft)" }}>Highest Surplus</p>
+                      <p className="text-sm font-medium">{topReceiver.name}</p>
+                    </div>
+                    <div className="leader-dots" />
+                    <span className="ledger-figure text-sm" style={{ color: "var(--surplus)" }}>+৳{topReceiver.balance.toFixed(2)}</span>
+                  </div>
+                )}
+                {topPayer && topPayer.balance < 0 && (
+                  <div className="leader-row p-3 rounded border" style={{ borderColor: "var(--rule)" }}>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: "var(--ink-soft)" }}>Largest Due</p>
+                      <p className="text-sm font-medium">{topPayer.name}</p>
+                    </div>
+                    <div className="leader-dots" />
+                    <span className="ledger-figure text-sm" style={{ color: "var(--due)" }}>৳{topPayer.balance.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Narrative report accordion */}
+              <div className="rounded overflow-hidden" style={{ border: "1px solid var(--paper-line)" }}>
+                <button
+                  onClick={() => setShowReport((prev) => !prev)}
+                  className="w-full flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold transition-colors hover:opacity-80"
+                  style={{ background: "var(--paper-line)", color: "var(--ink)" }}
                 >
-                  Measured against {prevMonth.month.replace(/,+$/g, "").trim().split("|")[0]?.trim()}
-                </span>
-              )}
-            </div>
+                  <span className="flex items-center gap-2">
+                    <FileText className="w-4 h-4" style={{ color: "var(--amber)" }} />
+                    See Report
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-300 ${showReport ? "rotate-180" : ""}`}
+                  />
+                </button>
 
-            {/* Ledger columns */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-px mb-6 rounded-md overflow-hidden" style={{ background: "var(--rule)" }}>
-              <div className="p-3" style={{ background: "var(--paper)" }}>
-                <p className="text-[10px] uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Total Deposit</p>
-                <p className="text-lg" style={{ color: "var(--ink)" }}>
-                  <Figure value={lastMonth.summary.totalDeposit} />
-                  <TrendBadge change={depositChange} />
-                </p>
-              </div>
-
-              <div className="p-3" style={{ background: "var(--paper)" }}>
-                <p className="text-[10px] uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Total Bazar</p>
-                <p className="text-lg" style={{ color: "var(--amber-deep)" }}>
-                  <Figure value={lastMonth.summary.totalBazar} />
-                  <TrendBadge change={bazarChange} />
-                </p>
-              </div>
-
-              <div className="p-3" style={{ background: "var(--paper)" }}>
-                <p className="text-[10px] uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Meal Rate</p>
-                <p className="text-lg" style={{ color: "var(--teal)" }}>
-                  <Figure value={lastMonth.mealSummary.mealRate} decimals={2} />
-                  <TrendBadge change={mealRateChange} />
-                </p>
-              </div>
-
-              <div className="p-3" style={{ background: "var(--paper)" }}>
-                <p className="text-[10px] uppercase tracking-wide" style={{ color: lastMonth.summary.netMealBalance < 0 ? "var(--due)" : "var(--surplus)" }}>
-                  Net Meal Balance
-                </p>
-                <p className="text-lg" style={{ color: lastMonth.summary.netMealBalance < 0 ? "var(--due)" : "var(--surplus)" }}>
-                  <Figure value={lastMonth.summary.netMealBalance} />
-                </p>
-              </div>
-            </div>
-
-            {/* Highlight stamps */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-              {topMealConsumer && (
-                <div className="leader-row p-3 rounded border" style={{ borderColor: "var(--rule)" }}>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: "var(--ink-soft)" }}>Most Meals</p>
-                    <p className="text-sm font-medium">{topMealConsumer.name}</p>
+                <div
+                  className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                    showReport ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+                  }`}
+                >
+                  <div className="p-4" style={{ background: "var(--paper-line)", borderLeft: "3px solid var(--amber)" }}>
+                    <p className="text-sm leading-relaxed text-justify" style={{ color: "var(--ink)" }}>
+                      This past month,{" "}
+                      <span className="font-semibold">{totalMembers - absentMembers}</span> members
+                      stayed active on the meal roster,{" "}
+                      {absentMembers > 0 ? (
+                        <>while <span className="font-semibold">{absentMembers}</span> member(s) sat this one out.</>
+                      ) : (
+                        "and nobody sat this one out."
+                      )}{" "}
+                      Of those who took part,{" "}
+                      <span className="font-semibold" style={{ color: "var(--surplus)" }}>{positiveBalance}</span> closed
+                      the month in the green, while{" "}
+                      <span className="font-semibold" style={{ color: "var(--due)" }}>{negativeBalance}</span> still have
+                      dues left to clear. Meals averaged out to{" "}
+                      <span className="font-semibold" style={{ color: "var(--amber-deep)" }}>{averageMealRate}</span> each,
+                      drawn from <span className="font-semibold">{totalMeal}</span> meals served
+                      {fixedMeal > 0 && (
+                        <> against a target of <span className="font-semibold">{fixedMeal}</span> per member</>
+                      )}
+                      {mealRateChange !== null && Math.abs(mealRateChange) >= 0.5 && (
+                        <>
+                          {" "}— {mealRateChange > 0 ? "up" : "down"}{" "}
+                          <span className="font-semibold">{Math.abs(mealRateChange).toFixed(1)}%</span> from last month
+                        </>
+                      )}
+                      .{" "}
+                      {lessMealPaidMembers.length > 0 && (
+                        <>
+                          A few members —{" "}
+                          <span className="font-semibold" style={{ color: "var(--amber-deep)" }}>
+                            {lessMealPaidMembers.length}
+                          </span>{" "}
+                          in total — ate fewer meals than their fixed share, so the usual penalty was worked into
+                          their settlements.{" "}
+                        </>
+                      )}
+                      {topReceiver && topPayer && (
+                        <>
+                          <span className="font-semibold">{topReceiver.name}</span> came out on top with the
+                          biggest surplus this month, while{" "}
+                          <span className="font-semibold">{topPayer.name}</span> is left carrying the largest due.
+                        </>
+                      )}
+                    </p>
                   </div>
-                  <div className="leader-dots" />
-                  <span className="ledger-figure text-sm" style={{ color: "var(--teal)" }}>{topMealConsumer.meals}</span>
                 </div>
-              )}
-              {topReceiver && topReceiver.balance > 0 && (
-                <div className="leader-row p-3 rounded border" style={{ borderColor: "var(--rule)" }}>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: "var(--ink-soft)" }}>Highest Surplus</p>
-                    <p className="text-sm font-medium">{topReceiver.name}</p>
-                  </div>
-                  <div className="leader-dots" />
-                  <span className="ledger-figure text-sm" style={{ color: "var(--surplus)" }}>+৳{topReceiver.balance.toFixed(2)}</span>
-                </div>
-              )}
-              {topPayer && topPayer.balance < 0 && (
-                <div className="leader-row p-3 rounded border" style={{ borderColor: "var(--rule)" }}>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: "var(--ink-soft)" }}>Largest Due</p>
-                    <p className="text-sm font-medium">{topPayer.name}</p>
-                  </div>
-                  <div className="leader-dots" />
-                  <span className="ledger-figure text-sm" style={{ color: "var(--due)" }}>৳{topPayer.balance.toFixed(2)}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Narrative note */}
-            <div className="p-4 rounded" style={{ background: "var(--paper-line)", borderLeft: "3px solid var(--amber)" }}>
-              <p className="text-sm leading-relaxed text-justify" style={{ color: "var(--ink)" }}>
-                Last month, <span className="font-semibold">{totalMembers - absentMembers}</span> members
-                actively participated in meals,{" "}
-                {absentMembers > 0 ? (
-                  <>while <span className="font-semibold">{absentMembers}</span> member(s) were absent.</>
-                ) : (
-                  "with no absentees."
-                )}{" "}
-                Among the participants,{" "}
-                <span className="font-semibold" style={{ color: "var(--surplus)" }}>{positiveBalance}</span> members ended with
-                a positive balance, whereas{" "}
-                <span className="font-semibold" style={{ color: "var(--due)" }}>{negativeBalance}</span> member(s) had to pay
-                to settle their dues. The average meal rate was{" "}
-                <span className="font-semibold" style={{ color: "var(--amber-deep)" }}>{averageMealRate}</span>, calculated from{" "}
-                <span className="font-semibold">{totalMeal}</span> total meals
-                {fixedMeal > 0 && (
-                  <> against a fixed meal target of <span className="font-semibold">{fixedMeal}</span> per member</>
-                )}
-                {mealRateChange !== null && Math.abs(mealRateChange) >= 0.5 && (
-                  <>, a <span className="font-semibold">{Math.abs(mealRateChange).toFixed(1)}%</span>{" "}
-                  {mealRateChange > 0 ? "increase" : "decrease"} from the previous month</>
-                )}
-                .{" "}
-                {lessMealPaidMembers.length > 0 && (
-                  <>Additionally,{" "}
-                  <span className="font-semibold" style={{ color: "var(--amber-deep)" }}>{lessMealPaidMembers.length}</span>{" "}
-                  member(s) consumed fewer meals than the fixed requirement, and applicable penalties
-                  were considered in their settlements.{" "}</>
-                )}
-                {topReceiver && topPayer && (
-                  <><span className="font-semibold">{topReceiver.name}</span> closed the month with the
-                  highest surplus, while{" "}
-                  <span className="font-semibold">{topPayer.name}</span> carried the largest outstanding due.</>
-                )}
-              </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* ===== PAST ENTRIES ===== */}
-        {history.map((h, idx) => (
-          <div
-            key={idx}
-            className="ledger-entry ledger-card rounded-lg p-2 lg:p-4 mb-6"
-            style={{ animationDelay: `${Math.min(idx, 6) * 70}ms` }}
-          >
-            <div className="pb-3 mb-4" style={{ borderBottom: "1px dashed var(--rule)" }}>
-              <h3 className="ledger-display text-lg">
-                {h?.month.replace(/,+$/g, "")?.trim().split("|")[0]?.trim()}
-              </h3>
-              <h4 className="text-sm font-medium" style={{ color: "var(--teal)" }}>
-                Managed by: {h?.month?.replace(/,+$/g, "")?.split("|")[2] || "Not Assigned"}
-              </h4>
-              <p className="text-xs" style={{ color: "var(--ink-soft)" }}>
-                Archived {new Date(h.savedAt.replace(/,+$/g, "").trim()).toLocaleString("en-US", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true,
-                })}
-              </p>
-            </div>
+          {/* ===== PAST ENTRIES ===== */}
+          <h2 className="ledger-display text-2xl lg:text-3xl mb-4 p-4 bg-black text-white rounded">
+            Monthly Settlement History
+          </h2>
 
-            {/* SUMMARY */}
-            <div className="mt-8 relative rounded-lg p-4 pt-6" style={{ border: "1px solid var(--rule)" }}>
-              <span
-                className="absolute -top-3 left-4 rounded px-2.5 py-0.5 text-[10px] uppercase tracking-wide ledger-display"
-                style={{ background: "var(--teal)", color: "#fff" }}
+          {history.map((h, idx) => (
+            <div
+              key={idx}
+              id={`history-${idx}`}
+              className="ledger-entry ledger-card rounded-lg p-2 lg:p-4 mb-6 scroll-mt-20"
+              style={{ animationDelay: `${Math.min(idx, 6) * 70}ms` }}
+            >
+              {/* Sticky per-entry header — direct child of the full card, so it has
+                  the whole card's height available to stay pinned while this
+                  section scrolls through view */}
+              <div
+                className="sticky top-16 z-[30] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 py-2 px-2 -mx-2 lg:-mx-4 mb-4"
+                style={{ background: "var(--paper)", borderBottom: "1px solid var(--rule)" }}
               >
-                Deposits &amp; Costs
-              </span>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-px text-xs rounded overflow-hidden" style={{ background: "var(--rule)" }}>
-                <div className="p-2" style={{ background: "var(--paper)" }}>Total Deposit <span className="ledger-figure block">৳{h.summary.totalDeposit}</span></div>
-                <div className="p-2" style={{ background: "var(--paper)" }}>Total Bazar <span className="ledger-figure block">৳{h.summary.totalBazar}</span></div>
-                <div className="p-2" style={{ background: "var(--paper)" }}>Net Meal Balance <span className="ledger-figure block">৳{h.summary.netMealBalance}</span></div>
-                <div className="p-2" style={{ background: "var(--paper)" }}>Utility Deposit <span className="ledger-figure block">৳{h.summary.utilityDeposit}</span></div>
-                <div className="p-2" style={{ background: "var(--paper)" }}>Utility Cost <span className="ledger-figure block">৳{h.summary.utilityCost}</span></div>
-                <div className="p-2" style={{ background: "var(--paper)" }}>Net Utility Balance <span className="ledger-figure block">৳{h.summary.netUtilityBalance}</span></div>
-              </div>
-            </div>
-
-            {/* MEAL SUMMARY */}
-            <div className="mt-8 relative rounded-lg p-4 pt-6" style={{ border: "1px solid var(--rule)" }}>
-              <span
-                className="absolute -top-3 left-4 rounded px-2.5 py-0.5 text-[10px] uppercase tracking-wide ledger-display"
-                style={{ background: "var(--amber)", color: "#fff" }}
-              >
-                Meal Summary
-              </span>
-              <div className="grid grid-cols-3 gap-px text-xs rounded overflow-hidden" style={{ background: "var(--rule)" }}>
-                <div className="p-2" style={{ background: "var(--paper)" }}>Fixed Meal <span className="ledger-figure block">{h.mealSummary.fixedMeal}</span></div>
-                <div className="p-2" style={{ background: "var(--paper)" }}>Total Meal <span className="ledger-figure block">{h.mealSummary.totalMeal}</span></div>
-                <div className="p-2" style={{ background: "var(--paper)" }}>
-                  Meal Rate <span className="ledger-figure block" style={{ color: "var(--amber-deep)" }}>{h.mealSummary.mealRate.toFixed(2)}</span>
+                <div>
+                  <h3 className="ledger-display text-lg">
+                    {h?.month.replace(/,+$/g, "")?.trim().split("|")[0]?.trim()}
+                  </h3>
+                  <p className="text-[11px]" style={{ color: "var(--ink-soft)" }}>
+                    Archived{" "}
+                    {new Date(h.savedAt.replace(/,+$/g, "").trim()).toLocaleString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
                 </div>
+                <h4 className="text-sm font-medium" style={{ color: "var(--teal)" }}>
+                  Managed by: {h?.month?.replace(/,+$/g, "")?.split("|")[2] || "Not Assigned"}
+                </h4>
               </div>
-            </div>
 
-            {/* MEMBER SETTLEMENT */}
-            <div className="mt-8">
-              <div className="relative p-4 pt-2 rounded-lg" style={{ borderTop: "1px solid var(--rule)" }}>
+              {/* SUMMARY */}
+              <div className="mt-8 relative rounded-lg p-4 pt-6" style={{ border: "1px solid var(--rule)" }}>
                 <span
                   className="absolute -top-3 left-4 rounded px-2.5 py-0.5 text-[10px] uppercase tracking-wide ledger-display"
-                  style={{ background: "var(--ink)", color: "#fff" }}
+                  style={{ background: "var(--teal)", color: "#fff" }}
                 >
-                  Member Settlement
+                  Deposits &amp; Costs
                 </span>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-px text-xs rounded overflow-hidden" style={{ background: "var(--rule)" }}>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Total Deposit <span className="ledger-figure block">৳{h.summary.totalDeposit}</span></div>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Total Bazar <span className="ledger-figure block">৳{h.summary.totalBazar}</span></div>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Net Meal Balance <span className="ledger-figure block">৳{h.summary.netMealBalance}</span></div>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Utility Deposit <span className="ledger-figure block">৳{h.summary.utilityDeposit}</span></div>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Utility Cost <span className="ledger-figure block">৳{h.summary.utilityCost}</span></div>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Net Utility Balance <span className="ledger-figure block">৳{h.summary.netUtilityBalance}</span></div>
+                </div>
               </div>
 
-              {h.members.length > 0 && (
-                <>
-                  {/* Desktop table */}
-                  <div className="hidden md:block w-full overflow-x-auto">
-                    <table className="w-full text-sm min-w-[600px]" style={{ borderCollapse: "collapse" }}>
-                      <thead>
-                        <tr className="text-left" style={{ borderBottom: "2px solid var(--rule)" }}>
-                          <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Member</th>
-                          <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Utility</th>
-                          <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Deposit</th>
-                          <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Meals</th>
-                          <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Meal Cost</th>
-                          <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Balance</th>
-                          <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {h.members
-                          .filter((m) => m.name && m.name.trim() !== "")
-                          .map((m, i) => (
-                            <tr key={i} className="ledger-row-stripe" style={{ borderBottom: "1px dotted var(--rule)" }}>
-                              <td className="px-2 py-2 font-medium">{m.name}</td>
-                              <td className="px-2 py-2 ledger-figure" style={{ color: m.utility < 0 ? "var(--due)" : "var(--surplus)" }}>৳{m.utility}</td>
-                              <td className="px-2 py-2 ledger-figure">৳{m.deposit}</td>
-                              <td className="px-2 py-2 ledger-figure">{m.meals}</td>
-                              <td className="px-2 py-2 ledger-figure">৳{m.mealCost.toFixed(2)}</td>
-                              <td className="px-2 py-2 ledger-figure" style={{ color: m.balance < 0 ? "var(--due)" : "var(--surplus)" }}>৳{m.balance.toFixed(2)}</td>
-                              <td className="px-2 py-2"><StampBadge balance={m.balance} status={m.status} /></td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
+              {/* MEAL SUMMARY */}
+              <div className="mt-8 relative rounded-lg p-4 pt-6" style={{ border: "1px solid var(--rule)" }}>
+                <span
+                  className="absolute -top-3 left-4 rounded px-2.5 py-0.5 text-[10px] uppercase tracking-wide ledger-display"
+                  style={{ background: "var(--amber)", color: "#fff" }}
+                >
+                  Meal Summary
+                </span>
+                <div className="grid grid-cols-3 gap-px text-xs rounded overflow-hidden" style={{ background: "var(--rule)" }}>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Fixed Meal <span className="ledger-figure block">{h.mealSummary.fixedMeal}</span></div>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>Total Meal <span className="ledger-figure block">{h.mealSummary.totalMeal}</span></div>
+                  <div className="p-2" style={{ background: "var(--paper)" }}>
+                    Meal Rate <span className="ledger-figure block" style={{ color: "var(--amber-deep)" }}>{h.mealSummary.mealRate.toFixed(2)}</span>
                   </div>
+                </div>
+              </div>
 
-                  {/* Mobile member cards — each value gets its own labeled cell */}
-                  <div className="md:hidden space-y-3">
-                    {h.members
-                      .filter((m) => m.name && m.name.trim() !== "")
-                      .map((m, i) => (
-                        <div key={i} className="ledger-member-card p-3">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="font-semibold text-sm">{m.name}</span>
-                            <StampBadge balance={m.balance} status={m.status} />
-                          </div>
+              {/* MEMBER SETTLEMENT */}
+              <div className="mt-8">
+                <div className="relative p-4 pt-2 rounded-lg" style={{ borderTop: "1px solid var(--rule)" }}>
+                  <span
+                    className="absolute -top-3 left-4 rounded px-2.5 py-0.5 text-[10px] uppercase tracking-wide ledger-display"
+                    style={{ background: "var(--ink)", color: "#fff" }}
+                  >
+                    Member Settlement
+                  </span>
+                </div>
 
-                          <div className="grid grid-cols-2 gap-y-3 gap-x-2 mb-3">
-                            <MemberStat label="Deposit" value={`৳${m.deposit}`} />
-                            <MemberStat label="Meals" value={`${m.meals}`} />
-                            <MemberStat label="Meal Cost" value={`৳${m.mealCost.toFixed(2)}`} />
-                            <MemberStat
-                              label="Utility"
-                              value={`৳${m.utility}`}
-                              tone={m.utility < 0 ? "due" : "surplus"}
-                            />
-                          </div>
+                {h.members.length > 0 && (
+                  <>
+                    {/* Desktop table */}
+                    <div className="hidden md:block w-full overflow-x-auto">
+                      <table className="w-full text-sm min-w-[600px]" style={{ borderCollapse: "collapse" }}>
+                        <thead>
+                          <tr className="text-left" style={{ borderBottom: "2px solid var(--rule)" }}>
+                            <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Member</th>
+                            <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Utility</th>
+                            <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Deposit</th>
+                            <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Meals</th>
+                            <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Meal Cost</th>
+                            <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Balance</th>
+                            <th className="px-2 py-2 text-xs uppercase tracking-wide" style={{ color: "var(--ink-soft)" }}>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {h.members
+                            .filter((m) => m.name && m.name.trim() !== "")
+                            .map((m, i) => (
+                              <tr key={i} className="ledger-row-stripe" style={{ borderBottom: "1px dotted var(--rule)" }}>
+                                <td className="px-2 py-2 font-medium">{m.name}</td>
+                                <td className="px-2 py-2 ledger-figure" style={{ color: m.utility < 0 ? "var(--due)" : "var(--surplus)" }}>৳{m.utility}</td>
+                                <td className="px-2 py-2 ledger-figure">৳{m.deposit}</td>
+                                <td className="px-2 py-2 ledger-figure">{m.meals}</td>
+                                <td className="px-2 py-2 ledger-figure">৳{m.mealCost.toFixed(2)}</td>
+                                <td className="px-2 py-2 ledger-figure" style={{ color: m.balance < 0 ? "var(--due)" : "var(--surplus)" }}>৳{m.balance.toFixed(2)}</td>
+                                <td className="px-2 py-2"><StampBadge balance={m.balance} status={m.status} /></td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
 
-                          <div
-                            className="flex items-center justify-between pt-2"
-                            style={{ borderTop: "1px dashed var(--rule)" }}
-                          >
-                            <span className="ledger-stat-label" style={{ marginBottom: 0 }}>Balance</span>
-                            <span
-                              className="ledger-figure text-base"
-                              style={{ color: m.balance < 0 ? "var(--due)" : "var(--surplus)" }}
+                    {/* Mobile member cards — each value gets its own labeled cell */}
+                    <div className="md:hidden space-y-3">
+                      {h.members
+                        .filter((m) => m.name && m.name.trim() !== "")
+                        .map((m, i) => (
+                          <div key={i} className="ledger-member-card p-3">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="font-semibold text-sm">{m.name}</span>
+                              <StampBadge balance={m.balance} status={m.status} />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-y-3 gap-x-2 mb-3">
+                              <MemberStat label="Deposit" value={`৳${m.deposit}`} />
+                              <MemberStat label="Meals" value={`${m.meals}`} />
+                              <MemberStat label="Meal Cost" value={`৳${m.mealCost.toFixed(2)}`} />
+                              <MemberStat
+                                label="Utility"
+                                value={`৳${m.utility}`}
+                                tone={m.utility < 0 ? "due" : "surplus"}
+                              />
+                            </div>
+
+                            <div
+                              className="flex items-center justify-between pt-2"
+                              style={{ borderTop: "1px dashed var(--rule)" }}
                             >
-                              ৳{m.balance.toFixed(2)}
-                            </span>
+                              <span className="ledger-stat-label" style={{ marginBottom: 0 }}>Balance</span>
+                              <span
+                                className="ledger-figure text-base"
+                                style={{ color: m.balance < 0 ? "var(--due)" : "var(--surplus)" }}
+                              >
+                                ৳{m.balance.toFixed(2)}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                  </div>
-                </>
-              )}
+                        ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
     </>
   );
 };

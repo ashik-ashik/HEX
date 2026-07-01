@@ -82,6 +82,24 @@ const SettlementPage: React.FC<Props> = ({
     if (!savedFixedMeal || savedFixedMeal === 0) setShowFixedModal(true);
   }, [fixedMeals]);
 
+  /**
+   * History is always saved for the month that just ended, but the manager
+   * often saves it a day or two into the *next* month. If we're within the
+   * first 5 days of a new month, treat the "effective" month as the
+   * previous one — so saving on 1st/2nd/3rd/4th/5th July still records
+   * as June's history. `setMonth(-1)` correctly rolls the year back too
+   * (e.g. Jan 3 -> Dec of previous year).
+   */
+  const getEffectiveDate = () => {
+    const now = new Date();
+    const d = new Date(now);
+    if (now.getDate() <= 5) {
+      d.setMonth(d.getMonth() - 1);
+    }
+    return d;
+  };
+  const effectiveDate = getEffectiveDate();
+
   const handleSetFixedMeal = () => {
     localStorage.setItem("fixedMeal", fixedMealInput.toString());
     toast.success("Fixed meal saved successfully");
@@ -119,7 +137,7 @@ const SettlementPage: React.FC<Props> = ({
     try {
       setIsSavingHistory(true);
       toast.loading("Preparing settlement summary...", { id: "saveHistory" });
-      const month = new Date().toLocaleDateString("default", { month: "long", year: "numeric" });
+      const month = effectiveDate.toLocaleDateString("default", { month: "long", year: "numeric" });
       const memberForHistory = settlements?.map((m) => ({
         name: m?.name,
         deposit: m?.deposit || 0,
@@ -191,7 +209,7 @@ const SettlementPage: React.FC<Props> = ({
 
   const netMealBalance = grandDeposit - totalBazar;
   const netUtilityBalance = totalUtilityDeposit - totalUtilityCost;
-  const currentMonth = new Date().toLocaleDateString("default", { month: "long", year: "numeric" });
+  const currentMonth = effectiveDate.toLocaleDateString("default", { month: "long", year: "numeric" });
 
   /* ── Reusable modal backdrop ── */
   const ModalBackdrop = ({ children }: { children: React.ReactNode }) => (
