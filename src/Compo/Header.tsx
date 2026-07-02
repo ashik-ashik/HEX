@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import {
   Menu,
   X,
@@ -74,17 +74,19 @@ const Header = () => {
       >
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
           {/* Logo */}
-          <div className="flex flex-col leading-tight">
-            <span
-              className={`font-bold tracking-wide transition-all duration-300 
-              ${scrolled ? "text-sm" : "text-base"}`}
-            >
-              The Hex House
-            </span>
-            <span className="text-[10px] text-gray-500 uppercase tracking-widest">
-              Meal Manager
-            </span>
-          </div>
+          <Link to="/">
+            <div className="flex flex-col leading-tight">
+              <span
+                className={`font-bold tracking-wide transition-all duration-300 
+                ${scrolled ? "text-sm" : "text-base"}`}
+              >
+                The Hexa House
+              </span>
+              <span className="text-[10px] text-gray-500 uppercase tracking-widest">
+                Meal Manager
+              </span>
+            </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6 text-xs font-medium">

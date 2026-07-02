@@ -108,7 +108,7 @@ export default function PageNotFound() {
         </p>
         <p className="text-sm sm:text-base text-zinc-500 mb-8 max-w-xs mx-auto leading-relaxed">
           This room doesn't exist in{" "}
-          <span className="text-teal-400 font-semibold">Hex Bachelor House</span>.
+          <span className="text-teal-400 font-semibold">Hexa Haven</span>.
           Maybe someone ate your page like the last pizza slice.
         </p>
 

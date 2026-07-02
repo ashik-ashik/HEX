@@ -16,7 +16,7 @@ import {
 import HouseLocation from "./HouseLocation";
 import { type User } from "firebase/auth";
 import useAuth from "../hooks/useAuth";
-import HexSpecialEvents from "./HexSpecialEvents";
+import HexaSpecialEvents from "./HexaSpecialEvents";
 import Header from "./Header";
 
 const HomeInitial = () => {
@@ -62,7 +62,7 @@ const HomeInitial = () => {
       <div>
         <div className="inline-flex items-center gap-2 bg-blue-900/60 text-blue-300 border border-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-5">
           <FaHome />
-          Welcome to Hex Bachelor House
+          Welcome to Hexa Haven
         </div>
 
         <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight mb-6">
@@ -71,7 +71,7 @@ const HomeInitial = () => {
         </h1>
 
         <p className="text-gray-400 text-md md:text-lg leading-relaxed mb-8">
-          Hex Bachelor House is more than just a place to stay — it is a
+          Hexa Haven is more than just a place to stay — it is a
           peaceful, organized, and friendly home for students bachelors. Located in Mirpur, Dhaka, it offers a comfortable living
           environment with modern facilities, quality meals, strong security,
           and a supportive community where members can focus on study, work,
@@ -102,7 +102,7 @@ const HomeInitial = () => {
         <div className="space-y-4">
           <div>
             <p className="text-sm text-gray-500">House Name</p>
-            <p className="font-medium text-gray-200">Hex Bachelor House</p>
+            <p className="font-medium text-gray-200">Hexa Haven</p>
           </div>
 
           <div>
@@ -133,12 +133,12 @@ const HomeInitial = () => {
   </div>
 </section>
 
-      {/* ── Hex Bachelor House Core Features ── */}
+      {/* ── Hexa Haven Core Features ── */}
       <section className="pb-16 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-white mb-3">
-              Hex Bachelor House Core Features
+              Hexa Haven Core Features
             </h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
               Everything you need for a comfortable, connected, and secure
@@ -213,7 +213,7 @@ const HomeInitial = () => {
       {/* ── Latest Events — portal modal, no wrapper needed ── */}
       
       {/* Events */}
-      <HexSpecialEvents eventLimit={4} />
+      <HexaSpecialEvents eventLimit={4} />
 
       {/* ── Membership Criteria Card ── */}
       <section className="pb-20 px-4">
@@ -223,7 +223,7 @@ const HomeInitial = () => {
               Conditions to Be a Member
             </h2>
             <p className="text-gray-300 max-w-2xl mx-auto">
-              Hex House welcomes everyone who shares our values of respect,
+              Hexa House welcomes everyone who shares our values of respect,
               cooperation, and community.
             </p>
           </div>

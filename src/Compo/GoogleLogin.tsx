@@ -98,7 +98,7 @@ const handleLogout = async (): Promise<void> => {
     {/* Title */}
     <div className="mb-6">
       <h1 className="text-3xl font-bold text-gray-800 mb-2 tracking-tight">
-        Hex Bachelor House
+        Hexa Haven
       </h1>
 
       <p className="text-sm text-gray-500 leading-relaxed max-w-sm mx-auto">

@@ -15,7 +15,6 @@ import {
   UserRoundPlus,
   BadgeDollarSignIcon,
   ChevronRight,
-  AlertTriangle,
   Zap,
 } from "lucide-react";
 import EntryBazarCosts from "./EntryBazarCosts";
@@ -118,34 +117,7 @@ export default function ManagerDashboard({ memberNameList }: Props) {
               </div>
             </div>
 
-            {/* Caution Card */}
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="mt-0.5 flex-shrink-0 w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                  <AlertTriangle size={20} className="text-amber-600" />
-                </div>
-                <div>
-                  <h2 className="font-bold text-amber-900 text-base mb-1">Important Notice</h2>
-                  <p className="text-amber-800 text-sm leading-relaxed">
-                    This is a <strong>virtual storage system</strong>. It helps manage data efficiently but{" "}
-                    <strong>can experience downtime or data loss</strong>. Do not rely on it exclusively — always
-                    keep a personal backup of critical information.
-                  </p>
-                  <ul className="mt-3 space-y-1.5 text-amber-800 text-sm">
-                    {[
-                      "Double-check any critical entries before saving.",
-                      "Maintain backup notes outside the system.",
-                      "Use this as a helper, not your sole record keeper.",
-                    ].map((tip) => (
-                      <li key={tip} className="flex items-start gap-2">
-                        <ChevronRight size={14} className="mt-0.5 flex-shrink-0 text-amber-500" />
-                        {tip}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
+            
 
             {/* Quick Access */}
             <div>

@@ -298,7 +298,7 @@ const History: React.FC = () => {
     <style>{`
       @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-      .hex-ledger {
+      .Hexa-ledger {
         --paper: #FBF7EE;
         --paper-line: #F2EAD8;
         --page-bg: #EFE8D6;
@@ -447,7 +447,7 @@ const History: React.FC = () => {
     return (
       <>
         <HistoryHeader history={[]} onSelectMonth={() => {}} />
-        <div className="hex-ledger flex flex-col items-center justify-center py-20 pt-32 w-full mx-auto min-h-screen">
+        <div className="Hexa-ledger flex flex-col items-center justify-center py-20 pt-32 w-full mx-auto min-h-screen">
           <LedgerStyles />
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-10 h-10 border-[3px] border-[#C2772E] border-dashed rounded-full animate-spin mb-4"></div>
@@ -462,7 +462,7 @@ const History: React.FC = () => {
     return (
       <>
         <HistoryHeader history={[]} onSelectMonth={() => {}} />
-        <div className="hex-ledger flex flex-col items-center justify-center py-20 pt-32 w-full mx-auto min-h-screen">
+        <div className="Hexa-ledger flex flex-col items-center justify-center py-20 pt-32 w-full mx-auto min-h-screen">
           <LedgerStyles />
           <div className="flex flex-col items-center justify-center py-20 text-center px-4">
             <div className="ledger-stamp stamp-due mb-4" style={{ fontSize: 13, transform: "rotate(-4deg)" }}>
@@ -479,7 +479,7 @@ const History: React.FC = () => {
     return (
       <>
         <HistoryHeader history={[]} onSelectMonth={() => {}} />
-        <div className="hex-ledger flex flex-col items-center justify-center py-20 pt-32 w-full mx-auto min-h-screen">
+        <div className="Hexa-ledger flex flex-col items-center justify-center py-20 pt-32 w-full mx-auto min-h-screen">
           <LedgerStyles />
           <div className="flex flex-col items-center justify-center py-20 text-center px-4">
             <div className="ledger-stamp stamp-due mb-4" style={{ borderColor: "var(--amber)", color: "var(--amber-deep)", background: "var(--paper-line)" }}>
@@ -531,7 +531,7 @@ const History: React.FC = () => {
   return (
     <>
       <HistoryHeader history={history} onSelectMonth={scrollToEntry} />
-      <div className="hex-ledger p-2 pt-20 w-full mx-auto">
+      <div className="Hexa-ledger p-2 pt-20 w-full mx-auto">
         <LedgerStyles />
         <div className="max-w-5xl mx-auto">
           {/* ===== DOCKET / HERO ===== */}
@@ -541,7 +541,7 @@ const History: React.FC = () => {
               <div className="flex flex-col md:flex-row md:justify-between md:items-end mb-6 gap-2">
                 <div>
                   <p className="text-[11px] uppercase tracking-[0.18em] mb-1" style={{ color: "var(--amber-deep)" }}>
-                    Hex Bachelor House · Settlement Docket
+                    Hexa Haven · Settlement Docket
                   </p>
                   <h2 className="ledger-display text-2xl lg:text-3xl mt-4">
                     Report: {lastMonth.month.replace(/,+$/g, "").trim().split("|")[0]?.trim()}

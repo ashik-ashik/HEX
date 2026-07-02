@@ -21,7 +21,7 @@ const Footer: React.FC = () => {
           <div >
             <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
               <Sparkles size={16} className="text-indigo-500" />
-              The Hex House Meal Manager
+              The Hexa House Meal Manager
             </div>
               <p className="text-xs text-gray-500 mt-2">
                 Smart monthly meal management system for modern bachelor living
@@ -36,7 +36,7 @@ const Footer: React.FC = () => {
 
         {/* Bottom Section */}
         <div className="mt-3 pt-3 border-t text-center text-[11px] text-gray-400">
-          © {new Date().getFullYear()} The Hex Bachelors House • Built with care
+          © {new Date().getFullYear()} The Hexa Bachelors House • Built with care
         </div>
 
       </div>

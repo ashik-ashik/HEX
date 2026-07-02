@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import useAuth from "../hooks/useAuth";
 import { Link } from "react-router-dom";
+import Header from "./Header";
 
 type EventItem = {
   timestamp: string;
@@ -22,14 +23,14 @@ const getImageSrc = (photo: string): string => {
   return fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : photo;
 };
 
-const HexSpecialEvents = ({eventLimit}: {eventLimit: number}) => {
+const HexaSpecialEvents = ({eventLimit}: {eventLimit: number}) => {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const { userRole } = useAuth() as { userRole: string };
 
-  const csvUrl = import.meta.env.VITE_HEX_EVENTS_READER;
+  const csvUrl = import.meta.env.VITE_Hexa_EVENTS_READER;
 
 
   // fixing modal issue
@@ -152,7 +153,7 @@ const HexSpecialEvents = ({eventLimit}: {eventLimit: number}) => {
           animation: fadeInScale 0.28s cubic-bezier(0.34, 1.4, 0.64, 1) both;
         }
       `}</style>
-
+        <Header />
       <section className="backdrop-blur-sm"
         style={{
           padding: "5rem 1rem",
@@ -426,7 +427,7 @@ const HexSpecialEvents = ({eventLimit}: {eventLimit: number}) => {
       {/* ── Modal — rendered in a portal-like pattern using fixed positioning ── */}
       {/* KEY FIX: The modal is outside any `position: relative` parent.          */}
       {/* In HomeInitial, remove the <div className="relative"> wrapper around    */}
-      {/* <HexSpecialEvents /> so this fixed overlay covers the full viewport.     */}
+      {/* <HexaSpecialEvents /> so this fixed overlay covers the full viewport.     */}
      {/* ── Full Screen Modal ── */}
 
 
@@ -572,4 +573,4 @@ const HexSpecialEvents = ({eventLimit}: {eventLimit: number}) => {
   );
 };
 
-export default HexSpecialEvents;
+export default HexaSpecialEvents;

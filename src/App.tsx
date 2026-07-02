@@ -1,6 +1,6 @@
 import { BrowserRouter, Route,  Routes } from 'react-router-dom';
 import './App.css';
-import OverviewHex from './Compo/OverviewHex';
+import OverviewHexa from './Compo/OverviewHexa';
 import Dashboard from './Compo/Dashboard';
 import UtilitySummary from './Compo/Utility';
 import FloatingCalculator from './Compo/FloatingCalculator';
@@ -113,7 +113,7 @@ type UtilityDeposit = {
 
     // track manager
     const isManager = sessionStorage.getItem("authenticManager");
-    if(isManager === "This guy is authentic manager of HEX House"){
+    if(isManager === "This guy is authentic manager of Hexa House"){
       setManagerStatus(true);
     }else{
       setManagerStatus(false);
@@ -307,7 +307,7 @@ type UtilityDeposit = {
           {/* Brand Title */}
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-800">
-              Hex Bachelor House
+              Hexa Haven
             </h2>
 
             <p className="text-sm text-gray-500 mt-1">
@@ -327,7 +327,7 @@ type UtilityDeposit = {
         <Routes>
             <Route path="/" element={<HomeInitial />} />
            <Route path="/overview" element={<PrivateRoute>
-            <OverviewHex setManagerThisMonth={setManagerThisMonth} grandDeposit={grandDeposit} totalBazar={totalBazar} utilityDeposits={utilityDeposits}
+            <OverviewHexa setManagerThisMonth={setManagerThisMonth} grandDeposit={grandDeposit} totalBazar={totalBazar} utilityDeposits={utilityDeposits}
                 utilityCosts={utilityCosts} isLoading={isLoading} notices={notices} />
           </PrivateRoute>} />
           <Route path="/login" element={<GoogleLogin />} />

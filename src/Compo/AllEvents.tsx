@@ -1,4 +1,4 @@
-import HexSpecialEvents from "./HexSpecialEvents";
+import HexaSpecialEvents from "./HexaSpecialEvents";
 
 
 const AllEvents = () => {
@@ -9,13 +9,13 @@ const AllEvents = () => {
             All Events
           </h1>
           <p className="text-gray-200 mt-3 text-lg">
-            Explore all events of Hex Bachelor House in one place
+            Explore all events of Hexa Haven in one place
           </p>
         </div>
       <div className="max-w-7xl mx-auto">
 
         {/* 🔷 Header */}
-        <HexSpecialEvents eventLimit = {1000} />
+        <HexaSpecialEvents eventLimit = {1000} />
       </div>
     </div>
   );

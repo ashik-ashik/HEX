@@ -34,7 +34,7 @@ const LoginAsManager: React.FC<ManagerStatus> = ({managerStatus}) => {
       const sheetKey = data.split(",")[0].trim();
 
       if (inputKey.trim() === sheetKey) {
-        sessionStorage.setItem("authenticManager", "This guy is authentic manager of HEX House");
+        sessionStorage.setItem("authenticManager", "This guy is authentic manager of Hexa House");
 
         toast.success("Access granted ✅", { id: toastId });
 

@@ -12,7 +12,7 @@ const HouseLocation = () => {
           </div>
 
           <h1 className="text-4xl font-bold text-gray-100 mb-4">
-            Find Hex Bachelor House Easily
+            Find Hexa Haven Easily
           </h1>
 
           <p className="text-gray-300 max-w-2xl mx-auto leading-relaxed">
@@ -94,7 +94,7 @@ const HouseLocation = () => {
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Hex Bachelor House Location"
+                title="Hexa Haven Location"
                 className="rounded-2xl"
               />
             </div>
