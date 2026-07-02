@@ -216,7 +216,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
     today.getMonth() + 1,
     0
   ).getDate();
-  const showNotice = currentDate >= 5 && currentDate <= 25;
+  const showNotice = currentDate >= 2 && currentDate <= 28;
 
   if (showNotice) {
     if (remainingMealCash <= 0) {

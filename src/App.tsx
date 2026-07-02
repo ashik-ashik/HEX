@@ -28,6 +28,7 @@ import EditMealDeposit from './Compo/EditMealDeposit';
 import EditLastBazarCost from './Compo/EditBazarCosts';
 import AllEvents from './Compo/AllEvents';
 import PageNotFound from './Compo/PageNotFound';
+import FundWarningModal from './Compo/FundWarningModal';
 
 
 
@@ -319,7 +320,8 @@ type UtilityDeposit = {
     </>
   }
   // ======================================================
-
+  console.log("bazarData:", totalBazar);
+  console.log("grandDeposit:", grandDeposit);
   return (
     <>
       <BrowserRouter>
@@ -390,6 +392,9 @@ type UtilityDeposit = {
           <Route path="/events" element={<AllEvents />} />
           <Route path="/*" element={<PageNotFound />} />
         </Routes>
+          
+          <FundWarningModal balance={grandDeposit - totalBazar} isLoading={isLoading} />
+
         <FloatingCalculator />
       </BrowserRouter>
     </>
