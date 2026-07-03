@@ -279,6 +279,7 @@ const [userRole, setUserRole] = useState<string>("");
   /* -------------------------------- */
   /* Context Value */
   /* -------------------------------- */
+  const houseMenbers = usersList.filter(user => user?.role === "member" || user?.role === "manager" || user?.role === "assist_manager");
 
   const authInfo = {
     user,
@@ -288,8 +289,8 @@ const [userRole, setUserRole] = useState<string>("");
     googleLogin,
     logout,
     userRole,
+    houseMenbers,
   };
-
   return (
     <AuthContext.Provider value={authInfo}>
       {children}

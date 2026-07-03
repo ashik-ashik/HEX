@@ -9,7 +9,7 @@ import {
   TrendingDown,
   AlertTriangle,
   Users,
-  Phone,
+  
   Sparkles,
   UtensilsCrossed,
   ClipboardList,
@@ -22,21 +22,16 @@ import {
   PieChart,
 } from "lucide-react";
 import Footer from "./Footer";
-import Header from "./Header";
 import useAuth from "../hooks/useAuth";
 import HexaSpecialEvents from "./HexaSpecialEvents";
+import { BiEnvelope } from "react-icons/bi";
 
 // Type for each deposit item
 export type UtilityDeposit = {
   member: string;
   total: number;
 };
-interface Person {
-  designation: string;
-  name: string;
-  mobile: string;
-  photo: string;
-}
+
 
 interface HomeProps {
   grandDeposit: number;
@@ -45,6 +40,7 @@ interface HomeProps {
   utilityCosts: string[][];
   notices: Notice[];
   isLoading: boolean;
+  members: { name: string; total: number }[];
   setManagerThisMonth: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -65,11 +61,12 @@ interface UserItem {
   lastLoginAt: string;
 }
 
-const DATA_URL = import.meta.env.VITE_PERSONNEL_SHEET_READER;
 
 // ===== Helpers =====
 const formatBDT = (amount: number) =>
   `৳${Math.round(amount).toLocaleString("en-BD")}`;
+
+
 
 type FundStatus = "critical" | "low" | "guarded" | "healthy";
 
@@ -124,37 +121,18 @@ const OverviewHexa: React.FC<HomeProps> = ({
   utilityCosts,
   isLoading,
   notices,
+  members,
 }) => {
-  const [members, setMembers] = useState<Person[]>([]);
-  const [loading, setLoading] = useState(true);
+
   const [memberQuery, setMemberQuery] = useState("");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const { usersList, userRole } = useAuth() as {
+  const { usersList, userRole, houseMenbers } = useAuth() as {
     usersList: UserItem[];
     userRole: string;
+    houseMenbers: { name: string; role: string; photoURL?: string; email?: string }[];
   };
 
-  useEffect(() => {
-    fetch(DATA_URL)
-      .then((res) => res.text())
-      .then((text) => {
-        const rows = text.split("\n").slice(1);
-
-        const parsed = rows
-          .map((row) => row.split(","))
-          .filter((row) => row[1])
-          .map((row) => ({
-            designation: row[0]?.trim(),
-            name: row[1]?.trim(),
-            mobile: row[2]?.trim(),
-            photo: row[3]?.trim(),
-          }));
-
-        setMembers(parsed);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+ 
 
   const manager = usersList.find((m) => m.role === "manager");
 
@@ -272,28 +250,30 @@ const OverviewHexa: React.FC<HomeProps> = ({
 
   // ===== NEW: Utility contribution leaderboard =====
   const leaderboard = useMemo(() => {
-    const sorted = [...utilityDeposits].sort((a, b) => b.total - a.total);
+    const sorted = [...members].sort((a, b) => b.total - a.total);
     const max = sorted.length ? sorted[0].total : 0;
     const avg = sorted.length
       ? sorted.reduce((s, p) => s + p.total, 0) / sorted.length
       : 0;
     return { sorted, max, avg };
-  }, [utilityDeposits]);
+  }, [members]);
 
   // ===== NEW: Team search/filter =====
   const filteredMembers = useMemo(() => {
     const q = memberQuery.trim().toLowerCase();
-    if (!q) return members;
-    return members.filter(
+    if (!q) return houseMenbers;
+    return houseMenbers.filter(
       (p) =>
         p.name?.toLowerCase().includes(q) ||
-        p.designation?.toLowerCase().includes(q)
+        p.role?.toLowerCase().includes(q)
     );
-  }, [members, memberQuery]);
+  }, [houseMenbers, memberQuery]);
 
-  const handleCopy = (key: string, mobile: string) => {
+  const isSearching = memberQuery.trim().length > 0;
+
+  const handleCopy = (key: string, email: string) => {
     navigator.clipboard
-      ?.writeText(`0${mobile}`)
+      ?.writeText(`0${email}`)
       .then(() => {
         setCopiedKey(key);
         setTimeout(() => setCopiedKey((k) => (k === key ? null : k)), 1500);
@@ -301,9 +281,10 @@ const OverviewHexa: React.FC<HomeProps> = ({
       .catch(() => {});
   };
 
+
+
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-[#FAF5EB]/50 backdrop-blur-sm font-poppins px-2 text-slate-700">
         {/* ================= Hero Section ================= */}
         <section className="py-20 sm:px-6 px-0">
@@ -454,7 +435,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
                 Updated automatically as meals, bazar and utility entries come in
               </p>
 
-              <div className="max-w-6xl mx-auto grid md:grid-cols-4 grid-cols-2 gap-3 md:gap-6 mb-6">
+              <div className="max-w-6xl mx-auto grid md:grid-cols-4 grid-cols-2 gap-1 md:gap-6 mb-6">
                 <StatCard
                   icon={<UtensilsCrossed size={18} />}
                   label="Meal Deposit"
@@ -505,13 +486,13 @@ const OverviewHexa: React.FC<HomeProps> = ({
 
                 {/* NEW: Spending Pace card */}
                 <div className="bg-white/80 border border-slate-200 rounded-xl p-5">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-semibold text-gray-800 flex items-center gap-2">
+                  <div className="flex flex-col lg:flex-row items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-gray-800 flex items-center gap-2 mb-3 lg:mb-0">
                       <CalendarClock size={14} />
                       Spending Pace
                     </span>
                     <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${burnCopy[burnStatus].chip}`}
+                      className={`text-[10px] mb-3 lg:mb-0 px-2 py-0.5 rounded-full border font-semibold ${burnCopy[burnStatus].chip}`}
                     >
                       {burnStatus === "critical" && (
                         <Flame size={10} className="inline mr-1 -mt-0.5" />
@@ -599,7 +580,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
               {/* Ledger Summary Table */}
               <div className="max-w-6xl mx-auto mb-6">
                 <div className="p-6 bg-white/80 rounded-2xl shadow-sm border border-slate-200">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex flex-col lg:flex-row items-center justify-between mb-4">
                     <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
                       <Sparkles size={16} className="text-amber-500" />
                       Summary Ledger
@@ -650,10 +631,10 @@ const OverviewHexa: React.FC<HomeProps> = ({
               {leaderboard.sorted.length > 0 && (
                 <div className="max-w-6xl mx-auto">
                   <div className="p-6 bg-white/80 rounded-2xl shadow-sm border border-slate-200">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex flex-col lg:flex-row items-center justify-between mb-4">
                       <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
                         <Trophy size={16} className="text-amber-500" />
-                        Utility Contribution Leaderboard
+                        Meal Deposit Leaderboard
                       </h3>
                       <span className="text-[11px] text-gray-800">
                         Avg {formatBDT(leaderboard.avg)}
@@ -669,16 +650,16 @@ const OverviewHexa: React.FC<HomeProps> = ({
                           leaderboard.avg > 0 &&
                           person.total < leaderboard.avg * 0.7;
                         return (
-                          <div key={person.member}>
+                          <div key={person.name}>
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-xs font-medium text-gray-800 flex items-center gap-1.5">
                                 {idx === 0 && (
                                   <Trophy
                                     size={12}
-                                    className="text-amber-500"
+                                    className="text-amber-500 capitalize"
                                   />
                                 )}
-                                {person.member}
+                                {person.name}
                               </span>
                               <span
                                 className={`text-xs font-semibold ${
@@ -726,11 +707,6 @@ const OverviewHexa: React.FC<HomeProps> = ({
               House Management Team
             </h2>
 
-            {loading ? (
-              <div className="text-center text-gray-800 text-sm">
-                Loading team...
-              </div>
-            ) : (
               <>
                 {manager && (
                   <div className="mb-12">
@@ -760,7 +736,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
                   </div>
                 )}
 
-                {/* NEW: search/filter for the team list */}
+                {/* Search/filter for the team list */}
                 <div className="max-w-md mx-auto mb-8 relative">
                   <Search
                     size={15}
@@ -780,8 +756,8 @@ const OverviewHexa: React.FC<HomeProps> = ({
                     No team members match “{memberQuery}”.
                   </p>
                 ) : (
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                    {!memberQuery && (
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                    {!isSearching && (
                       <div className="col-span-full text-center text-teal-600 italic text-sm py-2 bg-teal-50/60 border border-slate-200 rounded-xl">
                         Essential Members
                       </div>
@@ -790,33 +766,46 @@ const OverviewHexa: React.FC<HomeProps> = ({
                       const key = `${person.name}-${index}`;
                       return (
                         <React.Fragment key={key}>
-                          {!memberQuery && index === 6 && (
+                          {!isSearching && index === 6 && (
                             <div className="col-span-full text-center text-teal-600 italic text-sm py-2 bg-teal-50/60 border border-slate-200 rounded-xl">
                               Essential Service Providers
                             </div>
                           )}
 
                           <div className="bg-white/80 p-6 rounded-xl hover:shadow-md hover:border-teal-200 transition text-center border border-slate-200">
-                            <h4 className="text-xs text-teal-600 font-semibold uppercase mb-2">
-                              {person.designation}
-                            </h4>
-                            <p className="text-sm font-bold text-slate-800 mb-1">
+                            
+                              <img
+                                src={houseMenbers[index].photoURL}
+                                alt={person.name}
+                                className="w-16 h-16 rounded-full object-cover mx-auto mb-3 ring-2 ring-teal-100 uppercase"
+                              />
+                           
+
+                            {/* Then name */}
+                            <p className="text-sm font-bold text-slate-800 mb-1 capitalize">
                               {person.name}
                             </p>
-                            {person.mobile && (
+
+                            {/* Then role */}
+                            <h4 className="text-xs text-teal-600 font-semibold uppercase mb-2 capitalize">
+                              {person.role}
+                            </h4>
+
+                            {/* Then email */}
+                            {person.email && (
                               <div className="mt-2 flex items-center justify-center gap-2 text-gray-800 text-xs font-mono tracking-wider">
                                 <a
-                                  href={`tel:+880${person.mobile}`}
-                                  className="flex items-center gap-1 hover:text-teal-600 transition"
-                                >
-                                  <Phone size={11} />
-                                  0{person.mobile}
-                                </a>
+                                  href={`mailto:${person.email}`}
+                                    className="flex items-center gap-1 hover:text-teal-600 transition min-w-0 break-all text-left"
+                                  >
+                                    <BiEnvelope size={11} className="shrink-0" />
+                                    <span className="break-all">{person.email}</span>
+                                  </a>
                                 <button
                                   type="button"
-                                  onClick={() => handleCopy(key, person.mobile)}
+                                  onClick={() => handleCopy(key, person.email || "")}
                                   className="text-gray-800 hover:text-teal-600 transition"
-                                  aria-label="Copy phone number"
+                                  aria-label="Copy email"
                                 >
                                   {copiedKey === key ? (
                                     <Check size={12} className="text-emerald-500" />
@@ -833,7 +822,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
                   </div>
                 )}
               </>
-            )}
+            
           </div>
         </section>
 

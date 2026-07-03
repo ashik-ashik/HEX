@@ -70,11 +70,12 @@ interface Notice {
 interface AuthContextType {
   userIsLoading: boolean;
   userRole: string;
+  houseMenbers: { name: string; role: string }[];
 }
 // ==============================================
 
 function App() {
-  const [managerThisMonth, setManagerThisMonth] = useState<string>("");;
+  const [managerThisMonth, setManagerThisMonth] = useState<string>("");
   const [members, setMembers] = useState<MemberData[]>([]);
   const [grandDeposit, setGrandDeposit] = useState<number>(0);
   const [bazarData, setBazarData] = useState<BazarItem[]>([]);
@@ -87,6 +88,7 @@ function App() {
   const [managerStatus, setManagerStatus] = useState<boolean>(false);
     const {
     userIsLoading,
+    houseMenbers,
   } = useAuth() as AuthContextType;
 
   
@@ -99,6 +101,7 @@ type UtilityDeposit = {
   const [utilityDeposits, setUtilityDeposits] = useState<UtilityDeposit[]>([]);
   const [utilityCosts, setUtilityCosts] = useState<string[][]>([]);
     const [notices, setNotices] = useState<Notice[]>([]);
+  
   
   const parseCSV = (text: string): string[][] => {
     return text
@@ -219,20 +222,18 @@ type UtilityDeposit = {
         const depositText = await depositRes.text();
         const depositRows = parseCSV(depositText);
 
-        if (depositRows.length < 2) return; // Safety check
+        if (depositRows.length < 1) return; // Safety check
 
         const headers = depositRows[0];
-        const imageRow = depositRows[1];
-        const utilityDepositsRows = depositRows.slice(2);
+        const mealDepositsRows = depositRows.slice(1);
 
         const memberData: MemberData[] = headers.map((name, colIndex) => {
-          const deposits = utilityDepositsRows
+          const deposits = mealDepositsRows
             .map((row) => Number(row[colIndex]))
             .filter((val) => !isNaN(val) && val > 0);
-          const total = deposits.reduce((sum, val) => sum + val, 0);
-          return { name, deposits, total, image: imageRow[colIndex] || "" };
+            const total = deposits.reduce((sum, val) => sum + val, 0);
+            return { name, deposits, total };
         });
-
         setMembers(memberData);
         setGrandDeposit(memberData.reduce((sum, m) => sum + m.total, 0));
 
@@ -293,7 +294,8 @@ type UtilityDeposit = {
     fetchData();
   }, []);
 
-  const memberNameList = members.map(member => member.name);
+  const memberNameList = houseMenbers.map(member => member.name);
+
 
  if(userIsLoading){
     return <>
@@ -320,8 +322,7 @@ type UtilityDeposit = {
     </>
   }
   // ======================================================
-  console.log("bazarData:", totalBazar);
-  console.log("grandDeposit:", grandDeposit);
+
   return (
     <>
       <BrowserRouter>
@@ -330,7 +331,7 @@ type UtilityDeposit = {
             <Route path="/" element={<HomeInitial />} />
            <Route path="/overview" element={<PrivateRoute>
             <OverviewHexa setManagerThisMonth={setManagerThisMonth} grandDeposit={grandDeposit} totalBazar={totalBazar} utilityDeposits={utilityDeposits}
-                utilityCosts={utilityCosts} isLoading={isLoading} notices={notices} />
+                utilityCosts={utilityCosts} isLoading={isLoading} notices={notices} members={members} />
           </PrivateRoute>} />
           <Route path="/login" element={<GoogleLogin />} />
           <Route

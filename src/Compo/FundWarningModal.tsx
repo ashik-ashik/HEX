@@ -42,7 +42,7 @@ const FundWarningModal = ({ balance, isLoading }: FundWarningModalProps) => {
       className={`fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-sm ${
         isCritical ? "bg-red-950/70" : "bg-amber-950/60"
       }`}
-      onClick={() => setIsOpen(false)}
+      
     >
       <div
         onClick={(e) => e.stopPropagation()}

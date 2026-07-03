@@ -13,7 +13,6 @@ interface Member {
 const AddPersonnel: React.FC = () => {
   const [members, setMembers] = useState<Member[]>([]);
   const [loadingMembers, setLoadingMembers] = useState(true);
-//   console.log(members);
 
   const [type, setType] = useState<"member" | "other">("member");
   const [selectedMember, setSelectedMember] = useState("");

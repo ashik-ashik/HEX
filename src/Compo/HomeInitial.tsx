@@ -12,6 +12,7 @@ import {
   FaTint,
   FaSmile,
   FaCheckCircle,
+  FaSmokingBan,
 } from "react-icons/fa";
 import HouseLocation from "./HouseLocation";
 import { type User } from "firebase/auth";
@@ -19,8 +20,10 @@ import useAuth from "../hooks/useAuth";
 import HexaSpecialEvents from "./HexaSpecialEvents";
 import Header from "./Header";
 
+
+
 const HomeInitial = () => {
-  const { user } = useAuth() as { user: User | null };
+  const { user } = useAuth() as { user: User | null; };
   return (
     <div className="bg-black/80 min-h-screen">
 
@@ -54,7 +57,7 @@ const HomeInitial = () => {
 
       {/* ── Hero Section ── */}
       {/* ── Hero Section ── */}
-<section className="pt-28 pb-16 px-4">
+<section className="pt-28 pb-16 px-2">
   <div className="max-w-6xl mx-auto">
     <div className="grid md:grid-cols-2 gap-10 items-center">
 
@@ -108,7 +111,7 @@ const HomeInitial = () => {
           <div>
             <p className="text-sm text-gray-500">Address</p>
             <p className="font-medium text-sm text-gray-200 leading-relaxed">
-              Kathaltola, 1051/1, Monipur,
+              Kathaltola, 1051/1, East Monipur,
               <br />
               Mirpur-2, Dhaka
             </p>
@@ -134,7 +137,7 @@ const HomeInitial = () => {
 </section>
 
       {/* ── Hexa Haven Core Features ── */}
-      <section className="pb-16 px-4">
+      <section className="pb-16 px-2">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-white mb-3">
@@ -216,7 +219,7 @@ const HomeInitial = () => {
       <HexaSpecialEvents eventLimit={4} />
 
       {/* ── Membership Criteria Card ── */}
-      <section className="pb-20 px-4">
+      <section className="pb-20 px-2">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-white mb-3">
@@ -229,41 +232,56 @@ const HomeInitial = () => {
           </div>
 
           <div className="bg-gray-800/60 rounded-2xl shadow-md border-2 border-blue-800 p-8 mx-auto">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-blue-900/60 flex items-center justify-center text-blue-400 text-lg">
-                <FaHome />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-100">Member Conduct Requirements</h3>
-                <p className="text-sm text-gray-300">All residents must meet these standards</p>
-              </div>
-              <span className="ml-auto text-xs font-medium bg-blue-900/60 text-blue-300 border border-blue-700 px-3 py-1 rounded-full">
-                Required
-              </span>
-            </div>
+  <div className="flex items-center gap-3 mb-6">
+    <div className="w-10 h-10 rounded-xl bg-blue-900/60 flex items-center justify-center text-blue-400 text-lg">
+      <FaHome />
+    </div>
+    <div>
+      <h3 className="font-semibold text-gray-100">Member Conduct Requirements</h3>
+      <p className="text-sm text-gray-300">All residents must meet these standards</p>
+    </div>
+    <span className="ml-auto text-xs font-medium bg-blue-900/60 text-blue-300 border border-blue-700 px-3 py-1 rounded-full">
+      Required
+    </span>
+  </div>
 
-            <div className="border-t border-gray-700 pt-6 grid sm:grid-cols-2 gap-4">
-              {[
-                { label: "Polite",          desc: "Respectful and courteous in all interactions with fellow members." },
-                { label: "Collaborative",   desc: "Willing to work together and share responsibilities in the house." },
-                { label: "Cooperative",     desc: "Supportive of house rules and collective household decisions." },
-                { label: "Friendly Minded", desc: "Approachable and kind, contributing to a positive atmosphere." },
-              ].map(({ label, desc }) => (
-                <div key={label} className="flex items-start gap-3">
-                  <FaCheckCircle className="text-blue-400 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="font-medium text-gray-100 text-md">{label}</p>
-                    <p className="text-sm text-gray-300 leading-relaxed">{desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+  <div className="border-t border-gray-700 pt-6 grid sm:grid-cols-2 gap-4">
+    {[
+      { label: "Polite",          desc: "Respectful and courteous in all interactions with fellow members." },
+      { label: "Collaborative",   desc: "Willing to work together and share responsibilities in the house." },
+      { label: "Cooperative",     desc: "Supportive of house rules and collective household decisions." },
+      { label: "Friendly Minded", desc: "Approachable and kind, contributing to a positive atmosphere." },
+    ].map(({ label, desc }) => (
+      <div key={label} className="flex items-start gap-3">
+        <FaCheckCircle className="text-blue-400 mt-0.5 flex-shrink-0" />
+        <div>
+          <p className="font-medium text-gray-100 text-md">{label}</p>
+          <p className="text-sm text-gray-300 leading-relaxed">{desc}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* No Smoking — a hard restriction, styled separately from the conduct traits above */}
+  <div className="border-t border-gray-700 mt-6 pt-6">
+    <div className="flex items-start gap-3 bg-red-950/30 border border-red-800/60 rounded-xl p-4">
+      <FaSmokingBan className="text-red-400 mt-0.5 flex-shrink-0 text-lg" />
+      <div>
+        <p className="font-medium text-gray-100 text-md">No Smoking</p>
+        <p className="text-sm text-gray-300 leading-relaxed">
+          Smoking is strictly prohibited anywhere inside the house, including private rooms.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
         </div>
       </section>
 
+
+
       {/* ── Core App Features ── */}
-      <section className="pb-20 px-4">
+      <section className="pb-20 px-2">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-white mb-3">Core App Features</h2>

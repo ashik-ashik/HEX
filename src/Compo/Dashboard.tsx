@@ -2,6 +2,8 @@
 import React, { useMemo, useState } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
+import useAuth from "../hooks/useAuth";
+import { TbCircleFilled } from "react-icons/tb";
 
 interface MemberData {
   name: string;
@@ -45,10 +47,6 @@ interface DashboardProps {
   rule:       #E4D9C5   (hairline ledger rules)
 ------------------------------------------------------------------ */
 
-const fontImport = `
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
-`;
-
 type SortKey = "name" | "balance" | "meals" | "deposit";
 
 const Dashboard: React.FC<DashboardProps> = ({
@@ -65,6 +63,8 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [bazarFilter, setBazarFilter] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDir, setSortDir] = useState<1 | -1>(1);
+
+  const { houseMenbers } = useAuth() as { houseMenbers: { name: string; role: string; photoURL?: string }[] };
 
   const finalBalance = grandDeposit - totalBazar;
   const mealRate = grandTotalMeals > 0 ? totalBazar / grandTotalMeals : 0;
@@ -134,7 +134,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   if (isLoading) {
     return (
       <div className="flex flex-col justify-center items-center h-screen bg-[#FAF5EB]">
-        <style>{fontImport}</style>
+        
         <div className="flex flex-col items-center gap-4">
           <div className="relative w-12 h-12">
             <span className="absolute inset-0 rounded-full border-[3px] border-[#C0573B]/20" />
@@ -153,7 +153,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   if (isError) {
     return (
       <div className="p-6 bg-[#FAF5EB] min-h-screen flex flex-col justify-center items-center">
-        <style>{fontImport}</style>
+        
         <div className="text-center max-w-md border border-[#E4D9C5] bg-white rounded-xl px-8 py-10 shadow-sm">
           <div className="w-12 h-12 rounded-full bg-[#B23A2E]/10 text-[#B23A2E] flex items-center justify-center mx-auto mb-4 text-xl font-['Fraunces']">!</div>
           <h1 className="font-['Fraunces'] text-xl font-semibold text-[#2B2117] mb-2">The ledger didn't open</h1>
@@ -168,7 +168,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   return (
     <>
       <Header />
-      <style>{fontImport}</style>
+      
 
       <div className="bg-[#FAF5EB] min-h-screen">
         <div className="min-h-screen pt-20 md:container mx-auto md:px-6 px-3 font-['Inter']">
@@ -213,19 +213,19 @@ const Dashboard: React.FC<DashboardProps> = ({
             <div className="grid sm:grid-cols-3 gap-3 mb-12">
               <div className="bg-[#B23A2E]/[0.06] border border-[#B23A2E]/20 rounded-lg p-4">
                 <p className="text-[10px] uppercase tracking-wider text-[#B23A2E] font-semibold mb-1">Owes the most</p>
-                <p className="font-['Fraunces'] text-base text-[#2B2117]">{insights.mostDue.name}</p>
-                <p className="font-['JetBrains_Mono'] text-sm text-[#B23A2E]">৳ {Math.abs(insights.mostDue.balance).toFixed(0)} due</p>
+                <p className="font-['Fraunces'] text-base text-[#2B2117] capitalize">{insights.mostDue.name}</p>
+                <p className="font-['JetBrains_Mono'] text-sm text-[#B23A2E] font-bold">৳ {Math.abs(insights.mostDue.balance).toFixed(0)} due</p>
               </div>
               <div className="bg-[#4F7A5A]/[0.06] border border-[#4F7A5A]/20 rounded-lg p-4">
                 <p className="text-[10px] uppercase tracking-wider text-[#4F7A5A] font-semibold mb-1">Most in credit</p>
-                <p className="font-['Fraunces'] text-base text-[#2B2117]">{insights.mostCredit.name}</p>
-                <p className="font-['JetBrains_Mono'] text-sm text-[#4F7A5A]">৳ {insights.mostCredit.balance.toFixed(0)} to receive</p>
+                <p className="font-['Fraunces'] text-base text-[#2B2117] capitalize">{insights.mostCredit.name}</p>
+                <p className="font-['JetBrains_Mono'] text-sm text-[#4F7A5A] font-bold">৳ {insights.mostCredit.balance.toFixed(0)} to receive</p>
               </div>
               {insights.topBazarPerson && (
                 <div className="bg-[#C28A2E]/[0.07] border border-[#C28A2E]/25 rounded-lg p-4">
                   <p className="text-[10px] uppercase tracking-wider text-[#C28A2E] font-semibold mb-1">Top bazar contributor</p>
-                  <p className="font-['Fraunces'] text-base text-[#2B2117]">{insights.topBazarPerson[0]}</p>
-                  <p className="font-['JetBrains_Mono'] text-sm text-[#C28A2E]">৳ {insights.topBazarPerson[1].toFixed(0)} spent</p>
+                  <p className="font-['Fraunces'] text-base text-[#2B2117] capitalize">{insights.topBazarPerson[0]}</p>
+                  <p className="font-['JetBrains_Mono'] text-sm text-[#C28A2E] font-bold">৳ {insights.topBazarPerson[1].toFixed(0)} spent</p>
                 </div>
               )}
             </div>
@@ -252,17 +252,25 @@ const Dashboard: React.FC<DashboardProps> = ({
                   >
                     <div className="flex items-center gap-3">
                       <div className="relative shrink-0">
-                        {member.image ? (
-                          <img
-                            src={member.image}
-                            alt={member.name}
-                            className="w-12 h-12 rounded-full object-cover border border-[#E4D9C5]"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-[#2B2117]/5 flex items-center justify-center text-[#2B2117] font-semibold font-['Fraunces']">
-                            {member.name[0]}
-                          </div>
-                        )}
+                        {
+                          (() => {
+                            const houseMember = houseMenbers?.find(
+                              (hm) => hm.name === member.name
+                            );
+
+                            return houseMember?.photoURL ? (
+                              <img
+                                src={houseMember.photoURL}
+                                alt={member.name}
+                                className="w-12 h-12 rounded-full object-cover border border-[#E4D9C5]"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full bg-[#2B2117]/5 flex items-center justify-center text-[#2B2117] font-semibold font-['Fraunces'] capitalize">
+                                {member.name?.[0]}
+                              </div>
+                            );
+                          })()
+                        }
                         {isDue && (
                           <span className="absolute -top-1 -right-1 bg-[#B23A2E] text-white text-[9px] px-1.5 py-[2px] rounded-full font-['JetBrains_Mono']">
                             ৳ {Math.ceil(Math.abs(balance))}
@@ -270,7 +278,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                         )}
                       </div>
                       <div className="min-w-0">
-                        <h3 className="font-medium text-sm text-[#2B2117] truncate">{member.name}</h3>
+                        <h3 className="font-medium text-sm text-[#2B2117] truncate capitalize">{member.name}</h3>
                         <p className="text-xs text-[#6B5E50] font-['JetBrains_Mono']">৳ {member.total.toFixed(2)} deposited</p>
                       </div>
                     </div>
@@ -364,8 +372,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                       <td className="p-3 sticky left-0 bg-[#2B2117] text-white z-10 text-left font-medium">{member.name}</td>
                       <td className="p-3 bg-[#2B2117]/95 text-white font-['JetBrains_Mono'] font-semibold">{member.total}</td>
                       {member.meals.map((meal, i) => (
-                        <td key={i} className="p-2 border-l border-[#E4D9C5] text-[#2B2117] font-['JetBrains_Mono']">
-                          {meal > 0 ? meal : <span className="text-[#E4D9C5]">·</span>}
+                        <td key={i} className="p-2 border-l border-[#E4D9C5] text-[#2B2117] font-['JetBrains_Mono'] text-center">
+                          {meal > 0 ? meal : <span className="text-[#E4D9C5] block text-center flex items-center justify-center"><TbCircleFilled size={10} color="#ce3a00" /></span>}
                         </td>
                       ))}
                     </tr>

@@ -33,7 +33,6 @@ const { usersList, userIsLoading, setUsersList, user } = useAuth() as {
     };
   };
 
-console.log(usersList, userIsLoading)
 
   const API_URL = import.meta.env.VITE_USER_SHEET_WRITE_URL as string;
 
