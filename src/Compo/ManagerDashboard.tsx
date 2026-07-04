@@ -17,19 +17,8 @@ import {
   ChevronRight,
   Zap,
 } from "lucide-react";
-import EntryBazarCosts from "./EntryBazarCosts";
-import MealCountEntry from "./MealCountEntry";
-import EntryMealDeposit from "./EntryMealDeposit";
-import ChangeManager from "./NextManagerSelection";
-import EntryUtilityDeposit from "./EntryUtilityDeposit";
-import UtilityCostEntry from "./EntryUtilityCosts";
-import { Link } from "react-router-dom";
-import SetFixedMeal from "./SetFixedMeal";
-import ResetMonth from "./ResetThisMonth";
-import AddPersonnel from "./AddPersonnel";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import EditMealDeposit from "./EditMealDeposit";
-import EditLastBazarCost from "./EditBazarCosts";
 import { BiPieChartAlt2 } from "react-icons/bi";
 
 interface Props {
@@ -41,133 +30,45 @@ interface AuthContextType {
 }
 
 export default function ManagerDashboard({ memberNameList }: Props) {
-  const [active, setActive] = useState("dashboard");
   const [open, setOpen] = useState(false);
   const { userRole } = useAuth() as AuthContextType;
+  const location = useLocation();
 
   const menus = [
-    { id: "dashboard", name: "Dashboard", icon: LayoutDashboard, group: "overview" },
-    { id: "bazar-cost", name: "Bazar Cost", icon: ShoppingCart, group: "entry" },
-    { id: "meal-entry", name: "Meal Entry", icon: Utensils, group: "entry" },
-    { id: "meal-deposit-entry", name: "Meal Deposit", icon: DollarSign, group: "entry" },
-    { id: "utility-deposit-entry", name: "Utility Deposit", icon: Wallet, group: "entry" },
-    { id: "utility-costs-entry", name: "Utility Cost", icon: PieChart, group: "entry" },
-    { id: "edit-meal-deposit", name: "Edit Meal Deposit", icon: BadgeDollarSignIcon, group: "edit" },
-    { id: "edit-mbaza-cost", name: "Edit Bazar Cost", icon: BiPieChartAlt2, group: "edit" },
-    { id: "add-member", name: "Add Member", icon: UserRoundPlus, group: "manage" },
-    { id: "next-manager", name: "Change Member Role", icon: UserCog, group: "manage" },
-    { id: "setfixedmeal", name: "Set Fixed Meal", icon: Target, group: "manage" },
-    { id: "resetmonth", name: "Reset Month", icon: RefreshCcw, group: "manage" },
+    { id: "", name: "ড্যাশবোর্ড", icon: LayoutDashboard, group: "overview" },
+    { id: "bazar-cost", name: "এড বাজার খরচ", icon: ShoppingCart, group: "entry" },
+    { id: "meal-entry", name: "মিল এড করুন", icon: Utensils, group: "entry" },
+    { id: "meal-deposit-entry", name: "খাবার মিলে জমা দিন", icon: DollarSign, group: "entry" },
+    { id: "utility-deposit-entry", name: "ইউটিলিটি জমা দিন", icon: Wallet, group: "entry" },
+    { id: "utility-costs-entry", name: "ইউটিলিটি খরচ যোগ করুন", icon: PieChart, group: "entry" },
+    { id: "edit-meal-deposit", name: "খাবার মিলে জমা এডিট", icon: BadgeDollarSignIcon, group: "edit" },
+    { id: "edit-bazar-cost", name: "বাজার খরচ এডিট করুন", icon: BiPieChartAlt2, group: "edit" },
+    { id: "add-member", name: "নতুন সদস্য যোগ করুন", icon: UserRoundPlus, group: "manage" },
+    { id: "next-manager", name: "ম্যানেজার পরিবর্তন", icon: UserCog, group: "manage" },
+    { id: "setfixedmeal", name: "ফিক্সড মিল সেট করুন", icon: Target, group: "manage" },
+    { id: "resetmonth", name: "এই মাস রিসেট করুন", icon: RefreshCcw, group: "manage" },
   ];
 
   const groups: { key: string; label: string }[] = [
-    { key: "overview", label: "Overview" },
-    { key: "entry", label: "Data Entry" },
-    { key: "edit", label: "Edit Records" },
-    { key: "manage", label: "Management" },
+    { key: "overview", label: "ওভারভিউ" },
+    { key: "entry", label: "ডেটা এন্ট্রি" },
+    { key: "edit", label: "রেকর্ড এডিট" },
+    { key: "manage", label: "ব্যবস্থাপনা" },
   ];
 
   const quickGoMenus = [
-    { id: "/overview", name: "Home" },
-    { id: "/dashboard", name: "Dashboard" },
-    { id: "/utility", name: "Utility" },
-    { id: "/settlement", name: "Settlement" },
-    { id: "/postnotice", name: "Post Notice" },
+    { id: "/overview", name: "হোম" },
+    { id: "/dashboard", name: "ড্যাশবোর্ড" },
+    { id: "/utility", name: "ইউটিলিটি" },
+    { id: "/settlement", name: "সেটেলমেন্ট" },
+    { id: "/postnotice", name: "নোটিশ পোস্ট" },
   ];
 
-  const activeMenu = menus.find((m) => m.id === active);
+  // Find which menu matches the current path (matches the last path segment)
+  const activeMenu = menus.find((m) => location.pathname.includes(m.id));
 
-  const renderPage = () => {
-    switch (active) {
-      case "bazar-cost":
-        return <EntryBazarCosts memberNameList={memberNameList} />;
-      case "meal-entry":
-        return <MealCountEntry memberNameList={memberNameList} />;
-      case "meal-deposit-entry":
-        return <EntryMealDeposit memberNameList={memberNameList} />;
-      case "utility-deposit-entry":
-        return <EntryUtilityDeposit memberNameList={memberNameList} />;
-      case "utility-costs-entry":
-        return <UtilityCostEntry />;
-      case "edit-meal-deposit":
-        return <EditMealDeposit memberNameList={memberNameList} />;
-      case "edit-mbaza-cost":
-        return <EditLastBazarCost memberNameList={memberNameList} />;
-      case "add-member":
-        return <AddPersonnel />;
-      case "next-manager":
-        return <ChangeManager />;
-      case "setfixedmeal":
-        return <SetFixedMeal />;
-      case "resetmonth":
-        return <ResetMonth />;
-      default:
-        return (
-          <div className="p-6 lg:p-10 space-y-8 max-w-4xl mx-auto">
-            {/* Welcome Header */}
-            <div className="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 text-white p-8 shadow-xl relative overflow-hidden">
-              <div className="absolute inset-0 opacity-10 pointer-events-none"
-                style={{ backgroundImage: "radial-gradient(circle at 80% 20%, #6366f1 0%, transparent 60%)" }} />
-              <div className="relative z-10">
-                <p className="text-slate-400 text-sm font-medium uppercase tracking-widest mb-2">Manager Panel</p>
-                <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight">Welcome back 👋</h1>
-                <p className="text-slate-300 mt-2 text-base">
-                  Select an action from the sidebar to manage your mess operations.
-                </p>
-              </div>
-            </div>
-
-            
-
-            {/* Quick Access */}
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Zap size={16} className="text-orange-500" />
-                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-600">Quick Access</h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {quickGoMenus.map((item) => (
-                  <Link
-                    key={item.id}
-                    to={item.id}
-                    className="inline-flex items-center gap-1.5 bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 shadow-sm"
-                  >
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* Action Grid */}
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <LayoutDashboard size={16} className="text-indigo-500" />
-                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-600">All Actions</h3>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {menus.filter((m) => m.id !== "dashboard").map((menu) => {
-                  const Icon = menu.icon;
-                  return (
-                    <button
-                      key={menu.id}
-                      onClick={() => setActive(menu.id)}
-                      className="flex flex-col items-start gap-2 bg-white border border-slate-200 hover:border-indigo-300 hover:shadow-md p-4 rounded-2xl text-left transition-all duration-150 group"
-                    >
-                      <div className="w-9 h-9 rounded-xl bg-slate-100 group-hover:bg-indigo-100 flex items-center justify-center transition-colors">
-                        <Icon size={18} className="text-slate-500 group-hover:text-indigo-600 transition-colors" />
-                      </div>
-                      <span className="text-xs font-semibold text-slate-700 group-hover:text-indigo-700 leading-tight">
-                        {menu.name}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        );
-    }
-  };
+  const isDashboardHome =
+    !activeMenu || location.pathname.endsWith("/dashboard") || location.pathname.endsWith("/manager");
 
   return (
     <section className="min-h-screen bg-slate-100">
@@ -205,8 +106,8 @@ export default function ManagerDashboard({ memberNameList }: Props) {
                 <LayoutDashboard size={18} className="text-white" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-slate-800">Manager Panel</h2>
-                <p className="text-xs text-slate-400 capitalize">{userRole ?? "manager"}</p>
+                <h2 className="text-sm font-bold text-slate-800">ম্যানেজার প্যানেল</h2>
+                <p className="text-xs text-slate-400 capitalize">{userRole ?? "ম্যানেজার"}</p>
               </div>
             </div>
           </div>
@@ -219,7 +120,7 @@ export default function ManagerDashboard({ memberNameList }: Props) {
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition text-xs font-medium"
             >
               <Home size={16} />
-              Back to Home
+              হোমে ফিরে যান
             </Link>
 
             {/* Grouped menu items */}
@@ -234,15 +135,12 @@ export default function ManagerDashboard({ memberNameList }: Props) {
                   <div className="space-y-0.5">
                     {items.map((menu) => {
                       const Icon = menu.icon;
-                      const isActive = active === menu.id;
                       return (
-                        <button
+                        <NavLink
                           key={menu.id}
-                          onClick={() => {
-                            setActive(menu.id);
-                            setOpen(false);
-                          }}
-                          className={`
+                          to={menu.id}
+                          onClick={() => setOpen(false)}
+                          className={({ isActive }) => `
                             w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all
                             ${isActive
                               ? "bg-indigo-600 text-white shadow-sm shadow-indigo-200"
@@ -252,7 +150,7 @@ export default function ManagerDashboard({ memberNameList }: Props) {
                         >
                           <Icon size={16} />
                           {menu.name}
-                        </button>
+                        </NavLink>
                       );
                     })}
                   </div>
@@ -264,7 +162,7 @@ export default function ManagerDashboard({ memberNameList }: Props) {
           {/* Sidebar Footer */}
           <div className="p-4 border-t border-slate-100">
             <div className="bg-slate-50 rounded-xl px-4 py-3 text-xs text-slate-400 text-center">
-              Mess Management System
+              মেস ব্যবস্থাপনা সিস্টেম
             </div>
           </div>
         </aside>
@@ -274,27 +172,93 @@ export default function ManagerDashboard({ memberNameList }: Props) {
           {/* Top Bar */}
           <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
-              {activeMenu && (
+              {activeMenu && !isDashboardHome ? (
                 <>
-                  <span className="text-slate-400 text-sm">Manager Panel</span>
+                  <span className="text-slate-400 text-sm">ম্যানেজার প্যানেল</span>
                   <ChevronRight size={14} className="text-slate-300" />
                   <span className="text-slate-800 text-sm font-semibold">{activeMenu.name}</span>
                 </>
-              )}
-              {!activeMenu && (
-                <span className="text-slate-800 text-sm font-semibold">Dashboard</span>
+              ) : (
+                <span className="text-slate-800 text-sm font-semibold">ড্যাশবোর্ড</span>
               )}
             </div>
             <div className="hidden sm:flex items-center gap-2">
               <span className="text-xs text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg capitalize">
-                {userRole ?? "Manager"}
+                {userRole ?? "ম্যানেজার"}
               </span>
             </div>
           </header>
 
           {/* Page Content */}
           <div className="flex-1 overflow-y-auto bg-slate-50">
-            {renderPage()}
+            {isDashboardHome ? (
+              <div className="p-2 lg:p-10 space-y-8 max-w-4xl mx-auto">
+                {/* Welcome Header */}
+                <div className="rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 text-white p-6 shadow-xl relative overflow-hidden">
+                  <div
+                    className="absolute inset-0 opacity-10 pointer-events-none"
+                    style={{ backgroundImage: "radial-gradient(circle at 80% 20%, #6366f1 0%, transparent 60%)" }}
+                  />
+                  <div className="relative z-10">
+                    <p className="text-slate-300 text-xs font-medium uppercase tracking-widest mb-2">
+                      ম্যানেজার প্যানেল
+                    </p>
+                    <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight">স্বাগতম 👋</h1>
+                    <p className="text-blue-200 mt-2 text-xs">
+                      আপনার মেস পরিচালনার জন্য সাইডবার থেকে একটি অ্যাকশন নির্বাচন করুন।
+                    </p>
+                  </div>
+                </div>
+
+                {/* Quick Access */}
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Zap size={16} className="text-orange-500" />
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-slate-600">কুইক অ্যাক্সেস</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {quickGoMenus.map((item) => (
+                      <Link
+                        key={item.id}
+                        to={item.id}
+                        className="inline-flex items-center gap-1.5 bg-white border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 shadow-sm"
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Action Grid */}
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <LayoutDashboard size={16} className="text-indigo-500" />
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-slate-600">সকল অ্যাকশন</h3>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {menus.filter((m) => m.id !== "dashboard").map((menu) => {
+                      const Icon = menu.icon;
+                      return (
+                        <NavLink
+                          key={menu.id}
+                          to={menu.id}
+                          className="flex flex-col items-start gap-2 bg-white border border-slate-200 hover:border-indigo-300 hover:shadow-md p-4 rounded-2xl text-left transition-all duration-150 group"
+                        >
+                          <div className="w-9 h-9 rounded-xl bg-slate-100 group-hover:bg-indigo-100 flex items-center justify-center transition-colors">
+                            <Icon size={18} className="text-slate-500 group-hover:text-indigo-600 transition-colors" />
+                          </div>
+                          <span className="text-xs font-semibold text-slate-700 group-hover:text-indigo-700 leading-tight">
+                            {menu.name}
+                          </span>
+                        </NavLink>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Outlet context={{ memberNameList }} />
+            )}
           </div>
         </main>
       </div>

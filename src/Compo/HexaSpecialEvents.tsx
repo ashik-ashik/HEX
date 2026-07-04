@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import useAuth from "../hooks/useAuth";
 import { Link } from "react-router-dom";
-import Header from "./Header";
 
 type EventItem = {
   timestamp: string;
@@ -153,7 +152,6 @@ const HexaSpecialEvents = ({eventLimit}: {eventLimit: number}) => {
           animation: fadeInScale 0.28s cubic-bezier(0.34, 1.4, 0.64, 1) both;
         }
       `}</style>
-        <Header />
       <section className="backdrop-blur-sm"
         style={{
           padding: "5rem 1rem",

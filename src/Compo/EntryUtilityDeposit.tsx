@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 // import Header from "./Header";
-import Footer from "./Footer";
 // import DataEntryWarning from "./DataEntryWarning";
 import useAuth from "../hooks/useAuth";
 
@@ -74,115 +73,107 @@ const EntryUtilityDeposit: React.FC< MemberNameList> = ({ memberNameList}) => {
   };
 
   return (
-    <>
-        {/* <Header /> */}
+  <>
+    <Toaster
+      position="top-right"
+      containerStyle={{
+        position: "fixed",
+        top: 100,
+        right: 20,
+        zIndex: 9999,
+      }}
+      toastOptions={{
+        className: "text-xs px-3 py-2 rounded-lg shadow-md",
+        style: {
+          background: "#1f2937",
+          color: "#fff",
+        },
+      }}
+    />
 
-        <section className="backdrop-blur-sm bg-black/60 py-24 p-2">
-        <div className="min-h-[62vh] lg:min-h-screen">
-            <div className="max-w-2xl mx-auto mt-10 p-6 bg-white shadow-xl rounded-2xl border">
-                <Toaster
-                    
-                    position="top-right"
-                    containerStyle={{
-                        position: "fixed",
-                        top: 100,
-                        right: 20,
-                        zIndex: 9999,
-                    }}
-                    toastOptions={{
-                        className: "text-xs px-3 py-2 rounded-lg shadow-md",
-                        style: {
-                        background: "#1f2937", // gray-800
-                        color: "#fff",
-                        },
-                        success: {
-                        className: "bg-green-600 text-white text-xs px-3 py-2 rounded-lg shadow-md",
-                        iconTheme: {
-                            primary: "#fff",
-                            secondary: "#16a34a",
-                        },
-                        },
-                        error: {
-                        className: "bg-red-600 text-white text-xs px-3 py-2 rounded-lg shadow-md",
-                        iconTheme: {
-                            primary: "#fff",
-                            secondary: "#dc2626",
-                        },
-                        },
-                        loading: {
-                        className: "bg-indigo-600 text-white text-xs px-3 py-2 rounded-lg shadow-md",
-                        },
-                    }}
-                    />
+    <section className="bg-white p-4">
+      <div className="max-w-2xl mx-auto">
 
-                <h2 className="text-lg font-semibold text-center mb-6 text-indigo-600">
-                    Utility Deposit Entry
-                </h2>
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
 
-                {/* Warning */}
-                {/* <DataEntryWarning /> */}
+          {/* Header */}
+          <div className="border-b px-6 py-5">
+            <h2 className="text-2xl font-bold text-slate-800">
+              ইউটিলিটি ডিপোজিট এন্ট্রি
+            </h2>
 
-                {
-                  (userRole === "manager" || userRole === "assist_manager") && <>
-                  
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                      {/* Member Select */}
-                      <div>
-                      <label className="text-xs font-medium text-gray-600">
-                          Select Member
-                      </label>
-                      <select
-                          required
-                          value={member}
-                          onChange={(e) => setMember(e.target.value)}
-                          className="w-full mt-1 p-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
-                      >
-                          <option value="">-- Choose Member --</option>
-                          {memberNameList.map((m) => (
-                          <option key={m} value={m}>
-                              {m}
-                          </option>
-                          ))}
-                      </select>
-                      </div>
+            <p className="text-[11px] leading-relaxed text-slate-600 mt-2">
+              এই ফর্মের মাধ্যমে সদস্যদের ইউটিলিটি ডিপোজিট সংরক্ষণ করা হবে।
+              প্রথমে সদস্য নির্বাচন করুন, তারপর জমার পরিমাণ লিখে
+              <span className="font-medium"> "ডিপোজিট সংরক্ষণ করুন"</span>
+              বাটনে ক্লিক করুন।
+            </p>
+          </div>
 
-                      {/* Amount Input */}
-                      <div>
-                      <label className="text-xs font-medium text-gray-600">
-                          Amount (৳ )
-                      </label>
-                      <input
-                          type="text"
-                          required
-                          value={amount}
-                          onChange={(e) => setAmount(e.target.value)}
-                          placeholder="Enter amount..."
-                          className="w-full mt-1 p-2 text-sm border rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
-                      />
-                      </div>
+          {(userRole === "manager" || userRole === "assist_manager") && (
+            <form
+              onSubmit={handleSubmit}
+              className="p-6 space-y-6"
+            >
+              {/* Member */}
+              <div>
+                <label className="block mb-2 text-sm font-medium text-slate-700">
+                  সদস্য নির্বাচন করুন
+                </label>
 
-                      {/* Submit Button */}
-                      <button
-                      type="submit"
-                      disabled={loadingOnSubmit}
-                      className={`w-full py-2 text-sm font-medium rounded-lg transition ${
-                          loadingOnSubmit
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-indigo-500 hover:bg-indigo-600 text-white"
-                      }`}
-                      >
-                      {loadingOnSubmit ? "Submitting..." : "Entry Utility Deposit"}
-                      </button>
-                  </form>
-                  </>
-                }
-                </div>
+                <select
+                  required
+                  value={member}
+                  onChange={(e) => setMember(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >
+                  <option value="">সদস্য নির্বাচন করুন</option>
+
+                  {memberNameList.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Amount */}
+              <div>
+                <label className="block mb-2 text-sm font-medium text-slate-700">
+                  জমার পরিমাণ (৳)
+                </label>
+
+                <input
+                  type="number"
+                  required
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="যেমন: ১০০০"
+                  className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={loadingOnSubmit}
+                className={`w-full rounded-lg py-3 text-sm font-semibold transition ${
+                  loadingOnSubmit
+                    ? "bg-slate-300 cursor-not-allowed text-slate-600"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                {loadingOnSubmit
+                  ? "সংরক্ষণ করা হচ্ছে..."
+                  : "ডিপোজিট সংরক্ষণ করুন"}
+              </button>
+            </form>
+          )}
         </div>
-        </section>
-
-        <Footer />
-    </>
-  );
+      </div>
+    </section>
+  </>
+);
 };
 
 export default EntryUtilityDeposit;

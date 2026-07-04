@@ -29,6 +29,8 @@ import EditLastBazarCost from './Compo/EditBazarCosts';
 import AllEvents from './Compo/AllEvents';
 import PageNotFound from './Compo/PageNotFound';
 import FundWarningModal from './Compo/FundWarningModal';
+import SetFixedMeal from './Compo/SetFixedMeal';
+import ResetMonth from './Compo/ResetThisMonth';
 
 
 
@@ -377,18 +379,21 @@ type UtilityDeposit = {
             grandTotalMeals={grandTotalMeals}
             isLoading={isLoading}
           /></AdminRoute>} />
-          <Route path="/manager" element={<AdminRoute><ManagerDashboard memberNameList={memberNameList} managerStatus={managerStatus} /></AdminRoute>}></Route>
-          <Route path="/bazar-costs" element={<AdminRoute><EntryBazarCosts memberNameList={memberNameList} /></AdminRoute>} />
-          <Route path="/meal-entry" element={<AdminRoute><MealCountEntry memberNameList={memberNameList}  /></AdminRoute>} />
-          <Route path="/meal-deposit-entry" element={<AdminRoute><EntryMealDeposit memberNameList={memberNameList}  /></AdminRoute>} />
-          <Route path="/utility-costs-entry" element={<AdminRoute><UtilityCostEntry /></AdminRoute>} />
-          <Route path="/utility-deposit-entry" element={<AdminRoute><EntryUtilityDeposit memberNameList={memberNameList} /></AdminRoute>} />
-          <Route path="/postnotice" element={<PrivateRoute><NoticePost /></PrivateRoute>} />
-          <Route path="/imanager" element={<LoginAsManager managerStatus={managerStatus} />} />
-          <Route path="/addmember" element={<AdminRoute><AddPersonnel /></AdminRoute>} />
-          <Route path="/next-manager" element={<AdminRoute><ChangeManager  /></AdminRoute>} />
-          <Route path="/edit-meal-deposit" element={<AdminRoute><EditMealDeposit memberNameList={memberNameList} /></AdminRoute>} />
-          <Route path="/edit-mbaza-cost" element={<AdminRoute><EditLastBazarCost memberNameList={memberNameList} /></AdminRoute>} />
+          <Route path="/manager" element={<AdminRoute><ManagerDashboard memberNameList={memberNameList} managerStatus={managerStatus} /></AdminRoute>}>
+            <Route path="bazar-cost" element={<AdminRoute><EntryBazarCosts memberNameList={memberNameList} /></AdminRoute>} />
+            <Route path="meal-entry" element={<AdminRoute><MealCountEntry memberNameList={memberNameList}  /></AdminRoute>} />
+            <Route path="meal-deposit-entry" element={<AdminRoute><EntryMealDeposit memberNameList={memberNameList}  /></AdminRoute>} />
+            <Route path="utility-costs-entry" element={<AdminRoute><UtilityCostEntry /></AdminRoute>} />
+            <Route path="utility-deposit-entry" element={<AdminRoute><EntryUtilityDeposit memberNameList={memberNameList} /></AdminRoute>} />
+            <Route path="postnotice" element={<PrivateRoute><NoticePost /></PrivateRoute>} />
+            <Route path="imanager" element={<LoginAsManager managerStatus={managerStatus} />} />
+            <Route path="add-member" element={<AdminRoute><AddPersonnel /></AdminRoute>} />
+            <Route path="next-manager" element={<AdminRoute><ChangeManager  /></AdminRoute>} />
+            <Route path="setfixedmeal" element={<AdminRoute><SetFixedMeal  /></AdminRoute>} />
+            <Route path="resetmonth" element={<AdminRoute><ResetMonth  /></AdminRoute>} />
+            <Route path="edit-meal-deposit" element={<AdminRoute><EditMealDeposit memberNameList={memberNameList} /></AdminRoute>} />
+            <Route path="edit-bazar-cost" element={<AdminRoute><EditLastBazarCost memberNameList={memberNameList} /></AdminRoute>} />
+          </Route>
           <Route path="/history" element={<Settlement_History />} />
           <Route path="/events" element={<AllEvents />} />
           <Route path="/*" element={<PageNotFound />} />

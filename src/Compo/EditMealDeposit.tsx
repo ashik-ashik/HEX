@@ -1,11 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
-import { FaUser, FaMoneyBillWave, FaEdit } from "react-icons/fa";
+import { User, Wallet, Pencil } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-interface MemberNameList{memberNameList:string[]}
-const EditMealDeposit: React.FC< MemberNameList> = ({ memberNameList}) => {
-    
+interface MemberNameList {
+  memberNameList: string[];
+}
+
+const EditMealDeposit: React.FC<MemberNameList> = ({ memberNameList }) => {
   const [formData, setFormData] = useState({
     member: "",
     amount: "",
@@ -16,19 +17,14 @@ const EditMealDeposit: React.FC< MemberNameList> = ({ memberNameList}) => {
   // Replace with your Apps Script Web App URL
   const MEAL_DEPOSIT_EDIT_URL = import.meta.env.VITE_MEAL_DEPOSIT_EDIT;
 
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!formData.member || !formData.amount) {
@@ -50,10 +46,10 @@ const EditMealDeposit: React.FC< MemberNameList> = ({ memberNameList}) => {
       const response = await fetch(MEAL_DEPOSIT_EDIT_URL, {
         method: "POST",
         headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         body: params,
-        });
+      });
 
       const result = await response.json();
 
@@ -70,105 +66,88 @@ const EditMealDeposit: React.FC< MemberNameList> = ({ memberNameList}) => {
         toast.error(result.message || "Something went wrong");
       }
     } catch (error) {
-      toast.error("Server error. Please try again. ");
+      toast.error("Server error. Please try again. "+ (error as Error).message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+    <section className="flex items-center justify-center px-3 py-10 sm:py-12">
+      <div className="w-full max-w-xl bg-white rounded-3xl shadow-xl border border-slate-100 p-5 sm:p-8">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="bg-blue-100 p-3 rounded-xl">
-            <FaEdit className="text-blue-600 text-xl" />
+        <div className="flex flex-col items-center text-center mb-2">
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center mb-3">
+            <Pencil className="w-6 h-6 text-amber-600" />
           </div>
-
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800">
-              Edit Meal Deposit
-            </h2>
-            <p className="text-sm text-gray-500">
-              Update the latest deposit entry for a member
-            </p>
-          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
+            মিল জমা সম্পাদনা
+          </h2>
+          <p className="text-[11px] leading-relaxed text-slate-600 mt-1.5 max-w-md">
+            এই ফর্মটি প্রতিটি সদস্যের ক্ষেত্রে শুধুমাত্র সর্বশেষ যুক্ত করা জমার
+            পরিমাণটি পরিবর্তন করবে। এর আগের কোনো জমার এন্ট্রি এর মাধ্যমে
+            সম্পাদনা করা যাবে না, তাই তথ্য দেওয়ার আগে ভালোভাবে নিশ্চিত হয়ে
+            নিন।
+          </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-6">
           {/* Member Name */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Member Name
+          <div className="flex flex-col">
+            <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5" />
+              সদস্যের নাম
             </label>
-
-            <div className="relative">
-              <FaUser className="absolute left-4 top-4 text-gray-400" />
-
-              <div className="relative">
-                <FaUser className="absolute left-4 top-4 text-gray-400 z-10" />
-
-                <select
-                    name="member"
-                    value={formData.member}
-                    onChange={(e) =>
-                    setFormData({
-                        ...formData,
-                        member: e.target.value,
-                    })
-                    }
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white appearance-none"
-                    required
-                >
-                    <option value="">Select Member Name</option>
-
-                    {memberNameList?.map((member: string, index: number) => (
-                    <option key={index} value={member}>
-                        {member}
-                    </option>
-                    ))}
-                </select>
-                </div>
-            </div>
+            <select
+              name="member"
+              value={formData.member}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  member: e.target.value,
+                })
+              }
+              className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+              required
+            >
+              <option value="">সদস্য নির্বাচন করুন</option>
+              {memberNameList?.map((member: string, index: number) => (
+                <option key={index} value={member}>
+                  {member}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Amount */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Replace Last Deposit Amount
+          <div className="flex flex-col">
+            <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
+              <Wallet className="w-3.5 h-3.5" />
+              সর্বশেষ জমার পরিমাণ পরিবর্তন করুন (৳)
             </label>
-
-            <div className="relative">
-              <FaMoneyBillWave className="absolute left-4 top-4 text-gray-400" />
-
-              <input
-                type="number"
-                name="amount"
-                value={formData.amount}
-                onChange={handleChange}
-                placeholder="Enter updated amount"
-                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
+            <input
+              type="number"
+              name="amount"
+              value={formData.amount}
+              onChange={handleChange}
+              placeholder="আপডেটকৃত পরিমাণ লিখুন"
+              className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 placeholder-slate-400 text-xs outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+              required
+            />
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-xl font-semibold text-white transition duration-200 ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-[0.99] transition-all text-white text-sm font-semibold shadow-md shadow-amber-200 disabled:opacity-60 disabled:active:scale-100"
           >
-            {loading ? "Updating..." : "Update Meal Deposit"}
+            {loading ? "আপডেট হচ্ছে..." : "মিল জমা আপডেট করুন"}
           </button>
         </form>
       </div>
-    </div>
+    </section>
   );
 };
 

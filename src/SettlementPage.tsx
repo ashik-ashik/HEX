@@ -120,6 +120,7 @@ const SettlementPage: React.FC<Props> = ({
   const totalUtilityCost = utilityCosts.reduce((sum, item) => sum + (parseFloat(item[1]) || 0), 0);
   const mealRate = adjustedGrandTotalMeals > 0 ? totalBazar / adjustedGrandTotalMeals : 0;
 
+
   const mealMap = Object.fromEntries(adjustedMeals.map((m) => [m.name, m]));
   const settlements = members.map((member) => {
     const meals = mealMap[member.name]?.total || 0;

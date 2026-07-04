@@ -25,6 +25,7 @@ import Footer from "./Footer";
 import useAuth from "../hooks/useAuth";
 import HexaSpecialEvents from "./HexaSpecialEvents";
 import { BiEnvelope } from "react-icons/bi";
+import Header from "./Header";
 
 // Type for each deposit item
 export type UtilityDeposit = {
@@ -69,6 +70,13 @@ const formatBDT = (amount: number) =>
 
 
 type FundStatus = "critical" | "low" | "guarded" | "healthy";
+
+interface Personnel {
+  designation: string;
+  name: string;
+  mobile?: string;
+  photo?: string;
+}
 
 const getFundStatus = (remaining: number): FundStatus => {
   if (remaining <= 0) return "critical";
@@ -132,7 +140,39 @@ const OverviewHexa: React.FC<HomeProps> = ({
     houseMenbers: { name: string; role: string; photoURL?: string; email?: string }[];
   };
 
- 
+  const [personnel, setPersonnel] = useState<Personnel[]>([]);
+  const [personnelLoading, setPersonnelLoading] = useState(true);
+
+ useEffect(() => {
+    const fetchMembers = () => {
+      fetch(import.meta.env.VITE_PERSONNEL_SHEET_READER)
+    .then((res) => res.text())
+    .then((text) => {
+      const rows = text.split("\n").slice(1);
+
+      const parsed = rows
+        .map((row) => row.split(","))
+        .filter((row) => row[1])
+        .map((row) => ({
+          designation: row[0]?.trim(),
+          name: row[1]?.trim(),
+          mobile: row[2]?.trim(),
+          photo: row[3]?.trim(),
+        }));
+
+      setPersonnel(parsed);
+      setPersonnelLoading(false);
+
+    })
+    .catch(() => {
+        setPersonnelLoading(false);
+    });
+    };
+
+    fetchMembers();
+  }, []);
+
+
 
   const manager = usersList.find((m) => m.role === "manager");
 
@@ -285,6 +325,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
 
   return (
     <>
+    <Header />
       <div className="min-h-screen bg-[#FAF5EB]/50 backdrop-blur-sm font-poppins px-2 text-slate-700">
         {/* ================= Hero Section ================= */}
         <section className="py-20 sm:px-6 px-0">
@@ -822,7 +863,82 @@ const OverviewHexa: React.FC<HomeProps> = ({
                   </div>
                 )}
               </>
-            
+
+              {personnelLoading ? (
+                <div className="mt-8">
+                  <div className="h-14 w-64 bg-slate-100 rounded-lg mx-auto mb-6 animate-pulse" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="bg-white/70 p-5 rounded-xl border border-slate-200 animate-pulse">
+                        <div className="h-14 w-14 rounded-full bg-slate-200 mx-auto mb-3" />
+                        <div className="h-4 w-24 bg-slate-200 rounded mx-auto mb-2" />
+                        <div className="h-3 w-16 bg-slate-100 rounded mx-auto" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-8">
+                  {/* Section header */}
+                  <div className="col-span-full mb-3 text-center text-teal-600 italic text-sm py-2 bg-teal-50/60 border border-slate-200 rounded-xl">
+                        Essential Members
+                      </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6">
+                    {personnel.map((person) => {
+                      const initials = person.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .slice(0, 2)
+                        .join("")
+                        .toUpperCase();
+
+                      return (
+                        <div
+                          key={person.name}
+                          className="group bg-white/70 p-5 rounded-xl shadow-sm flex flex-col items-center text-center border border-slate-200 hover:shadow-lg hover:border-teal-200 hover:-translate-y-0.5 transition-all duration-200"
+                        >
+                          {/* Avatar */}
+                          <div className="h-14 w-14 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white font-semibold text-lg shadow-inner mb-3 group-hover:scale-105 transition-transform duration-200">
+                            {initials}
+                          </div>
+
+                          <h4 className="text-base font-bold text-gray-900 leading-tight">
+                            {person.name}
+                          </h4>
+                          <p className="text-xs text-slate-800 mt-0.5 uppercase tracking-wide">
+                            {person.designation}
+                          </p>
+
+                          {person.mobile && (
+                            
+                            <a href={`tel:+880${person.mobile}`}
+                              className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-full transition-colors"
+                            >
+                              <svg
+                                className="h-3.5 w-3.5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  d="M2.25 6.75c0 8.284 6.716 15 15 15h1.5a2.25 2.25 0 002.25-2.25v-1.372a1.5 1.5 0 00-1.256-1.478l-3.7-.617a1.5 1.5 0 00-1.545.759l-.34.679a.75.75 0 01-.807.386c-1.7-.36-3.24-1.63-4.5-2.9-1.27-1.26-2.54-2.8-2.9-4.5a.75.75 0 01.386-.807l.679-.34a1.5 1.5 0 00.759-1.545l-.617-3.7A1.5 1.5 0 007.372 2.25H6a2.25 2.25 0 00-2.25 2.25v1.5z"
+                                />
+                              </svg>
+                              +880{person.mobile}
+                            </a>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+
           </div>
         </section>
 
