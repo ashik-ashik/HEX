@@ -348,10 +348,10 @@ const OverviewHexa: React.FC<HomeProps> = ({
 
             <div className="flex justify-center gap-4 flex-wrap">
               <Link
-                to="/dashboard"
+                to="/meal-bazar-costs"
                 className="bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 px-10 py-2 rounded-lg font-medium transition text-xs md:text-sm"
               >
-                Dashboard
+                Meal & Bazar Costs
               </Link>
 
               {userRole === "manager" ? (

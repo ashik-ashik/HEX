@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import Header from "./Header";
 import Footer from "./Footer";
-import DataEntryWarning from "./DataEntryWarning";
 
 interface NoticeData {
   title: string;
@@ -104,7 +103,6 @@ const NoticePost = () => {
             }} />
         </div>
 
-        <DataEntryWarning />
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Notice Title</label>

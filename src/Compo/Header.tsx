@@ -42,7 +42,7 @@ const Header = () => {
   // Core nav links, shown only to logged-in roles (manager/assist_manager/member)
   const navLinks = [
     { name: "Home", path: "/overview", icon: Home },
-    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+    { name: "Meal & Bazar", path: "/meal-bazar-costs", icon: LayoutDashboard },
     { name: "Utility", path: "/utility", icon: Wrench },
   ];
 

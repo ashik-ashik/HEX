@@ -27,7 +27,7 @@ const LOAD_USERS_URL =
 /* Types */
 /* -------------------------------- */
 
-interface UserSheetData {
+export type UserSheetData = {
     type: string;
   name: string;
   email: string;
@@ -40,6 +40,8 @@ interface UserSheetData {
   lastLoginAt: string;
   [key: string]: string;
 }
+
+
 
 interface AuthProviderProps {
   children: ReactNode;

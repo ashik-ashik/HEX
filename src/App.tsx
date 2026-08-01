@@ -91,9 +91,10 @@ function App() {
     const {
     userIsLoading,
     houseMenbers,
+    userRole,
   } = useAuth() as AuthContextType;
 
-  
+
 
 type UtilityDeposit = {
   member: string;
@@ -337,7 +338,7 @@ type UtilityDeposit = {
           </PrivateRoute>} />
           <Route path="/login" element={<GoogleLogin />} />
           <Route
-            path="/dashboard"
+            path="/meal-bazar-costs"
             element={
               <PrivateRoute>
                 <Dashboard
@@ -385,7 +386,6 @@ type UtilityDeposit = {
             <Route path="meal-deposit-entry" element={<AdminRoute><EntryMealDeposit memberNameList={memberNameList}  /></AdminRoute>} />
             <Route path="utility-costs-entry" element={<AdminRoute><UtilityCostEntry /></AdminRoute>} />
             <Route path="utility-deposit-entry" element={<AdminRoute><EntryUtilityDeposit memberNameList={memberNameList} /></AdminRoute>} />
-            <Route path="postnotice" element={<PrivateRoute><NoticePost /></PrivateRoute>} />
             <Route path="imanager" element={<LoginAsManager managerStatus={managerStatus} />} />
             <Route path="add-member" element={<AdminRoute><AddPersonnel /></AdminRoute>} />
             <Route path="next-manager" element={<AdminRoute><ChangeManager  /></AdminRoute>} />
@@ -394,12 +394,16 @@ type UtilityDeposit = {
             <Route path="edit-meal-deposit" element={<AdminRoute><EditMealDeposit memberNameList={memberNameList} /></AdminRoute>} />
             <Route path="edit-bazar-cost" element={<AdminRoute><EditLastBazarCost memberNameList={memberNameList} /></AdminRoute>} />
           </Route>
+          <Route path="/postnotice" element={<PrivateRoute><NoticePost /></PrivateRoute>} />
           <Route path="/history" element={<Settlement_History />} />
           <Route path="/events" element={<AllEvents />} />
           <Route path="/*" element={<PageNotFound />} />
         </Routes>
+        {
+          userRole === "manager" || userRole === "assist_manager" || userRole === "member" ? <FundWarningModal balance={grandDeposit - totalBazar} isLoading={isLoading} /> : null
+        }
           
-          <FundWarningModal balance={grandDeposit - totalBazar} isLoading={isLoading} />
+          
 
         <FloatingCalculator />
       </BrowserRouter>

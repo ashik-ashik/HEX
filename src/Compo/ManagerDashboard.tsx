@@ -58,7 +58,7 @@ export default function ManagerDashboard({ memberNameList }: Props) {
 
   const quickGoMenus = [
     { id: "/overview", name: "হোম" },
-    { id: "/dashboard", name: "ড্যাশবোর্ড" },
+    { id: "/meal-bazar-costs", name: "মিল ও বাজার খারচ" },
     { id: "/utility", name: "ইউটিলিটি" },
     { id: "/settlement", name: "সেটেলমেন্ট" },
     { id: "/postnotice", name: "নোটিশ পোস্ট" },
@@ -68,7 +68,7 @@ export default function ManagerDashboard({ memberNameList }: Props) {
   const activeMenu = menus.find((m) => location.pathname.includes(m.id));
 
   const isDashboardHome =
-    !activeMenu || location.pathname.endsWith("/dashboard") || location.pathname.endsWith("/manager");
+    !activeMenu || location.pathname.endsWith("/meal-bazar-costs") || location.pathname.endsWith("/manager");
 
   return (
     <section className="min-h-screen bg-slate-100">

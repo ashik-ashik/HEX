@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+
 interface FundWarningModalProps {
   balance: number;
   isLoading: boolean;
@@ -9,10 +10,12 @@ const FundWarningModal = ({ balance, isLoading }: FundWarningModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [level, setLevel] = useState<"critical" | "low" | null>(null);
 
+
+
   useEffect(() => {
     if (isLoading) return;
 
-    if (balance <= 0) {
+    if (balance < 0) {
         const settingLevelFun = () => {
           setLevel("critical");
           setIsOpen(true);
