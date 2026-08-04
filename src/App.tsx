@@ -31,6 +31,7 @@ import PageNotFound from './Compo/PageNotFound';
 import FundWarningModal from './Compo/FundWarningModal';
 import SetFixedMeal from './Compo/SetFixedMeal';
 import ResetMonth from './Compo/ResetThisMonth';
+import MemberProfile from './Compo/MemberProfile';
 
 
 
@@ -337,6 +338,24 @@ type UtilityDeposit = {
                 utilityCosts={utilityCosts} isLoading={isLoading} notices={notices} members={members} />
           </PrivateRoute>} />
           <Route path="/login" element={<GoogleLogin />} />
+          <Route
+            path="/member-profile"
+            element={
+                <MemberProfile
+                members={members}
+                bazarData={bazarData}
+                mealData={mealData}
+                // mealDates={mealDates}
+                grandTotalMeals={grandTotalMeals}
+                grandDeposit={grandDeposit}
+                isLoading={isLoading}
+                utilityDeposits={utilityDeposits}
+                isError={isError}
+                totalBazar={totalBazar}
+                
+              />
+            }
+          />
           <Route
             path="/meal-bazar-costs"
             element={

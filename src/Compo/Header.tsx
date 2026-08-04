@@ -44,6 +44,7 @@ const Header = () => {
     { name: "Home", path: "/overview", icon: Home },
     { name: "Meal & Bazar", path: "/meal-bazar-costs", icon: LayoutDashboard },
     { name: "Utility", path: "/utility", icon: Wrench },
+    { name: "My Account", path: "/member-profile", icon: UserCircle2 },
   ];
 
   // Links visible to everyone, logged in or not

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { Calendar, User, Wallet, ShoppingCart } from "lucide-react";
 // import Header from "./Header";
 // import DataEntryWarning from "./DataEntryWarning";
@@ -91,44 +91,9 @@ const EntryBazarCosts: React.FC<MemberNameList> = ({ memberNameList }) => {
   return (
     <>
       {/* <Header /> */}
-      <section className="flex items-center justify-center px-3 py-10 sm:py-12">
+      <section className="flex items-center justify-center px-3 py-10 sm:py-12"> 
         {/* Toast Container */}
-        <Toaster
-          position="top-right"
-          containerStyle={{
-            position: "fixed",
-            top: 100,
-            right: 20,
-            zIndex: 9999,
-          }}
-          toastOptions={{
-            className: "text-xs px-3 py-2 rounded-lg shadow-md",
-            style: {
-              background: "#eef3fa",
-              color: "#0b6486",
-            },
-            success: {
-              className:
-                "bg-green-600 text-purple-700 text-xs px-3 py-2 rounded-lg shadow-md",
-              iconTheme: {
-                primary: "#fff",
-                secondary: "#16a34a",
-              },
-            },
-            error: {
-              className:
-                "bg-red-600 text-purple-700 text-xs px-3 py-2 rounded-lg shadow-md",
-              iconTheme: {
-                primary: "#fff",
-                secondary: "#dc2626",
-              },
-            },
-            loading: {
-              className:
-                "bg-indigo-600 text-purple-700 text-xs px-3 py-2 rounded-lg shadow-md",
-            },
-          }}
-        />
+        
 
         <div className="w-full max-w-3xl bg-white rounded-3xl shadow-xl border border-slate-100 p-5 sm:p-8">
           {/* Header */}
