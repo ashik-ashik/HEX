@@ -13,6 +13,10 @@ import {
   FaSmile,
   FaCheckCircle,
   FaSmokingBan,
+  FaBed,
+  FaBath,
+  FaMoneyBillWave,
+  FaDoorOpen,
 } from "react-icons/fa";
 import HouseLocation from "./HouseLocation";
 import { type User } from "firebase/auth";
@@ -24,117 +28,125 @@ import Header from "./Header";
 
 const HomeInitial = () => {
   const { user } = useAuth() as { user: User | null; };
+
+  const rooms = [
+    {
+      name: "West Room",
+      seats: 3,
+      price: 2100,
+      bathroom: "Shared bathroom (with Dining Space)",
+      icon: <FaBed />,
+      bg: "bg-blue-900/50",
+      color: "text-blue-400",
+      border: "hover:border-blue-700",
+    },
+    {
+      name: "East Room",
+      seats: 2,
+      price: 3100,
+      bathroom: "Attached bathroom",
+      icon: <FaBed />,
+      bg: "bg-green-900/50",
+      color: "text-green-400",
+      border: "hover:border-green-700",
+    },
+    {
+      name: "Dining Space",
+      seats: 1,
+      price: 1600,
+      bathroom: "Shared bathroom (with West Room)",
+      icon: <FaUtensils />,
+      bg: "bg-yellow-900/50",
+      color: "text-yellow-400",
+      border: "hover:border-yellow-700",
+    },
+  ];
+
   return (
     <div className="bg-black/80 min-h-screen">
 
       {/* ── Navbar ── */}
       <Header />
-      {/* <nav className="flex items-center justify-end px-6 py-4 shadow-md bg-gray-900 border-b border-gray-700 gap-x-4">
-        <Link
-          to="/"
-          className="text-sm font-semibold font-mono text-gray-300 hover:text-green-400 transition-colors"
-        >
-          Home
-        </Link>
-        <Link
-          to="/history"
-          className="text-sm font-semibold font-mono text-gray-300 hover:text-green-400 transition-colors"
-        >
-          History
-        </Link>
-        <div>
-          {user ? (
-            <Link to="/login" title="Login">
-              <FaUserCircle className="text-xl text-gray-300 hover:text-green-400 transition-colors" />
-            </Link>
-          ) : (
-            <Link to="/login" title="Login">
-              <FaSignInAlt className="text-xl text-gray-300 hover:text-green-400 transition-colors" />
-            </Link>
-          )}
-        </div>
-      </nav> */}
 
       {/* ── Hero Section ── */}
-      {/* ── Hero Section ── */}
-<section className="pt-28 pb-16 px-2">
-  <div className="max-w-6xl mx-auto">
-    <div className="grid md:grid-cols-2 gap-10 items-center">
+      <section className="pt-28 pb-16 px-2">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-10 items-center">
 
-      {/* Left Content */}
-      <div>
-        <div className="inline-flex items-center gap-2 bg-blue-900/60 text-blue-300 border border-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-5">
-          <FaHome />
-          Welcome to Hexa Haven
-        </div>
+            {/* Left Content */}
+            <div>
+              <div className="inline-flex items-center gap-2 bg-blue-900/60 text-blue-300 border border-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-5">
+                <FaHome />
+                Welcome to Hexa Haven
+              </div>
 
-        <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight mb-6">
-          A Comfortable &
-          <span className="text-blue-400 pt-2 inline-block"> Secure Bachelor Living Space</span>
-        </h1>
+              <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight mb-6">
+                A Comfortable &
+                <span className="text-blue-400 pt-2 inline-block"> Secure Bachelor Living Space</span>
+              </h1>
 
-        <p className="text-gray-400 text-md md:text-lg leading-relaxed mb-8">
-          Hexa Haven is more than just a place to stay — it is a
-          peaceful, organized, and friendly home for students bachelors. Located in Mirpur, Dhaka, it offers a comfortable living
-          environment with modern facilities, quality meals, strong security,
-          and a supportive community where members can focus on study, work,
-          and personal growth.
-        </p>
+              <p className="text-gray-400 text-md md:text-lg leading-relaxed mb-8">
+                Hexa Haven is more than just a place to stay — it is a
+                peaceful, organized, and friendly home for students bachelors. Located in Mirpur, Dhaka, it offers a comfortable living
+                environment with modern facilities, quality meals, strong security,
+                and a supportive community where members can focus on study, work,
+                and personal growth.
+              </p>
 
-        <div className="flex flex-wrap gap-4">
-          {!user && (
-            <Link
-              to="/login"
-              className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition"
-            >
-              Login with Google
-              <FaArrowRight />
-            </Link>
-          )}
-          <div className="bg-gray-800 border border-gray-600 px-6 py-3 rounded-xl text-gray-300 font-medium">
-            Member & Manager Access Only
+              <div className="flex flex-wrap gap-4">
+                {!user && (
+                  <Link
+                    to="/login"
+                    className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 transition"
+                  >
+                    Login with Google
+                    <FaArrowRight />
+                  </Link>
+                )}
+                <div className="bg-gray-800 border border-gray-600 px-6 py-3 rounded-xl text-gray-300 font-medium">
+                  Member & Manager Access Only
+                </div>
+              </div>
+            </div>
+
+            {/* Right Card */}
+            <div className="bg-gray-800/60 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-700 p-8">
+              <h3 className="text-xl font-semibold text-white mb-5">
+                House Information
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-500">House Name</p>
+                  <p className="font-medium text-gray-200">Hexa Haven</p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500">Address</p>
+                  <p className="font-medium text-sm text-gray-200 leading-relaxed">
+                    Kathaltola, 1051/1, East Monipur,
+                    <br />
+                    Mirpur-2, Dhaka
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500">Environment</p>
+                  <p className="font-medium text-gray-200 text-sm">
+                    Peaceful • Clean • Friendly • Well-Managed
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-500">Security</p>
+                  <p className="font-medium text-blue-400">
+                    Safe & Protected Living Space
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Right Card */}
-      <div className="bg-gray-800/60 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-700 p-8">
-        <h3 className="text-xl font-semibold text-white mb-5">
-          House Information
-        </h3>
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm text-gray-500">House Name</p>
-            <p className="font-medium text-gray-200">Hexa Haven</p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">Address</p>
-            <p className="font-medium text-sm text-gray-200 leading-relaxed">
-              Kathaltola, 1051/1, East Monipur,
-              <br />
-              Mirpur-2, Dhaka
-            </p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">Environment</p>
-            <p className="font-medium text-gray-200 text-sm">
-              Peaceful • Clean • Friendly • Well-Managed
-            </p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">Security</p>
-            <p className="font-medium text-blue-400">
-              Safe & Protected Living Space
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+      </section>
 
       {/* ── Hexa Haven Core Features ── */}
       <section className="pb-16 px-2">
@@ -213,9 +225,66 @@ const HomeInitial = () => {
         </div>
       </section>
 
-      {/* ── Latest Events — portal modal, no wrapper needed ── */}
       
-      {/* Events */}
+      {/* ── Rooms & Seat Pricing ── */}
+      <section className="pb-20 px-2">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl font-bold text-white mb-3">
+              Room Information & Seat Pricing
+            </h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Two rooms and a dining space, arranged around a central kitchen —
+              transparent seat pricing for every space.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {rooms.map(({ name, seats, price, bathroom, icon, bg, color, border }) => (
+              <div
+                key={name}
+                className={`bg-gray-800/60 rounded-2xl p-6 shadow-md border border-gray-700 ${border} transition-colors flex flex-col`}
+              >
+                <div className={`w-12 h-12 rounded-xl ${bg} flex items-center justify-center ${color} text-xl mb-4`}>
+                  {icon}
+                </div>
+                <h3 className="font-semibold text-gray-100 mb-1">{name}</h3>
+                <p className="text-sm text-gray-400 mb-4">
+                  {seats} {seats > 1 ? "seats" : "seat"} available
+                </p>
+
+                <div className="mt-auto space-y-3 border-t border-gray-700 pt-4">
+                  <div className="flex items-center gap-2">
+                    <FaMoneyBillWave className="text-blue-400 flex-shrink-0" />
+                    <p className="text-sm text-gray-200">
+                      <span className="font-semibold text-blue-400">{price} tk</span> / seat / month
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FaBath className="text-cyan-400 flex-shrink-0" />
+                    <p className="text-sm text-gray-300">{bathroom}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Shared / Layout note */}
+          <div className="bg-gray-800/60 rounded-2xl shadow-md border border-gray-700 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-purple-900/50 flex items-center justify-center text-purple-400 text-xl flex-shrink-0">
+              <FaDoorOpen />
+            </div>
+            <p className="text-sm text-gray-300 leading-relaxed">
+              <span className="font-medium text-gray-100">Layout note: </span>
+              The West Room and Dining Space share one common bathroom, while the East Room
+              has its own attached bathroom. A shared kitchen sits at the center of the house,
+              accessible to all members.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Latest Events — portal modal, no wrapper needed ── */}
       <HexaSpecialEvents eventLimit={4} />
 
       {/* ── Membership Criteria Card ── */}
@@ -232,52 +301,51 @@ const HomeInitial = () => {
           </div>
 
           <div className="bg-gray-800/60 rounded-2xl shadow-md border-2 border-blue-800 p-8 mx-auto">
-  <div className="flex items-center gap-3 mb-6">
-    <div className="w-10 h-10 rounded-xl bg-blue-900/60 flex items-center justify-center text-blue-400 text-lg">
-      <FaHome />
-    </div>
-    <div>
-      <h3 className="font-semibold text-gray-100">Member Conduct Requirements</h3>
-      <p className="text-sm text-gray-300">All residents must meet these standards</p>
-    </div>
-    <span className="ml-auto text-xs font-medium bg-blue-900/60 text-blue-300 border border-blue-700 px-3 py-1 rounded-full">
-      Required
-    </span>
-  </div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-blue-900/60 flex items-center justify-center text-blue-400 text-lg">
+                <FaHome />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-100">Member Conduct Requirements</h3>
+                <p className="text-sm text-gray-300">All residents must meet these standards</p>
+              </div>
+              <span className="ml-auto text-xs font-medium bg-blue-900/60 text-blue-300 border border-blue-700 px-3 py-1 rounded-full">
+                Required
+              </span>
+            </div>
 
-  <div className="border-t border-gray-700 pt-6 grid sm:grid-cols-2 gap-4">
-    {[
-      { label: "Polite",          desc: "Respectful and courteous in all interactions with fellow members." },
-      { label: "Collaborative",   desc: "Willing to work together and share responsibilities in the house." },
-      { label: "Cooperative",     desc: "Supportive of house rules and collective household decisions." },
-      { label: "Friendly Minded", desc: "Approachable and kind, contributing to a positive atmosphere." },
-    ].map(({ label, desc }) => (
-      <div key={label} className="flex items-start gap-3">
-        <FaCheckCircle className="text-blue-400 mt-0.5 flex-shrink-0" />
-        <div>
-          <p className="font-medium text-gray-100 text-md">{label}</p>
-          <p className="text-sm text-gray-300 leading-relaxed">{desc}</p>
-        </div>
-      </div>
-    ))}
-  </div>
+            <div className="border-t border-gray-700 pt-6 grid sm:grid-cols-2 gap-4">
+              {[
+                { label: "Polite",          desc: "Respectful and courteous in all interactions with fellow members." },
+                { label: "Collaborative",   desc: "Willing to work together and share responsibilities in the house." },
+                { label: "Cooperative",     desc: "Supportive of house rules and collective household decisions." },
+                { label: "Friendly Minded", desc: "Approachable and kind, contributing to a positive atmosphere." },
+              ].map(({ label, desc }) => (
+                <div key={label} className="flex items-start gap-3">
+                  <FaCheckCircle className="text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-gray-100 text-md">{label}</p>
+                    <p className="text-sm text-gray-300 leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-  {/* No Smoking — a hard restriction, styled separately from the conduct traits above */}
-  <div className="border-t border-gray-700 mt-6 pt-6">
-    <div className="flex items-start gap-3 bg-red-950/30 border border-red-800/60 rounded-xl p-4">
-      <FaSmokingBan className="text-red-400 mt-0.5 flex-shrink-0 text-lg" />
-      <div>
-        <p className="font-medium text-gray-100 text-md">No Smoking</p>
-        <p className="text-sm text-gray-300 leading-relaxed">
-          Smoking is strictly prohibited anywhere inside the house, including private rooms.
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
+            {/* No Smoking — a hard restriction, styled separately from the conduct traits above */}
+            <div className="border-t border-gray-700 mt-6 pt-6">
+              <div className="flex items-start gap-3 bg-red-950/30 border border-red-800/60 rounded-xl p-4">
+                <FaSmokingBan className="text-red-400 mt-0.5 flex-shrink-0 text-lg" />
+                <div>
+                  <p className="font-medium text-gray-100 text-md">No Smoking</p>
+                  <p className="text-sm text-gray-300 leading-relaxed">
+                    Smoking is strictly prohibited anywhere inside the house, including private rooms.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
-
 
 
       {/* ── Core App Features ── */}
