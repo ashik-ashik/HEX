@@ -44,7 +44,7 @@ const Header = () => {
     { name: "Home", path: "/overview", icon: Home },
     { name: "Meal & Bazar", path: "/meal-bazar-costs", icon: LayoutDashboard },
     { name: "Utility", path: "/utility", icon: Wrench },
-    { name: "My Account", path: "/member-profile", icon: UserCircle2 },
+    // { name: "My Account", path: "/member-profile", icon: UserCircle2 },
   ];
 
   // Links visible to everyone, logged in or not
@@ -126,8 +126,8 @@ const Header = () => {
               ))}
 
             {isLoggedIn ? (
-              <NavLink to="/login" className={navLinkClass}>
-                <UserCheck size={12} />
+              <NavLink to="/member-profile" className={navLinkClass}>
+                 My Account
               </NavLink>
             ) : (
               <>
@@ -218,12 +218,12 @@ const Header = () => {
 
             {isLoggedIn ? (
               <NavLink
-                to="/login"
+                to="/member-profile"
                 className={navLinkClass}
                 onClick={() => setMobileOpen(false)}
               >
                 <UserCheck size={12} />
-                Profile
+                My Account
               </NavLink>
             ) : (
               <>

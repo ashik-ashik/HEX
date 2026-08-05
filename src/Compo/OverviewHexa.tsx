@@ -14,17 +14,16 @@ import {
   UtensilsCrossed,
   ClipboardList,
   Search,
-  Copy,
-  Check,
   Flame,
   Trophy,
   CalendarClock,
   PieChart,
+  PhoneCall,
+  MailIcon,
 } from "lucide-react";
 import Footer from "./Footer";
 import useAuth from "../hooks/useAuth";
 import HexaSpecialEvents from "./HexaSpecialEvents";
-import { BiEnvelope } from "react-icons/bi";
 import Header from "./Header";
 
 // Type for each deposit item
@@ -133,11 +132,10 @@ const OverviewHexa: React.FC<HomeProps> = ({
 }) => {
 
   const [memberQuery, setMemberQuery] = useState("");
-  const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const { usersList, userRole, houseMenbers } = useAuth() as {
     usersList: UserItem[];
     userRole: string;
-    houseMenbers: { name: string; role: string; photoURL?: string; email?: string }[];
+    houseMenbers: { name: string; role: string; photoURL?: string; email?: string; phoneNumber?: string }[];
   };
 
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
@@ -311,15 +309,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
 
   const isSearching = memberQuery.trim().length > 0;
 
-  const handleCopy = (key: string, email: string) => {
-    navigator.clipboard
-      ?.writeText(`0${email}`)
-      .then(() => {
-        setCopiedKey(key);
-        setTimeout(() => setCopiedKey((k) => (k === key ? null : k)), 1500);
-      })
-      .catch(() => {});
-  };
+
 
 
 
@@ -764,7 +754,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
                           {manager?.role}
                         </span>
 
-                        <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-1 text-slate-900">
+                        <h3 className="text-xl uppercase md:text-3xl font-bold tracking-tight mb-1 text-slate-900">
                           {manager.name}
                         </h3>
 
@@ -813,7 +803,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
                             </div>
                           )}
 
-                          <div className="bg-white/80 p-6 rounded-xl hover:shadow-md hover:border-teal-200 transition text-center border border-slate-200">
+                          <div className="bg-white/80 p-4 rounded-xl hover:shadow-md hover:border-teal-200 transition text-center border border-slate-200">
                             
                               <img
                                 src={houseMenbers[index].photoURL}
@@ -828,34 +818,32 @@ const OverviewHexa: React.FC<HomeProps> = ({
                             </p>
 
                             {/* Then role */}
-                            <h4 className="text-xs text-teal-600 font-semibold uppercase mb-2 capitalize">
+                            <h4 className="text-xs text-teal-600 font-semibold uppercase mb-2 capitalize-each-word">
                               {person.role}
                             </h4>
 
-                            {/* Then email */}
-                            {person.email && (
-                              <div className="mt-2 flex items-center justify-center gap-2 text-gray-800 text-xs font-mono tracking-wider">
+                            <div className="flex flex- items-center justify-center gap-2 mt-4">
+                              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-semibold text-lg shadow-inner mb-3 group-hover:scale-105 transition-transform duration-200 cursor-pointer">
+                                
+                                <a
+                                  href={`tel:+880${person.phoneNumber}`}
+                                    className="flex items-center gap-1 hover:text-teal-200 transition  break-all text-left"
+                                  >
+                                    <PhoneCall size={14} className="inline " />
+                                  </a>
+                              </div>
+                              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-semibold text-lg shadow-inner mb-3 group-hover:scale-105 transition-transform duration-200 cursor-pointer">
+                                
                                 <a
                                   href={`mailto:${person.email}`}
-                                    className="flex items-center gap-1 hover:text-teal-600 transition min-w-0 break-all text-left"
+                                    className="flex items-center gap-1 hover:text-teal-200 transition  break-all text-left"
                                   >
-                                    <BiEnvelope size={11} className="shrink-0" />
-                                    <span className="break-all">{person.email}</span>
+                                    <MailIcon size={14} className="inline " />
                                   </a>
-                                <button
-                                  type="button"
-                                  onClick={() => handleCopy(key, person.email || "")}
-                                  className="text-gray-800 hover:text-teal-600 transition"
-                                  aria-label="Copy email"
-                                >
-                                  {copiedKey === key ? (
-                                    <Check size={12} className="text-emerald-500" />
-                                  ) : (
-                                    <Copy size={12} />
-                                  )}
-                                </button>
                               </div>
-                            )}
+                            </div>
+
+                           
                           </div>
                         </React.Fragment>
                       );

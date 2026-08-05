@@ -32,6 +32,7 @@ import FundWarningModal from './Compo/FundWarningModal';
 import SetFixedMeal from './Compo/SetFixedMeal';
 import ResetMonth from './Compo/ResetThisMonth';
 import MemberProfile from './Compo/MemberProfile';
+import AddPhoneNumberPop from './Compo/AddPhoneNumberPop';
 
 
 
@@ -73,7 +74,8 @@ interface Notice {
 interface AuthContextType {
   userIsLoading: boolean;
   userRole: string;
-  houseMenbers: { name: string; role: string }[];
+  houseMenbers: { name: string; role: string; email: string; phoneNumber: string }[];
+  user: { name: string; email: string; role: string; phoneNumber: string };
 }
 // ==============================================
 
@@ -93,9 +95,15 @@ function App() {
     userIsLoading,
     houseMenbers,
     userRole,
+    user
   } = useAuth() as AuthContextType;
 
+  const currentMember = houseMenbers.find(member => member.email === user.email);
 
+  if (currentMember?.phoneNumber === "" || !currentMember?.phoneNumber) {
+    <AddPhoneNumberPop />
+    console.log("Phone number is empty for user:", currentMember?.name);
+  }
 
 type UtilityDeposit = {
   member: string;
@@ -418,6 +426,9 @@ type UtilityDeposit = {
           <Route path="/events" element={<AllEvents />} />
           <Route path="/*" element={<PageNotFound />} />
         </Routes>
+        {
+        userRole === "manager" || userRole === "assist_manager" || userRole === "member" ?(
+        !currentMember?.phoneNumber || currentMember?.phoneNumber === '' ? <AddPhoneNumberPop /> : null): null}
         {
           userRole === "manager" || userRole === "assist_manager" || userRole === "member" ? <FundWarningModal balance={grandDeposit - totalBazar} isLoading={isLoading} /> : null
         }
