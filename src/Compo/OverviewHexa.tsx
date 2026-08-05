@@ -821,8 +821,8 @@ const OverviewHexa: React.FC<HomeProps> = ({
                             <h4 className="text-xs text-teal-600 font-semibold mb-2 capitalize">
                               {person?.role === "assist_manamer" ? "Assistant Manager" : person?.role}
                             </h4>
-                            <h4 className="text-xs text-teal-600 font-thin mb-2">
-                              {person.lastLoginAt ? `Member Since: ${
+                            <h4 className="text-[11px] text-orange-700 mb-2">
+                              {person.lastLoginAt ? `Since: ${
                                 new Date(person?.lastLoginAt?.split(',')[0]).toLocaleDateString("en-US", {
                                 day: "numeric",
                                 month: "long",

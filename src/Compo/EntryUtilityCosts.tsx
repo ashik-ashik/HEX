@@ -23,11 +23,7 @@ const UtilityCostEntry = () => {
       return;
     }
 
-    // Optional: validate amount is a number
-    if (isNaN(Number(amount))) {
-      toast.error("Amount must be a number");
-      return;
-    }
+    const loadingToast = toast.loading("Adding Amount");
 
     try {
       setLoadingOnSubmit(true);
@@ -47,7 +43,9 @@ const UtilityCostEntry = () => {
       );
 
       const result = await response.json();
-      toast.success(result.message);
+      toast.success(result.message, {
+      id: loadingToast,
+    });
 
       // Reset form
       setCostSection("");
@@ -55,7 +53,10 @@ const UtilityCostEntry = () => {
       setLoadingOnSubmit(false);
     } catch (error) {
       console.error(error);
-      toast.error("Failed to add utility cost");
+      toast.error("Failed to add utility cost", {
+        id: loadingToast,
+      });
+      setLoadingOnSubmit(false);
     }
   };
 

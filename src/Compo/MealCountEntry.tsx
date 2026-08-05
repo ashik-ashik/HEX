@@ -52,7 +52,7 @@ const MealCountEntry: React.FC<MemberNameList> = ({ memberNameList }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoadingOnSubmit(true);
-    toast.success("Adding Meals...!");
+    const loadingToast = toast.loading("Adding Meals...");
     try {
       // Format data for Google Apps Script
       const body =
@@ -76,23 +76,22 @@ const MealCountEntry: React.FC<MemberNameList> = ({ memberNameList }) => {
 
       if (response.ok) {
         toast.success("Meal counts submitted successfully!", {
-          duration: 3000,
-          style: {
-            fontSize: "0.75rem",
-            padding: "8px 12px",
-            borderRadius: "8px",
-          },
+          id: loadingToast,
         });
         // Reset form
         setMealData(
           memberNameList.reduce((acc, member) => ({ ...acc, [member]: "" }), {})
         );
       } else {
-        toast.error("Failed to submit meal counts.");
+        toast.error("Failed to submit meal counts.", {
+          id: loadingToast,
+        });
       }
     } catch (error) {
       console.error(error);
-      toast.error("Error submitting meal counts.");
+      toast.error("Error submitting meal counts.", {
+        id: loadingToast,
+      });
     } finally {
       setLoadingOnSubmit(false);
     }
@@ -113,7 +112,7 @@ const MealCountEntry: React.FC<MemberNameList> = ({ memberNameList }) => {
           toastOptions={{
             className: "text-xs px-3 py-2 rounded-lg shadow-md",
             style: {
-              background: "#1f2937", // gray-800
+              background: "#1f2937",
               color: "#fff",
             },
             success: {

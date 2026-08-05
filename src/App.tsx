@@ -22,7 +22,7 @@ import AddPersonnel from './Compo/AddPersonnel';
 import GoogleLogin from './Compo/GoogleLogin';
 import useAuth from './hooks/useAuth';
 import PrivateRoute from './Compo/ProvateRoute';
-import { Toaster } from 'react-hot-toast';
+// import { Toaster } from 'react-hot-toast';
 import HomeInitial from './Compo/HomeInitial';
 import EditMealDeposit from './Compo/EditMealDeposit';
 import EditLastBazarCost from './Compo/EditBazarCosts';
@@ -338,7 +338,7 @@ type UtilityDeposit = {
   return (
     <>
       <BrowserRouter>
-      <Toaster position="bottom-right" />
+      {/* <Toaster position="bottom-right" /> */}
         <Routes>
             <Route path="/" element={<HomeInitial />} />
            <Route path="/overview" element={<PrivateRoute>

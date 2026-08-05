@@ -27,10 +27,7 @@ const EntryMealDeposit: React.FC<MemberNameList> = ({ memberNameList }) => {
     }
 
     const numericAmount = parseFloat(amount);
-    if (isNaN(numericAmount)) {
-      toast.error("Amount must be a number");
-      return;
-    }
+    const loadingToast = toast.loading("Adding Deposit...");
     try {
       setLoadingOnSubmit(true);
       const response = await fetch(
@@ -46,15 +43,21 @@ const EntryMealDeposit: React.FC<MemberNameList> = ({ memberNameList }) => {
 
       const data = await response.json();
       if (data.status === "success") {
-        toast.success(data.message);
+        toast.success(data.message, {
+          id: loadingToast,
+        });
         setAmount(""); // reset amount
         setLoadingOnSubmit(false);
       } else {
-        toast.error(data.message || "Failed to add deposit");
+        toast.error(data.message || "Failed to add deposit", {
+          id: loadingToast,
+        });
       }
     } catch (error) {
       setLoadingOnSubmit(false);
-      toast.error("Error connecting to server");
+      toast.error("Error connecting to server", {
+        id: loadingToast,
+      });
       console.error(error);
     }
   };
