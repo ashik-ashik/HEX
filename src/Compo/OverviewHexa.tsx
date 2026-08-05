@@ -135,7 +135,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
   const { usersList, userRole, houseMenbers } = useAuth() as {
     usersList: UserItem[];
     userRole: string;
-    houseMenbers: { name: string; role: string; photoURL?: string; email?: string; phoneNumber?: string }[];
+    houseMenbers: { name: string; role: string; photoURL?: string; email?: string; phoneNumber?: string; lastLoginAt: string; }[];
   };
 
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
@@ -806,31 +806,49 @@ const OverviewHexa: React.FC<HomeProps> = ({
                           <div className="bg-white/80 p-4 rounded-xl hover:shadow-md hover:border-teal-200 transition text-center border border-slate-200">
                             
                               <img
-                                src={houseMenbers[index].photoURL}
-                                alt={person.name}
+                                src={houseMenbers[index]?.photoURL}
+                                alt={person?.name}
                                 className="w-16 h-16 rounded-full object-cover mx-auto mb-3 ring-2 ring-teal-100 uppercase"
                               />
                            
 
                             {/* Then name */}
                             <p className="text-sm font-bold text-slate-800 mb-1 capitalize">
-                              {person.name}
+                              {person?.name}
                             </p>
 
                             {/* Then role */}
-                            <h4 className="text-xs text-teal-600 font-semibold uppercase mb-2 capitalize-each-word">
-                              {person.role}
+                            <h4 className="text-xs text-teal-600 font-semibold mb-2 capitalize">
+                              {person?.role === "assist_manamer" ? "Assistant Manager" : person?.role}
+                            </h4>
+                            <h4 className="text-xs text-teal-600 font-thin mb-2">
+                              {person.lastLoginAt ? `Member Since: ${
+                                new Date(person?.lastLoginAt?.split(',')[0]).toLocaleDateString("en-US", {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              })
+                              }` : "Never Logged In"}
                             </h4>
 
-                            <div className="flex flex- items-center justify-center gap-2 mt-4">
-                              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-semibold text-lg shadow-inner mb-3 group-hover:scale-105 transition-transform duration-200 cursor-pointer">
-                                
-                                <a
-                                  href={`tel:+880${person.phoneNumber}`}
-                                    className="flex items-center gap-1 hover:text-teal-200 transition  break-all text-left"
+                            <div className="flex flex- items-center justify-center gap-2 mt-4 p-4">
+                              <div className="relative h-8 w-8 flex items-center justify-center mb-3">
+                                {person.phoneNumber && (
+                                  <>
+                                    <span className="absolute inset-0 rounded-full bg-green-400 opacity-75 animate-ping [animation-duration:2s]" />
+                                    <span className="absolute inset-0 rounded-full bg-green-400 opacity-60 animate-ping [animation-duration:2s] [animation-delay:0.5s]" />
+                                    
+                                  </>
+                                )}
+
+                                <div className="relative z-10 h-8 w-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-semibold text-lg shadow-inner group-hover:scale-105 transition-transform duration-200 cursor-pointer">
+                                  
+                                  <a href={`tel:+880${person.phoneNumber}`}
+                                    className="flex items-center gap-1 hover:text-teal-200 transition break-all text-left"
                                   >
-                                    <PhoneCall size={14} className="inline " />
+                                    <PhoneCall size={14} className="inline" />
                                   </a>
+                                </div>
                               </div>
                               <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white font-semibold text-lg shadow-inner mb-3 group-hover:scale-105 transition-transform duration-200 cursor-pointer">
                                 
