@@ -229,7 +229,7 @@ const { usersList, userIsLoading, setUsersList, user } = useAuth() as {
             onChange={(e) =>
               setEmail(e.target.value)
             }
-            className="w-full pl-10 pr-3 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full pl-10 pr-3 text-xs py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <option value="">
               Select member
@@ -239,9 +239,10 @@ const { usersList, userIsLoading, setUsersList, user } = useAuth() as {
               (item: UserItem, index: number) => (
                 <option
                   key={index}
-                  value={item.email}
+                  value={item.email }
+                  className="capitalize text-[12px]"
                 >
-                  {item.name || item.email}
+                  {item.name + ":- " + item.email}
                 </option>
               )
             )}
@@ -268,7 +269,7 @@ const { usersList, userIsLoading, setUsersList, user } = useAuth() as {
                 e.target.value as RoleType
               )
             }
-            className="w-full pl-10 pr-3 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full pl-10 pr-3 py-2.5 text-xs border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <option value="member">
               Member
@@ -279,7 +280,7 @@ const { usersList, userIsLoading, setUsersList, user } = useAuth() as {
             <option value="assist_manager">
               Assistant Manager
             </option>
-            <option value="EX-Member">
+            <option value="ex-member">
               EX-Member
             </option>
             <option value="guest">

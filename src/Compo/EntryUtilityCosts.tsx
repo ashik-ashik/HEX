@@ -23,7 +23,7 @@ const UtilityCostEntry = () => {
       return;
     }
 
-    const loadingToast = toast.loading("Adding Amount");
+    const loadingToast = toast.loading("Adding Utility Cost...");
 
     try {
       setLoadingOnSubmit(true);

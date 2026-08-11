@@ -27,6 +27,9 @@ const PrivateRoute: React.FC<Props> = ({ children }) => {
   if (userRole === "assist_manager") {
     return <>{children}</>;
   }
+  if (userRole === "ex-member") {
+    return <>{children}</>;
+  }
   return <Navigate to="/login" replace />;
 
 };

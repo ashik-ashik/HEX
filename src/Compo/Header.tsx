@@ -10,8 +10,9 @@ import {
   Gauge,
   History,
   LucideCalculator,
-  UserCheck,
   UserCircle2,
+  Users2Icon,
+  UserCheck2,
 } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import DeveloperProfileModal from "./DeveloperProfileModal";
@@ -37,24 +38,45 @@ const Header = () => {
 
   const isManagerLevel = userRole === "manager" || userRole === "assist_manager";
   const isMember = userRole === "member";
-  const isLoggedIn = isManagerLevel || isMember;
+  const specialRoles = userRole?.toLowerCase() === "guest" || userRole === "ex-member";
 
   // Core nav links, shown only to logged-in roles (manager/assist_manager/member)
-  const navLinks = [
-    { name: "Home", path: "/overview", icon: Home },
-    { name: "Meal & Bazar", path: "/meal-bazar-costs", icon: LayoutDashboard },
-    { name: "Utility", path: "/utility", icon: Wrench },
-    // { name: "My Account", path: "/member-profile", icon: UserCircle2 },
+  const NonLoggedInLinks = [
+    { name: "Home", path: "/", icon: Home },
+    { name: "History", path: "/history", icon: History },
+    {name: "Login", path: "/login", icon: LogIn}
   ];
 
-  // Links visible to everyone, logged in or not
-  const publicLinks = [{ name: "History", path: "/history", icon: History }];
 
   // Extra links only for manager-level roles (manager + assist_manager share access)
   const managerLinks = [
-    { name: "Settlement", path: "/settlement", icon: LucideCalculator },
+    { name: "Home", path: "/overview", icon: Home },
     { name: "Manager Panel", path: "/manager", icon: Gauge },
+    { name: "Meal & Bazar", path: "/meal-bazar-costs", icon: LayoutDashboard },
+    { name: "Utility", path: "/utility", icon: Wrench },
+    { name: "Settlement", path: "/settlement", icon: LucideCalculator },
+    { name: "History", path: "/history", icon: History },
+    { name: "Members", path: "/all-members", icon: Users2Icon },
+    { name: "My Account", path: "/member-profile", icon: UserCheck2 }
   ];
+
+  const navLinksForSpecialRoles = [
+    { name: "Home", path: "/overview", icon: Home },
+    { name: "History", path: "/history", icon: History },
+    { name: "My Account", path: "/member-profile", icon: UserCheck2 },
+    { name: "Members", path: "/all-members", icon: Users2Icon },
+  ];
+
+  const memberLinks = [
+    { name: "Home", path: "/overview", icon: Home },
+    { name: "Meal & Bazar", path: "/meal-bazar-costs", icon: LayoutDashboard },
+    { name: "Utility", path: "/utility", icon: Wrench },
+    { name: "History", path: "/history", icon: History },
+    { name: "Members", path: "/all-members", icon: Users2Icon },
+    { name: "My Account", path: "/member-profile", icon: UserCheck2 },
+  ];
+
+
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `flex items-center gap-2 transition-colors duration-300 ${
@@ -91,29 +113,7 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6 text-xs font-medium">
-            {isLoggedIn &&
-              navLinks.map((link, index) => (
-                <NavLink
-                  key={index}
-                  to={link.path}
-                  end={link.path === "/"}
-                  className={navLinkClass}
-                >
-                  {link.name}
-                </NavLink>
-              ))}
-
-            {publicLinks.map((link, index) => (
-              <NavLink
-                key={`public-${index}`}
-                to={link.path}
-                end={link.path === "/"}
-                className={navLinkClass}
-              >
-                {link.name}
-              </NavLink>
-            ))}
-
+            
             {isManagerLevel &&
               managerLinks.map((link, index) => (
                 <NavLink
@@ -125,20 +125,39 @@ const Header = () => {
                 </NavLink>
               ))}
 
-            {isLoggedIn ? (
-              <NavLink to="/member-profile" className={navLinkClass}>
-                 My Account
-              </NavLink>
-            ) : (
-              <>
-                <NavLink to="/" end className={navLinkClass}>
-                  <Home size={16} />
+            {isMember &&
+              memberLinks.map((link, index) => (
+                <NavLink
+                  key={`manager-${index}`}
+                  to={link.path}
+                  className={navLinkClass}
+                >
+                  {link.name}
                 </NavLink>
-                <NavLink to="/login" className={navLinkClass}>
-                  <LogIn size={16} />
+              ))}
+
+            {specialRoles &&
+              navLinksForSpecialRoles.map((link, index) => (
+                <NavLink
+                  key={`special-${index}`}
+                  to={link.path}
+                  className={navLinkClass}
+                >
+                  {link.name}
                 </NavLink>
-              </>
-            )}
+              ))}
+
+              {
+                !userRole &&
+              NonLoggedInLinks.map((link, index) => (
+                <NavLink
+                  key={`non-logged-in-${index}`}
+                  to={link.path}
+                  className={navLinkClass}
+                >
+                  {link.name}
+                </NavLink>
+              ))}
 
             {/* Developer profile — visible to all users, logged in or not */}
             <button
@@ -167,86 +186,52 @@ const Header = () => {
           bg-white shadow-md`}
         >
           <nav className="flex flex-col px-6 py-4 gap-4 text-sm font-medium">
-            {isLoggedIn &&
-              navLinks.map((link, index) => {
-                const Icon = link.icon;
-                return (
-                  <NavLink
-                    key={index}
-                    to={link.path}
-                    end={link.path === "/"}
-                    className={navLinkClass}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    <Icon size={14} />
-                    {link.name}
-                  </NavLink>
-                );
-              })}
-
-            {publicLinks.map((link, index) => {
-              const Icon = link.icon;
-              return (
+            {isManagerLevel &&
+              managerLinks.map((link, index) => (
                 <NavLink
-                  key={`public-mobile-${index}`}
+                  key={`manager-${index}`}
                   to={link.path}
-                  end={link.path === "/"}
                   className={navLinkClass}
-                  onClick={() => setMobileOpen(false)}
                 >
-                  <Icon size={14} />
+                  {link.icon && <link.icon size={16} />}
                   {link.name}
                 </NavLink>
-              );
-            })}
+              ))}
 
-            {isManagerLevel &&
-              managerLinks.map((link, index) => {
-                const Icon = link.icon;
-                return (
-                  <NavLink
-                    key={`manager-mobile-${index}`}
-                    to={link.path}
-                    className={navLinkClass}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    <Icon size={14} />
-                    {link.name}
-                  </NavLink>
-                );
-              })}
-
-            {isLoggedIn ? (
-              <NavLink
-                to="/member-profile"
-                className={navLinkClass}
-                onClick={() => setMobileOpen(false)}
-              >
-                <UserCheck size={12} />
-                My Account
-              </NavLink>
-            ) : (
-              <>
+            {isMember &&
+              memberLinks.map((link, index) => (
                 <NavLink
-                  to="/"
-                  end
+                  key={`manager-${index}`}
+                  to={link.path}
                   className={navLinkClass}
-                  onClick={() => setMobileOpen(false)}
                 >
-                  <Home size={16} />
-                  Home
+                  {link.icon && <link.icon size={16} />}
+                  {link.name}
                 </NavLink>
-                <NavLink
-                  to="/login"
-                  className={navLinkClass}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <LogIn size={16} />
-                  Login
-                </NavLink>
-              </>
-            )}
+              ))}
 
+            {specialRoles &&
+              navLinksForSpecialRoles.map((link, index) => (
+                <NavLink
+                  key={`special-${index}`}
+                  to={link.path}
+                  className={navLinkClass}
+                >
+                  {link.icon && <link.icon size={16} />}
+                  {link.name}
+                </NavLink>
+              ))}
+
+              {!userRole && NonLoggedInLinks.map((link, index) => (
+                <NavLink
+                  key={`non-logged-in-${index}`}
+                  to={link.path}
+                  className={navLinkClass}
+                >
+                  {link.icon && <link.icon size={16} />}
+                  {link.name}
+                </NavLink>
+              ))}
             {/* Developer profile — visible to all users, logged in or not */}
             <button
               type="button"

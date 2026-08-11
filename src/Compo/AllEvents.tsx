@@ -1,3 +1,4 @@
+import Footer from "./Footer";
 import Header from "./Header";
 import HexaSpecialEvents from "./HexaSpecialEvents";
 
@@ -21,6 +22,7 @@ const AllEvents = () => {
           <HexaSpecialEvents eventLimit = {1000} />
         </div>
       </div>
+      <Footer />
     </>
   );
 };

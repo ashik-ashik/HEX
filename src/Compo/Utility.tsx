@@ -221,7 +221,7 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
                     className="rounded-xl border border-[#E8E2D4] p-4 hover:border-[#2E7D52]/40 hover:shadow-sm transition bg-[#FAF8F2]/60"
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm text-[#1E2A38] font-medium truncate">
+                      <span className="text-sm text-[#1E2A38] font-medium truncate  capitalize">
                         {person.member}
                       </span>
                       <span className="text-[10px] text-[#8A8275] font-mono">
@@ -293,7 +293,7 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
                           <td className="px-5 py-3 text-[#8A8275] font-mono text-xs">
                             {String(i + 1).padStart(2, "0")}
                           </td>
-                          <td className="px-2 py-3 text-[#1E2A38] font-medium">
+                          <td className="px-2 py-3 text-[#1E2A38] font-medium capitalize">
                             {item.name}
                           </td>
                           <td className="px-2 py-3 hidden sm:table-cell">

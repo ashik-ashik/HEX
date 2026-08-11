@@ -164,7 +164,6 @@ const Dashboard: React.FC<DashboardProps> = ({
       </div>
     );
   }
-
   return (
     <>
       <Header />
@@ -239,7 +238,7 @@ const Dashboard: React.FC<DashboardProps> = ({
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {members.map((member, idx) => {
+              {members.slice(1).map((member, idx) => {
                 const balance = getMemberBalance(member.name);
                 const isDue = balance < 0;
 
@@ -322,10 +321,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredBazar.map((item, idx) => (
+                  {filteredBazar.slice(1).map((item, idx) => (
                     <tr key={idx} className="border-t border-[#E4D9C5] hover:bg-[#FAF5EB] text-nowrap text-xs">
                       <td className="p-3 text-[#6B5E50] font-['JetBrains_Mono']">{item.date}</td>
-                      <td className="p-3 text-[#2B2117]">{item.person}</td>
+                      <td className="p-3 text-[#2B2117] capitalize">{item.person}</td>
                       <td className="p-3 text-right font-['JetBrains_Mono'] font-medium text-[#2B2117]">৳ {item.amount}</td>
                     </tr>
                   ))}

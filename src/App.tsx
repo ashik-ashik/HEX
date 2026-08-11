@@ -32,7 +32,11 @@ import FundWarningModal from './Compo/FundWarningModal';
 import SetFixedMeal from './Compo/SetFixedMeal';
 import ResetMonth from './Compo/ResetThisMonth';
 import MemberProfile from './Compo/MemberProfile';
-import AddPhoneNumberPop from './Compo/AddPhoneNumberPop';
+import UpdateProfilePage from './Compo/UpdateMemberProfile';
+import UpdateProfilePopUp from './Compo/UpdateProfilePopUp';
+import AllMembers from './Compo/AllMembers';
+import EditUtilityDeposit from './Compo/EditUtilityDeposit';
+import EditUtilityCosts from './Compo/EditUtilityCosts';
 
 
 
@@ -101,8 +105,7 @@ function App() {
   const currentMember = houseMenbers.find(member => member.email === user.email);
 
   if (currentMember?.phoneNumber === "" || !currentMember?.phoneNumber) {
-    <AddPhoneNumberPop />
-    console.log("Phone number is empty for user:", currentMember?.name);
+    <UpdateProfilePopUp />
   }
 
 type UtilityDeposit = {
@@ -161,15 +164,17 @@ type UtilityDeposit = {
 
     // ========= PARSE =========
     const depositRaw = parseCSV(depositText);
-    const costRaw = parseCSV(costText);
+    const costRaw = parseCSV(costText).map((row) => row.slice(1));
 
     // ========= FIXED: UTILITY DEPOSIT (HORIZONTAL) =========
     let formattedDeposits: { member: string; total: number }[] = [];
 
     if (depositRaw.length > 1) {
-      const members = depositRaw[0];
+      // Skip the 1st column because it contains the tracking ID
+      const members = depositRaw[0].slice(1);
 
-      formattedDeposits = members.map((member, colIndex) => {
+      formattedDeposits = members.map((member, index) => {
+        const colIndex = index + 1; // Actual column index in depositRaw
         let total = 0;
 
         for (let row = 1; row < depositRaw.length; row++) {
@@ -177,7 +182,9 @@ type UtilityDeposit = {
 
           if (cell !== undefined && cell !== "") {
             const value = parseFloat(cell);
-            if (!isNaN(value)) total += value;
+            if (!isNaN(value)) {
+              total += value;
+            }
           }
         }
 
@@ -238,6 +245,7 @@ type UtilityDeposit = {
 
         const headers = depositRows[0];
         const mealDepositsRows = depositRows.slice(1);
+        
 
         const memberData: MemberData[] = headers.map((name, colIndex) => {
           const deposits = mealDepositsRows
@@ -257,9 +265,10 @@ type UtilityDeposit = {
         const bazarItems: BazarItem[] = bazarRows
           .slice(1)
           .map((row) => ({
-            date: row[0] || "",
-            person: row[1] || "",
-            amount: Number(row[2]) || 0,
+            trackingID: row[0] || "",
+            date: row[1] || "",
+            person: row[2] || "",
+            amount: Number(row[3]) || 0,
           }))
           .filter((item) => !isNaN(item.amount));
 
@@ -348,8 +357,8 @@ type UtilityDeposit = {
           <Route path="/login" element={<GoogleLogin />} />
           <Route
             path="/member-profile"
-            element={
-                <MemberProfile
+            element={<PrivateRoute>
+              <MemberProfile
                 members={members}
                 bazarData={bazarData}
                 mealData={mealData}
@@ -362,6 +371,7 @@ type UtilityDeposit = {
                 totalBazar={totalBazar}
                 
               />
+            </PrivateRoute>
             }
           />
           <Route
@@ -418,17 +428,21 @@ type UtilityDeposit = {
             <Route path="next-manager" element={<AdminRoute><ChangeManager  /></AdminRoute>} />
             <Route path="setfixedmeal" element={<AdminRoute><SetFixedMeal  /></AdminRoute>} />
             <Route path="resetmonth" element={<AdminRoute><ResetMonth  /></AdminRoute>} />
-            <Route path="edit-meal-deposit" element={<AdminRoute><EditMealDeposit memberNameList={memberNameList} /></AdminRoute>} />
+            <Route path="edit-meal-deposit" element={<AdminRoute><EditMealDeposit /></AdminRoute>} />
             <Route path="edit-bazar-cost" element={<AdminRoute><EditLastBazarCost memberNameList={memberNameList} /></AdminRoute>} />
+            <Route path="edit-utility-deposit" element={<AdminRoute><EditUtilityDeposit /></AdminRoute>} />
+            <Route path="edit-utility-costs" element={<AdminRoute><EditUtilityCosts /></AdminRoute>} />
           </Route>
           <Route path="/postnotice" element={<PrivateRoute><NoticePost /></PrivateRoute>} />
           <Route path="/history" element={<Settlement_History />} />
+          <Route path="/edit-profile" element={<PrivateRoute><UpdateProfilePage /></PrivateRoute>} />
+          <Route path="/all-members" element={<PrivateRoute><AllMembers /></PrivateRoute>} />
           <Route path="/events" element={<AllEvents />} />
           <Route path="/*" element={<PageNotFound />} />
         </Routes>
         {
         userRole === "manager" || userRole === "assist_manager" || userRole === "member" ?(
-        !currentMember?.phoneNumber || currentMember?.phoneNumber === '' ? <AddPhoneNumberPop /> : null): null}
+        !currentMember?.phoneNumber || currentMember?.phoneNumber === '' ? <UpdateProfilePopUp /> : null): null}
         {
           userRole === "manager" || userRole === "assist_manager" || userRole === "member" ? <FundWarningModal balance={grandDeposit - totalBazar} isLoading={isLoading} /> : null
         }

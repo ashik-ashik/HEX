@@ -333,7 +333,11 @@ const HexaSpecialEvents = ({eventLimit}: {eventLimit: number}) => {
                         fontFamily: "Georgia, serif",
                       }}
                     >
-                      {event.timestamp?.split(" ")[0]}
+                      {new Date(event.timestamp?.split(" ")[0]).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
                     </div>
                   </div>
 
@@ -431,142 +435,167 @@ const HexaSpecialEvents = ({eventLimit}: {eventLimit: number}) => {
 
           {selectedEvent &&
   createPortal(
-    <div
-      className="modal-overlay"
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 2147483647,
-        backgroundColor: "rgba(15,10,50,0.75)",
-        backdropFilter: "blur(6px)",
-        WebkitBackdropFilter: "blur(6px)",
-        overflowY: "auto",
-      }}
-      onClick={() => setSelectedEvent(null)}
-      role="dialog"
-      aria-modal="true"
-      aria-label={selectedEvent.eventName}
-    >
+    <>
+      <style >{`
+        .modal-overlay {
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          padding: 40px 20px;
+          box-sizing: border-box;
+        }
+        .modal-content {
+          width: 100%;
+          max-width: 700px;
+          background: #ffffff;
+          border-radius: 16px;
+          overflow: hidden;
+          margin: auto; /* centers vertically when shorter than viewport, scrolls when taller */
+          position: relative;
+        }
+
+        @media (max-width: 640px) {
+          .modal-overlay {
+            padding: 0;
+            align-items: flex-start;
+          }
+          .modal-content {
+            max-width: 100%;
+            min-height: 100vh;
+            border-radius: 0;
+            margin: 0;
+          }
+        }
+      `}</style>
+
       <div
-        className="modal-content w-full"
-        onClick={(e) => e.stopPropagation()}
+        className="modal-overlay"
         style={{
-          
-          minHeight: "100vh",
-          background: "#ffffff",
-          position: "relative",
-          margin: 0,
-          borderRadius: 0,
-          overflow: "hidden",
+          position: "fixed",
+          inset: 0,
+          zIndex: 2147483647,
+          backgroundColor: "rgba(15,10,50,0.75)",
+          backdropFilter: "blur(6px)",
+          WebkitBackdropFilter: "blur(6px)",
+          overflowY: "auto",
         }}
+        role="dialog"
+        aria-modal="true"
+        aria-label={selectedEvent.eventName}
       >
-        {/* Close Button */}
-        <button
-          onClick={() => setSelectedEvent(null)}
-          style={{
-            position: "fixed",
-            top: 20,
-            right: 20,
-            zIndex: 2147483647,
-            background: "#ffffff",
-            border: "none",
-            borderRadius: "9999px",
-            width: 48,
-            height: 48,
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-          }}
-          aria-label="Close modal"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={22}
-            height={22}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-
-        {/* Hero Image */}
-        <img
-          src={getImageSrc(selectedEvent.eventPhoto)}
-          alt={selectedEvent.eventName}
-          style={{
-            width: "100%",
-            height: "55vh",
-            objectFit: "cover",
-            display: "block",
-          }}
-          referrerPolicy="no-referrer"
-        />
-
-        {/* Gradient Bar */}
-        <div
-          style={{
-            height: 5,
-            background: "linear-gradient(90deg,#6366f1,#7c3aed,#a855f7)",
-          }}
-        />
-
-        {/* Content */}
-        <div
-          style={{
-            maxWidth: "1100px",
-            margin: "0 auto",
-            padding: "3rem 1.5rem 5rem",
-          }}
-        >
-          <p
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          {/* Close Button */}
+          <button
+            onClick={() => setSelectedEvent(null)}
             style={{
-              fontSize: 12,
-              fontWeight: 700,
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-              color: "#6366f1",
-              marginBottom: 12,
+              position: "absolute",
+              top: 20,
+              right: 20,
+              zIndex: 10,
+              background: "#ffffffaf",
+              border: "none",
+              borderRadius: "9999px",
+              width: 48,
+              height: 48,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+            }}
+            aria-label="Close modal"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width={22}
+              height={22}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+
+          {/* Hero Image */}
+          <img
+            src={getImageSrc(selectedEvent.eventPhoto)}
+            alt={selectedEvent.eventName}
+            style={{
+              width: "100%",
+              objectFit: "cover",
+              display: "block",
+            }}
+            referrerPolicy="no-referrer"
+          />
+
+          {/* Gradient Bar */}
+          <div
+            style={{
+              height: 5,
+              background: "linear-gradient(90deg,#6366f1,#7c3aed,#a855f7)",
+            }}
+          />
+
+          {/* Content */}
+          <div
+            style={{
+              margin: "0 auto",
+              padding: "3rem 1.5rem 5rem",
             }}
           >
-            ✦ {selectedEvent.timestamp?.split(" ")[0]}
-          </p>
+            <p
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: "#6366f1",
+                marginBottom: 12,
+              }}
+            >
+              ✦ {new Date(selectedEvent.timestamp?.split(" ")[0]).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+            </p>
 
-          <h2
-            style={{
-              fontSize: "clamp(2rem,5vw,4rem)",
-              fontWeight: 800,
-              color: "#1e1b4b",
-              marginBottom: "1.5rem",
-              lineHeight: 1.15,
-            }}
-          >
-            {selectedEvent.eventName}
-          </h2>
+            <h2
+              style={{
+                fontSize: "20px",
+                fontWeight: 800,
+                color: "#1e1b4b",
+                marginBottom: "1.5rem",
+                lineHeight: 1.15,
+              }}
+            >
+              {selectedEvent.eventName}
+            </h2>
 
-          <p
-            style={{
-              color: "#4b5563",
-              fontSize: 18,
-              lineHeight: 1.9,
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {selectedEvent.eventDescription || "No description available."}
-          </p>
+            <p
+              style={{
+                color: "#4b5563",
+                fontSize: 13,
+                lineHeight: 1.9,
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {selectedEvent.eventDescription || "No description available."}
+            </p>
+          </div>
         </div>
       </div>
-    </div>,
+    </>,
     document.body
   )}
+
+  
     </>
   );
 };
