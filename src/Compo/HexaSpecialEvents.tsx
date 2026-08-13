@@ -284,7 +284,7 @@ const HexaSpecialEvents = ({eventLimit}: {eventLimit: number}) => {
                   className="event-card"
                   style={{
                     background: "#fff",
-                    borderRadius: 20,
+                    borderRadius: 10,
                     overflow: "hidden",
                     border: "1px solid rgba(99,102,241,0.1)",
                     cursor: "pointer",

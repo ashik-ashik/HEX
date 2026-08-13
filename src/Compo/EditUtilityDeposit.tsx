@@ -2,6 +2,8 @@
 import { Pencil } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import useAuth from "../hooks/useAuth";
+import type { UsersList } from "../services/DataTypes";
 
 const utilityDepositReadAPI =
   import.meta.env.VITE_UTILITY_DEPOSIT_SHEET_READER;
@@ -16,24 +18,25 @@ interface UtilityDeposit {
 }
 
 const EditUtilityDeposit = () => {
-  const [utilityDepositData, setUtilityDepositData] = useState<
-    UtilityDeposit[]
-  >([]);
+  const [utilityDepositData, setUtilityDepositData] = useState<UtilityDeposit[]>([]);
 
-  const [selectedTrackingID, setSelectedTrackingID] =
-    useState("");
+  const [selectedTrackingID, setSelectedTrackingID] = useState("");
 
-  const [selectedMember, setSelectedMember] =
-    useState("");
+  const [selectedMember, setSelectedMember] = useState("");
 
-  const [newAmount, setNewAmount] =
-    useState("");
+  const [newAmount, setNewAmount] = useState("");
 
-  const [isLoading, setIsLoading] =
-    useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [isSubmitting, setIsSubmitting] =
     useState(false);
+
+    const {houseMembers} = useAuth() as {houseMembers: UsersList}
+
+    const showMemberName = (uid: string) => {
+    return houseMembers.find(hm => hm.email.split('@')[0] === uid)
+  }
+    
 
   // =========================================================
   // FORM REF
@@ -315,7 +318,7 @@ const EditUtilityDeposit = () => {
 
     if (
       !newAmount ||
-      Number(newAmount) <= 0
+      Number(newAmount) < 0
     ) {
       toast.error(
         "সঠিক নতুন জমার পরিমাণ দিন"
@@ -612,7 +615,7 @@ const EditUtilityDeposit = () => {
                     key={`${item.trackingID}-${item.member}`}
                     value={item.member}
                   >
-                    {item.member}:- ৳
+                    {showMemberName(item.member)?.name}:- ৳
                     {item.amount.toLocaleString()}
                   </option>
                 )
@@ -641,7 +644,7 @@ const EditUtilityDeposit = () => {
 
             <input
               type="number"
-              min="1"
+              min="0"
               step="any"
               value={newAmount}
               onChange={(e) =>
@@ -685,7 +688,7 @@ const EditUtilityDeposit = () => {
 
                 <p className="font-semibold text-[#2B2117] capitalize">
                   {
-                    selectedDeposit.member
+                    showMemberName(selectedDeposit.member)?.name
                   }
                 </p>
               </div>
@@ -843,7 +846,7 @@ const EditUtilityDeposit = () => {
                             <div>
                               <p className="text-sm font-medium text-gray-800 capitalize">
                                 {
-                                  deposit.member
+                                  showMemberName(deposit.member)?.name
                                 }
                               </p>
 

@@ -1,5 +1,4 @@
 import React, {
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -12,153 +11,75 @@ import {
   Hash,
 } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
+import useAppData from "../hooks/useAppData";
+import type { BazarCostResponse, UsersList } from "../services/DataTypes";
+import useAuth from "../hooks/useAuth";
 
-interface MemberNameList {
-  memberNameList: string[];
-}
+
 
 interface BazarCost {
   trackingID: string;
   date: string;
-  doer: string;
-  amount: number;
+  name: string;
+  amount: string | number;
 }
 
-const BAZAR_COST_READ_URL =
-  import.meta.env.VITE_BAZAR_COSTS_SHEET_READER;
+interface AppDataContext {
+  bazarCosts: BazarCostResponse;
+  setBazarCosts?: React.Dispatch<
+    React.SetStateAction<BazarCostResponse>
+  >;
+}
 
 const BAZAR_COST_EDIT_URL =
   import.meta.env.VITE_BAZAR_COSTS_EDIT;
 
-const EditLastBazarCost: React.FC<MemberNameList> = ({
-  memberNameList,
-}) => {
+const EditLastBazarCost= () => {
   // =========================================================
-  // STATE
+  // APP DATA
   // =========================================================
 
-  const [bazarCostData, setBazarCostData] =
-    useState<BazarCost[]>([]);
+  const { bazarCosts, setBazarCosts } =
+    useAppData() as AppDataContext;
+    const {houseMembers} = useAuth () as {houseMembers: UsersList}
+
+    const showMemberName = (uid: string) => {
+    return houseMembers.find(hm => hm.email.split('@')[0] === uid)
+  }
+
+  /*
+   * bazarCosts.data:
+   *
+   * [
+   *   {
+   *     trackingID: "Bco289611",
+   *     date: "Aug 01, 2026",
+   *     name: "Mynul Islam",
+   *     amount: "2980"
+   *   },
+   *   ...
+   * ]
+   */
+
+
+  // =========================================================
+  // FORM STATE
+  // =========================================================
 
   const [formData, setFormData] = useState({
     trackingID: "",
     date: "",
-    doer: "",
+    name: "",
     amount: "",
   });
 
   const [loading, setLoading] = useState(false);
-  const [isLoadingData, setIsLoadingData] =
-    useState(true);
 
   // =========================================================
   // FORM REF
-  // Used to scroll to the form after clicking Edit
   // =========================================================
 
   const formRef = useRef<HTMLFormElement>(null);
-
-  // =========================================================
-  // FETCH BAZAR COST DATA
-  // =========================================================
-
-  const fetchBazarCostData = async () => {
-    try {
-      setIsLoadingData(true);
-
-      const response = await fetch(
-        BAZAR_COST_READ_URL
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "Failed to fetch bazar cost data"
-        );
-      }
-
-      const text = await response.text();
-
-      const lines = text
-        .split("\n")
-        .map((line) =>
-          line.replace(/\r/g, "").trim()
-        )
-        .filter((line) => line !== "");
-
-      if (lines.length < 2) {
-        setBazarCostData([]);
-        return;
-      }
-
-      
-
-      
-
-      const formattedData: BazarCost[] = [];
-
-      // =====================================================
-      // EACH ROW = ONE BAZAR ENTRY
-      // =====================================================
-
-      for (
-        let rowIndex = 1;
-        rowIndex < lines.length;
-        rowIndex++
-      ) {
-        const row = lines[rowIndex]
-          .split(",")
-          .map((value) =>
-            value.trim()
-          );
-
-        const trackingID = row[0];
-        const date = row[1];
-        const doer = row[2];
-        const amount = row[3];
-
-        if (
-          !trackingID ||
-          !date ||
-          !doer ||
-          amount === undefined ||
-          amount === "" ||
-          isNaN(Number(amount))
-        ) {
-          continue;
-        }
-
-        formattedData.push({
-          trackingID,
-          date,
-          doer,
-          amount: Number(amount),
-        });
-      }
-
-      setBazarCostData(
-        formattedData
-      );
-    } catch (error) {
-      console.error(
-        "Error fetching bazar cost data:",
-        error
-      );
-
-      toast.error(
-        "বাজার খরচের তথ্য লোড করা যায়নি"
-      );
-    } finally {
-      setIsLoadingData(false);
-    }
-  };
-
-  // =========================================================
-  // INITIAL LOAD
-  // =========================================================
-
-  useEffect(() => {
-    fetchBazarCostData();
-  }, []);
 
   // =========================================================
   // SELECTED ENTRY
@@ -170,15 +91,14 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
     }
 
     return (
-      bazarCostData.find(
+      bazarCosts?.data.find(
         (entry) =>
           entry.trackingID ===
           formData.trackingID
       ) || null
     );
   }, [
-    bazarCostData,
-    formData.trackingID,
+    bazarCosts, formData
   ]);
 
   // =========================================================
@@ -186,13 +106,10 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
   // =========================================================
 
   const trackingIDs = useMemo(() => {
-    return bazarCostData
-      .map(
-        (entry) =>
-          entry.trackingID
-      )
+    return bazarCosts?.data
+      .map((entry) => entry.trackingID)
       .reverse();
-  }, [bazarCostData]);
+  }, [bazarCosts]);
 
   // =========================================================
   // HANDLE FORM CHANGE
@@ -203,10 +120,12 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
       HTMLInputElement | HTMLSelectElement
     >
   ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
   };
 
   // =========================================================
@@ -216,31 +135,25 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
   const handleTrackingIDChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    const trackingID =
-      e.target.value;
+    const trackingID = e.target.value;
 
-    const entry =
-      bazarCostData.find(
-        (item) =>
-          item.trackingID ===
-          trackingID
-      );
+    const entry = bazarCosts?.data.find(
+      (item) =>
+        item.trackingID === trackingID
+    );
 
     if (entry) {
       setFormData({
-        trackingID:
-          entry.trackingID,
+        trackingID: entry.trackingID,
         date: entry.date,
-        doer: entry.doer,
-        amount: String(
-          entry.amount
-        ),
+        name: entry.name,
+        amount: String(entry.amount),
       });
     } else {
       setFormData({
         trackingID,
         date: "",
-        doer: "",
+        name: "",
         amount: "",
       });
     }
@@ -248,25 +161,18 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
 
   // =========================================================
   // EDIT ENTRY
-  //
-  // Loads the selected entry and scrolls to the form.
   // =========================================================
 
   const handleEditEntry = (
     entry: BazarCost
   ) => {
     setFormData({
-      trackingID:
-        entry.trackingID,
+      trackingID: entry.trackingID,
       date: entry.date,
-      doer: entry.doer,
-      amount: String(
-        entry.amount
-      ),
+      name: entry.name,
+      amount: String(entry.amount),
     });
 
-    // Wait until React updates the form,
-    // then scroll to the form.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         if (formRef.current) {
@@ -291,7 +197,7 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
     if (
       !formData.trackingID ||
       !formData.date ||
-      !formData.doer ||
+      !formData.name ||
       !formData.amount
     ) {
       toast.error(
@@ -300,12 +206,13 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
       return;
     }
 
-    const amount =
-      Number(formData.amount);
+    const amount = Number(
+      formData.amount
+    );
 
     if (
-      isNaN(amount) ||
-      amount <= 0
+      Number.isNaN(amount) ||
+      amount < 0
     ) {
       toast.error(
         "সঠিক টাকার পরিমাণ দিন"
@@ -320,17 +227,20 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
       return;
     }
 
+    const previousAmount = Number(
+      selectedEntry.amount
+    );
+
     // =====================================================
-    // CHECK WHETHER ANYTHING ACTUALLY CHANGED
+    // CHECK WHETHER ANYTHING CHANGED
     // =====================================================
 
     if (
       selectedEntry.date ===
         formData.date &&
-      selectedEntry.doer ===
-        formData.doer &&
-      selectedEntry.amount ===
-        amount
+      selectedEntry.name ===
+        formData.name &&
+      previousAmount === amount
     ) {
       toast.error(
         "কোনো তথ্য পরিবর্তন করা হয়নি"
@@ -347,7 +257,7 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
         );
 
       // =====================================================
-      // SEND trackingID TO APPS SCRIPT
+      // SEND TO APPS SCRIPT
       // =====================================================
 
       const params =
@@ -356,9 +266,8 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
           trackingID:
             formData.trackingID,
           Date: formData.date,
-          Doer: formData.doer,
-          Amount:
-            formData.amount,
+          Doer: formData.name,
+          Amount: formData.amount,
         });
 
       const response =
@@ -367,7 +276,8 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
           {
             method: "POST",
             headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
+              "Content-Type":
+                "application/x-www-form-urlencoded",
             },
             body: params,
           }
@@ -390,31 +300,42 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
         );
 
         // =================================================
-        // UPDATE LOCAL STATE
+        // UPDATE HOOK LOCAL STATE
         // =================================================
 
-        setBazarCostData(
-          (previousData) =>
-            previousData.map(
-              (entry) =>
-                entry.trackingID ===
-                formData.trackingID
-                  ? {
-                      ...entry,
-                      date: formData.date,
-                      doer: formData.doer,
-                      amount,
-                    }
-                  : entry
-            )
-        );
+        if (setBazarCosts) {
+          setBazarCosts(
+            (previousData) => ({
+              ...previousData,
 
-        // Keep selected entry visible
+              data:
+                previousData.data.map(
+                  (entry) =>
+                    entry.trackingID ===
+                    formData.trackingID
+                      ? {
+                          ...entry,
+                          date:
+                            formData.date,
+                          name:
+                            formData.name,
+                          amount:
+                            String(
+                              amount
+                            ),
+                        }
+                      : entry
+                ),
+            })
+          );
+        }
+
+        // Keep updated data visible
         setFormData({
           trackingID:
             formData.trackingID,
           date: formData.date,
-          doer: formData.doer,
+          name: formData.name,
           amount:
             formData.amount,
         });
@@ -445,7 +366,7 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
     setFormData({
       trackingID: "",
       date: "",
-      doer: "",
+      name: "",
       amount: "",
     });
   };
@@ -472,10 +393,7 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
 
       <div className="w-full max-w-5xl mx-auto">
 
-        {/* =================================================
-            HEADER
-        ================================================== */}
-
+        {/* HEADER */}
         <div className="flex flex-col items-center text-center mb-6">
           <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center mb-3">
             <Pencil className="w-6 h-6 text-amber-600" />
@@ -492,14 +410,11 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
           </p>
         </div>
 
-        {/* =================================================
-            FORM
-        ================================================== */}
-
+        {/* FORM */}
         <form
           ref={formRef}
           onSubmit={handleSubmit}
-          className="scroll-mt-5 w-full  mx-auto bg-white rounded-xl shadow-xl border border-slate-100 p-5 sm:p-8"
+          className="scroll-mt-5 w-full mx-auto bg-white rounded-xl shadow-xl border border-slate-100 p-5 sm:p-8"
         >
           {/* Tracking ID */}
           <div className="flex flex-col">
@@ -516,10 +431,7 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
               onChange={
                 handleTrackingIDChange
               }
-              disabled={
-                loading ||
-                isLoadingData
-              }
+              disabled={loading}
               className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all disabled:opacity-50"
               required
             >
@@ -527,7 +439,7 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
                 ট্র্যাকিং আইডি নির্বাচন করুন
               </option>
 
-              {trackingIDs.map(
+              {trackingIDs?.map(
                 (id) => (
                   <option
                     key={id}
@@ -561,7 +473,7 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
                   </p>
 
                   <p className="text-xs font-semibold text-slate-700">
-                    {selectedEntry.doer}
+                    {selectedEntry.name}
                   </p>
                 </div>
 
@@ -572,7 +484,9 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
 
                   <p className="text-sm font-bold text-amber-600">
                     ৳
-                    {selectedEntry.amount.toLocaleString()}
+                    {Number(
+                      selectedEntry.amount
+                    ).toLocaleString()}
                   </p>
                 </div>
 
@@ -615,9 +529,9 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
               </label>
 
               <select
-                name="doer"
+                name="name"
                 value={
-                  formData.doer
+                  formData.name
                 }
                 onChange={
                   handleChange
@@ -633,16 +547,16 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
                   সদস্য নির্বাচন করুন
                 </option>
 
-                {memberNameList?.map(
+                {houseMembers?.map(
                   (
                     member,
                     index
                   ) => (
                     <option
                       key={index}
-                      value={member}
+                      value={member?.email?.split("@")[0]}
                     >
-                      {member}
+                      {member?.name}
                     </option>
                   )
                 )}
@@ -680,7 +594,9 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
                 formData.amount && (
                   <p className="text-[10px] text-slate-400 mt-1.5">
                     বর্তমান ৳
-                    {selectedEntry.amount.toLocaleString()}
+                    {Number(
+                      selectedEntry.amount
+                    ).toLocaleString()}
                     {" → "}
                     পরিবর্তিত ৳
                     {Number(
@@ -710,7 +626,7 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
                   loading ||
                   !formData.trackingID ||
                   !formData.date ||
-                  !formData.doer ||
+                  !formData.name ||
                   !formData.amount
                 }
                 className="flex-1 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-[0.99] transition-all text-white text-sm font-semibold shadow-md shadow-amber-200 disabled:opacity-60 disabled:active:scale-100 disabled:cursor-not-allowed"
@@ -724,10 +640,7 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
           </div>
         </form>
 
-        {/* =================================================
-            ALL BAZAR COST ENTRIES
-        ================================================== */}
-
+        {/* ALL BAZAR COST ENTRIES */}
         <div className="mt-8">
 
           {/* List Header */}
@@ -745,22 +658,14 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
 
             <div className="w-fit px-3 py-1 rounded-full bg-slate-100 text-xs font-medium text-slate-600">
               মোট{" "}
-              {
-                bazarCostData.length
-              }{" "}
+              {bazarCosts?.data.length}{" "}
               টি এন্ট্রি
             </div>
           </div>
 
-          {/* Loading */}
-          {isLoadingData ? (
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-8 text-center">
-              <p className="text-xs text-slate-500">
-                বাজার খরচের তথ্য লোড হচ্ছে...
-              </p>
-            </div>
-          ) : bazarCostData.length ===
-            0 ? (
+          {/* Empty */}
+          {bazarCosts?.data.length ===
+          0 ? (
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-8 text-center">
               <p className="text-xs text-slate-500">
                 কোনো বাজার খরচের তথ্য পাওয়া যায়নি।
@@ -785,7 +690,7 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
               {/* Entries */}
               <div className="divide-y divide-slate-100">
 
-                {bazarCostData
+                {bazarCosts?.data
                   .slice()
                   .reverse()
                   .map(
@@ -821,7 +726,7 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
                           </p>
                         </div>
 
-                        {/* Doer */}
+                        {/* Name */}
                         <div>
                           <p className="text-[10px] text-slate-400 sm:hidden mb-1">
                             সদস্য
@@ -829,7 +734,7 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
 
                           <p className="text-xs font-medium text-slate-700 capitalize">
                             {
-                              entry.doer
+                              showMemberName(entry.name)?.name
                             }
                           </p>
                         </div>
@@ -842,7 +747,9 @@ const EditLastBazarCost: React.FC<MemberNameList> = ({
 
                           <p className="text-sm font-bold text-amber-600">
                             ৳
-                            {entry.amount.toLocaleString()}
+                            {Number(
+                              entry.amount
+                            ).toLocaleString()}
                           </p>
                         </div>
 

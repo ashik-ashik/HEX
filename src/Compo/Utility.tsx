@@ -1,6 +1,8 @@
 import { useState } from "react";
 import Footer from "./Footer";
 import Header from "./Header";
+import useAuth from "../hooks/useAuth";
+import type { UsersList } from "../services/DataTypes";
 
 // Type for each deposit item
 export type UtilityDeposit = {
@@ -29,6 +31,12 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
   const [depositQuery, setDepositQuery] = useState("");
   const [costQuery, setCostQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("name");
+  const {houseMembers} = useAuth() as {houseMembers: UsersList}
+
+
+  const showMemberName = (uid: string) => {
+    return houseMembers.find(hm => hm.email.split('@')[0] === uid)
+  }
 
   if (isLoading) {
     return (
@@ -80,7 +88,6 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
   const utilityBalance = grandDeposit - totalCosts;
   const usedPct = grandDeposit > 0 ? Math.min(100, (totalCosts / grandDeposit) * 100) : 0;
   const memberCount = utilityDeposits.length || 1;
-  const maxDeposit = Math.max(1, ...utilityDeposits.map((p) => p.total));
   const maxCost = Math.max(1, ...costSummary.map((c) => c.total));
 
   // ===== Filtering & sorting (display-only) =====
@@ -222,7 +229,7 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
                   >
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm text-[#1E2A38] font-medium truncate  capitalize">
-                        {person.member}
+                        {showMemberName(person.member)?.name}
                       </span>
                       <span className="text-[10px] text-[#8A8275] font-mono">
                         {String(i + 1).padStart(2, "0")}
@@ -232,10 +239,25 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
                       ৳  {fmt(person.total)}
                     </p>
                     <div className="h-1.5 rounded-full bg-[#F0EBDD] overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-[#2E7D52]/70"
-                        style={{ width: `${(person.total / maxDeposit) * 100}%` }}
-                      />
+                      <div className="w-full h-2 bg-red-500 rounded-full overflow-hidden shadow-inner">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-lime-400 via-green-500 to-emerald-600 transition-all duration-700 ease-out shadow-[0_0_8px_rgba(249,115,22,0.35)]"
+                          style={{
+                            width: `${Math.min(
+                              (person.total /
+                                (showMemberName(person.member)?.room === "west"
+                                  ? 3300
+                                  : showMemberName(person.member)?.room === "east"
+                                  ? 4300
+                                  : showMemberName(person.member)?.room === "dynning"
+                                  ? 2800
+                                  : 2000)) *
+                                100,
+                              100
+                            )}%`,
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -294,7 +316,7 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
                             {String(i + 1).padStart(2, "0")}
                           </td>
                           <td className="px-2 py-3 text-[#1E2A38] font-medium capitalize">
-                            {item.name}
+                            {showMemberName(item.name)?.name}
                           </td>
                           <td className="px-2 py-3 hidden sm:table-cell">
                             <div className="flex items-center gap-2">

@@ -1,107 +1,41 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import useAuth from '../hooks/useAuth';
-import { ArrowLeft } from 'lucide-react';
+import {
+  ArrowLeft,
+  Check,
+  CheckCircle2,
+  GraduationCap,
+  HeartPulse,
+  MapPin,
+  Phone,
+  Save,
+  UserRound,
+  BookOpen,
+  CalendarDays,
+  Building2,
+  Droplets,
+  BedSingle,
+} from 'lucide-react';
 import Footer from './Footer';
 import { useNavigate } from 'react-router-dom';
-
-
-// NOTE: mount <Toaster /> once at the App root with the shared config:
-// <Toaster
-//   position="top-right"
-//   containerStyle={{ position: "fixed", top: 100, right: 20, zIndex: 9999 }}
-//   toastOptions={{
-//     className: "text-xs px-3 py-2 rounded-lg shadow-md",
-//     style: { background: "#1f2937", color: "#fff" },
-//   }}
-// />
 
 // ---------------------------------------------------------------------------
 // Reference data
 // ---------------------------------------------------------------------------
 
-const PUBLIC_UNIVERSITIES: string[] = [
-  "Other",
-
-  "Aviation and Aerospace University, Bangladesh",
-
-  "Bangladesh Agricultural University",
-  "Bangladesh Digital University",
-  "Bangladesh Maritime University",
-  "Bangladesh Medical University",
-  "Bangladesh Open University",
-  "Bangladesh University of Engineering and Technology (BUET)",
-  "Bangladesh University of Professionals",
-  "Bangladesh University of Textiles",
-  "Begum Rokeya University, Rangpur",
-  "Bogura Science and Technology University",
-
-  "Chandpur Science and Technology University",
-  "Chittagong Medical University",
-  "Chittagong University of Engineering and Technology (CUET)",
-  "Chittagong Veterinary and Animal Sciences University (CVASU)",
-  "Comilla University",
-
-  "Dhaka University",
-  "Dhaka University of Engineering and Technology (DUET)",
-
-  "Gazipur Agricultural University",
-
-  "Hajee Mohammad Danesh Science and Technology University",
-  "Habiganj Agricultural University",
-
-  "Islamic Arabic University",
-  "Islamic University, Bangladesh",
-
-  "Jagannath University",
-  "Jahangirnagar University",
-  "Jamalpur Science and Technology University",
-  "Jashore University of Science and Technology",
-  "Jatiya Kabi Kazi Nazrul Islam University",
-
-  "Khulna Agricultural University",
-  "Khulna Medical University",
-  "Khulna University",
-  "Khulna University of Engineering and Technology (KUET)",
-  "Kishoreganj University",
-  "Kurigram Agricultural University",
-
-  "Lakshmipur Science and Technology University",
-
-  "Mawlana Bhashani Science and Technology University",
-  "Meherpur University",
-
-  "Naogaon University",
-  "Narayanganj Science and Technology University",
-  "National University",
-  "Netrokona University",
-  "Noakhali Science and Technology University",
-
-  "Pabna University of Science and Technology",
-  "Patuakhali Science and Technology University",
-  "Pirojpur Science and Technology University",
-
-  "Rabindra University, Bangladesh",
-  "Rajshahi Medical University",
-  "Rajshahi University",
-  "Rajshahi University of Engineering and Technology (RUET)",
-  "Rangamati Science and Technology University",
-
-  "Shahjalal University of Science and Technology",
-  "Sher-e-Bangla Agricultural University",
-  "Sunamganj Science and Technology University",
-  "Sylhet Agricultural University",
-  "Sylhet Medical University",
-
-  "Thakurgaon University",
-
-  "University of Barishal",
-  "University of Chittagong",
-  "University of Dhaka",
-  "University of Frontier Technology, Bangladesh",
-  "University of Rajshahi",
+const LAST_DEGREES: string[] = [
+  'SSC / Dakhil',
+  'HSC / Alim',
+  'Diploma',
+  "Honours / Bachelor's",
+  "Master's",
+  'MPhil',
+  'PhD',
+  'Other',
 ];
 
 const HOME_DISTRICTS: string[] = [
@@ -171,17 +105,6 @@ const HOME_DISTRICTS: string[] = [
   'Chapainawabganj',
 ];
 
-const LAST_DEGREES: string[] = [
-  'SSC / Dakhil',
-  'HSC / Alim',
-  'Diploma',
-  "Honours / Bachelor's",
-  "Master's",
-  'MPhil',
-  'PhD',
-  'Other',
-];
-
 const BLOOD_GROUPS: string[] = [
   'A+',
   'A-',
@@ -195,53 +118,121 @@ const BLOOD_GROUPS: string[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 interface ProfileFormState {
   phone: string;
   university: string;
-  universityOther: string;
   department: string;
   session: string;
   degree: string;
   degreeOther: string;
   district: string;
   bloodGroup: string;
-  presentAddress: string;
+  room: string;
 }
 
 const initialFormState: ProfileFormState = {
   phone: '',
   university: '',
-  universityOther: '',
   department: '',
   session: '',
   degree: '',
   degreeOther: '',
   district: '',
   bloodGroup: '',
-  presentAddress: '',
+  room: ''
 };
 
-const inputClass =
-  'mt-1.5 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white';
-
-const labelClass = 'block text-sm font-medium text-slate-700';
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 const UpdateProfilePage = () => {
-  const {
-    user,
-    setUsersList,
-    usersList,
-  } = useAuth() as {
+  const { user, setUsersList, usersList } = useAuth() as {
     user: { email: string };
     setUsersList: (users: any[]) => void;
     usersList: any[];
   };
 
+
   const navigate = useNavigate();
 
-  const [form, setForm] = useState<ProfileFormState>(initialFormState);
+  const [form, setForm] =
+    useState<ProfileFormState>(initialFormState);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // -------------------------------------------------------------------------
+  // Current user
+  // -------------------------------------------------------------------------
+
+  const currentUser = usersList?.find(
+    (u) => u.email === user?.email
+  );
+
+  // -------------------------------------------------------------------------
+  // Load existing profile information
+  // -------------------------------------------------------------------------
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const existingDegree =
+      currentUser.degree ??
+      currentUser.lastDegree ??
+      '';
+
+    const degreeExistsInList =
+      LAST_DEGREES.includes(existingDegree);
+
+    setForm({
+      phone:
+        currentUser.phone ??
+        currentUser.phoneNumber ??
+        '',
+
+      university:
+        currentUser.university ??
+        currentUser.universityName ??
+        '',
+
+      department:
+        currentUser.department ??
+        '',
+
+      session:
+        currentUser.session ??
+        '',
+
+      degree: degreeExistsInList
+        ? existingDegree
+        : existingDegree
+          ? 'Other'
+          : '',
+
+      degreeOther: degreeExistsInList
+        ? ''
+        : existingDegree,
+
+      district:
+        currentUser.homeDistrict ??
+        currentUser.district ??
+        '',
+
+      bloodGroup:
+        currentUser.bloodGroup ??
+        '',
+      room:
+        currentUser.room ??
+        '',
+    });
+  }, [currentUser]);
+
+  // -------------------------------------------------------------------------
+  // Update field
+  // -------------------------------------------------------------------------
 
   const updateField = <K extends keyof ProfileFormState>(
     key: K,
@@ -253,6 +244,10 @@ const UpdateProfilePage = () => {
     }));
   };
 
+  // -------------------------------------------------------------------------
+  // Validation
+  // -------------------------------------------------------------------------
+
   const validate = (): string | null => {
     if (!user?.email) {
       return 'Unable to submit without a logged in user.';
@@ -262,12 +257,8 @@ const UpdateProfilePage = () => {
       return 'Phone number is required.';
     }
 
-    if (!form.university) {
-      return 'Please select your university.';
-    }
-
-    if (form.university === 'Other' && !form.universityOther.trim()) {
-      return 'Please enter your university name.';
+    if (!form.university.trim()) {
+      return 'University / College name is required.';
     }
 
     if (!form.department.trim()) {
@@ -282,16 +273,26 @@ const UpdateProfilePage = () => {
       return 'Please select your last educational degree.';
     }
 
-    if (form.degree === 'Other' && !form.degreeOther.trim()) {
+    if (
+      form.degree === 'Other' &&
+      !form.degreeOther.trim()
+    ) {
       return 'Please enter your last educational degree.';
     }
 
     if (!form.district) {
       return 'Please select your home district.';
     }
+    if (!form.room) {
+      return 'Please select your ROOM.';
+    }
 
     return null;
   };
+
+  // -------------------------------------------------------------------------
+  // Submit
+  // -------------------------------------------------------------------------
 
   const handleSubmit = async (
     event: React.FormEvent<HTMLFormElement>
@@ -309,38 +310,47 @@ const UpdateProfilePage = () => {
 
     const toastId = toast.loading('Saving profile...');
 
+    const finalDegree =
+      form.degree === 'Other'
+        ? form.degreeOther.trim()
+        : form.degree;
+
     const updatedProfile = {
       phone: form.phone.trim(),
 
-      university:
-        form.university === 'Other'
-          ? form.universityOther.trim()
-          : form.university,
+      university: form.university.trim(),
 
       department: form.department.trim(),
 
       session: form.session.trim(),
 
-      degree:
-        form.degree === 'Other'
-          ? form.degreeOther.trim()
-          : form.degree,
+      degree: finalDegree,
 
       homeDistrict: form.district,
 
       bloodGroup: form.bloodGroup,
+      room: form.room,
     };
 
     const body = new URLSearchParams({
       type: 'addPhoneNumber',
+
       email: user.email || '',
+
       phoneNumber: updatedProfile.phone,
+
       university: updatedProfile.university,
+
       department: updatedProfile.department,
+
       session: updatedProfile.session,
+
       degree: updatedProfile.degree,
+
       homeDistrict: updatedProfile.homeDistrict,
+
       bloodGroup: updatedProfile.bloodGroup,
+      room: updatedProfile.room,
     });
 
     try {
@@ -348,9 +358,12 @@ const UpdateProfilePage = () => {
         import.meta.env.VITE_UPDATE_MEMBER_PROFILE_API,
         {
           method: 'POST',
+
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type':
+              'application/x-www-form-urlencoded',
           },
+
           body: body.toString(),
         }
       );
@@ -360,37 +373,50 @@ const UpdateProfilePage = () => {
       }
 
       const result = await response.json();
+      console.log(result)
 
-      if (result.status === 'success') {
+      if (result === 'success') {
         toast.success(
-          result.message ?? 'Profile updated successfully.',
+          result.message ??
+            'Profile updated successfully.',
           {
             id: toastId,
           }
         );
 
         // ---------------------------------------------------------------
-        // Update the current user in usersList
+        // Update current user inside usersList
         // ---------------------------------------------------------------
 
-        const updatedUsersList = usersList.map((existingUser) => {
-          if (existingUser.email === user?.email) {
-            return {
-              ...existingUser,
-              ...updatedProfile,
-            };
-          }
+        const updatedUsersList = usersList.map(
+          (existingUser) => {
+            if (
+              existingUser.email === user?.email
+            ) {
+              return {
+                ...existingUser,
 
-          return existingUser;
-        });
+                ...updatedProfile,
+
+                phoneNumber:
+                  updatedProfile.phone,
+              };
+            }
+
+            return existingUser;
+          }
+        );
 
         setUsersList(updatedUsersList);
 
-        // Reset form after successful update
-        setForm(initialFormState);
+        // Navigate after successful update
+        setTimeout(() => {
+          navigate('/member-profile');
+        }, 500);
       } else {
         toast.error(
-          result.message ?? 'Unable to update profile.',
+          result.message ??
+            'Unable to update profile.',
           {
             id: toastId,
           }
@@ -407,319 +433,676 @@ const UpdateProfilePage = () => {
       );
     } finally {
       setIsSubmitting(false);
-      navigate('/member-profile');
     }
   };
 
+  // -------------------------------------------------------------------------
+  // UI classes
+  // -------------------------------------------------------------------------
+
+  const inputClass =
+    'peer w-full rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3.5 text-sm font-medium text-slate-800 placeholder:text-slate-400 outline-none transition-all duration-200 hover:border-slate-300 hover:bg-white focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-500/10';
+
+  const labelClass =
+    'mb-2.5 block text-sm font-semibold text-slate-700';
+
+  // -------------------------------------------------------------------------
+  // UI
+  // -------------------------------------------------------------------------
+
   return (
     <>
-      <div className="min-h-screen w-full bg-slate-50 px-0 py-8 sm:py-12 lg:px-4">
-        {/* Toast Container */}
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 px-3 py-6 sm:px-6 sm:py-10 lg:px-8">
+
+        {/* --------------------------------------------------------------- */}
+        {/* Toast */}
+        {/* --------------------------------------------------------------- */}
+
         <Toaster
           position="top-right"
           containerStyle={{
             position: 'fixed',
-            top: 100,
+            top: 90,
             right: 20,
             zIndex: 9999,
           }}
           toastOptions={{
             className:
-              'text-xs px-3 py-2 rounded-lg shadow-md',
-
-            style: {
-              background: '#1f2937',
-              color: '#fff',
-            },
-
-            success: {
-              className:
-                'bg-green-600 text-white text-xs px-3 py-2 rounded-lg shadow-md',
-
-              iconTheme: {
-                primary: '#fff',
-                secondary: '#16a34a',
-              },
-            },
-
-            error: {
-              className:
-                'bg-red-600 text-white text-xs px-3 py-2 rounded-lg shadow-md',
-
-              iconTheme: {
-                primary: '#fff',
-                secondary: '#dc2626',
-              },
-            },
-
-            loading: {
-              className:
-                'bg-indigo-600 text-white text-xs px-3 py-2 rounded-lg shadow-md',
-            },
+              'text-xs rounded-xl shadow-lg',
           }}
         />
 
-        <div className="mx-auto w-full max-w-xl rounded-xl bg-white p-4 shadow-sm sm:p-8 lg:p-8">
-          <div className="mb-4 flex items-center">
-            <span
-              className="inline-flex cursor-pointer gap-2 font-bold text-slate-500 hover:text-slate-700"
-              onClick={() => window.history.back()}
+        <div className="mx-auto w-full max-w-3xl">
+
+          {/* ============================================================= */}
+          {/* Page Header */}
+          {/* ============================================================= */}
+
+          <div className="mb-6">
+
+            <button
+              type="button"
+              onClick={() =>
+                navigate('/member-profile')
+              }
+              className="group mb-5 inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-500 transition-all duration-200 hover:bg-white hover:text-indigo-600 hover:shadow-sm"
             >
-              <ArrowLeft className="text-slate-700 transition" />
-              Back
-            </span>
+              <ArrowLeft
+                size={17}
+                className="transition-transform duration-200 group-hover:-translate-x-1"
+              />
+
+              Back to Profile
+            </button>
+
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-600 to-blue-700 p-6 shadow-xl shadow-indigo-200/50 sm:p-8">
+
+              {/* Decorative elements */}
+              <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
+
+              <div className="absolute -bottom-16 -left-10 h-44 w-44 rounded-full bg-blue-400/10" />
+
+              <div className="relative flex items-center gap-4">
+
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white shadow-inner ring-1 ring-white/20 backdrop-blur-md">
+                  <UserRound size={29} />
+                </div>
+
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-100">
+                    Member Profile
+                  </p>
+
+                  <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+                    Edit Your Profile
+                  </h1>
+
+                  <p className="mt-1.5 text-sm text-indigo-100">
+                    Update your information and keep your profile
+                    current.
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative mt-6 flex items-center gap-2 rounded-xl bg-white/10 px-4 py-3 ring-1 ring-white/10 backdrop-blur-sm">
+                <CheckCircle2
+                  size={17}
+                  className="shrink-0 text-emerald-300"
+                />
+
+                <p className="text-xs font-medium text-indigo-50">
+                  Your existing information has been loaded
+                  automatically.
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <h2 className="text-xl font-semibold text-slate-900">
-              Complete Your Profile
-            </h2>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Add a few details so other members can reach and recognize you.
-            </p>
-          </div>
+          {/* ============================================================= */}
+          {/* Form */}
+          {/* ============================================================= */}
 
           <form
             onSubmit={handleSubmit}
-            className="mt-6 space-y-8"
+            className="space-y-6"
           >
-            {/* Contact information */}
-            <section>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Contact Information
-              </h3>
 
-              <div className="mt-3">
+            {/* =========================================================== */}
+            {/* Contact Information */}
+            {/* =========================================================== */}
+
+            <section className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md">
+
+              <div className="relative border-b border-slate-100 px-5 py-5 sm:px-7">
+
+                <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-blue-500 to-indigo-500" />
+
+                <div className="flex items-center gap-3">
+
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                    <Phone size={20} />
+                  </div>
+
+                  <div>
+                    <h2 className="text-base font-bold text-slate-900">
+                      Contact Information
+                    </h2>
+
+                    <p className="mt-0.5 text-xs text-slate-400">
+                      How other members can contact you
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+
+              <div className="p-5 sm:p-7">
+
                 <label className={labelClass}>
                   Phone Number
+                  <span className="ml-1 text-rose-500">
+                    *
+                  </span>
                 </label>
 
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) =>
-                    updateField('phone', e.target.value)
-                  }
-                  maxLength={11}
-                  placeholder="Like 015XXXXXXXX"
-                  className={inputClass}
-                />
+                <div className="group relative">
+
+                  <Phone
+                    size={18}
+                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-indigo-500"
+                  />
+
+                  <input
+                    type="tel"
+                    value={form.phone}
+                    onChange={(e) =>
+                      updateField(
+                        'phone',
+                        e.target.value
+                      )
+                    }
+                    maxLength={11}
+                    placeholder="015XXXXXXXX"
+                    className={`${inputClass} pl-11 pr-11`}
+                  />
+
+                  {form.phone && (
+                    <Check
+                      size={18}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"
+                    />
+                  )}
+
+                </div>
+
+                <p className="mt-2 text-xs text-slate-400">
+                  Enter your active 11-digit mobile number.
+                </p>
+
               </div>
             </section>
 
-            {/* Academic information */}
-            <section>
-              <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* =========================================================== */}
+            {/* Academic Information */}
+            {/* =========================================================== */}
+
+            <section className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md">
+
+              <div className="relative border-b border-slate-100 px-5 py-5 sm:px-7">
+
+                <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-indigo-500 to-violet-500" />
+
+                <div className="flex items-center gap-3">
+
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100">
+                    <GraduationCap size={21} />
+                  </div>
+
+                  <div>
+                    <h2 className="text-base font-bold text-slate-900">
+                      Academic Information
+                    </h2>
+
+                    <p className="mt-0.5 text-xs text-slate-400">
+                      Your educational background
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 sm:p-7">
+
+                {/* ------------------------------------------------------- */}
+                {/* University */}
+                {/* ------------------------------------------------------- */}
+
                 <div className="sm:col-span-2">
+
                   <label className={labelClass}>
-                    University Name/ College Name
+                    University / College Name
+                    <span className="ml-1 text-rose-500">
+                      *
+                    </span>
                   </label>
 
-                  <p className="text-xs text-blue-400">
-                    If your university is not listed, select "Other"
-                    and type your university name in the input field
-                    that appears.
+                  <div className="group relative">
+
+                    <Building2
+                      size={18}
+                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-indigo-500"
+                    />
+
+                    <input
+                      type="text"
+                      value={form.university}
+                      onChange={(e) =>
+                        updateField(
+                          'university',
+                          e.target.value
+                        )
+                      }
+                      placeholder="Enter your university or college name"
+                      className={`${inputClass} pl-11 pr-11`}
+                    />
+
+                    {form.university && (
+                      <Check
+                        size={18}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500"
+                      />
+                    )}
+
+                  </div>
+
+                  <p className="mt-2 text-xs text-slate-400">
+                    Enter the full name of your university or
+                    college.
                   </p>
 
-                  <select
-                    value={form.university}
-                    onChange={(e) =>
-                      updateField('university', e.target.value)
-                    }
-                    className={inputClass}
-                  >
-                    <option value="">
-                      Select university
-                    </option>
-
-                    {PUBLIC_UNIVERSITIES.map((uni) => (
-                      <option key={uni} value={uni}>
-                        {uni}
-                      </option>
-                    ))}
-                  </select>
-
-                  {form.university === 'Other' && (
-                    <input
-                      type="text"
-                      value={form.universityOther}
-                      onChange={(e) =>
-                        updateField(
-                          'universityOther',
-                          e.target.value
-                        )
-                      }
-                      placeholder="Type your university name"
-                      className={`${inputClass} mt-2`}
-                    />
-                  )}
                 </div>
 
+                {/* ------------------------------------------------------- */}
+                {/* Department */}
+                {/* ------------------------------------------------------- */}
+
                 <div>
+
                   <label className={labelClass}>
                     Department
+                    <span className="ml-1 text-rose-500">
+                      *
+                    </span>
                   </label>
 
-                  <input
-                    type="text"
-                    value={form.department}
-                    onChange={(e) =>
-                      updateField('department', e.target.value)
-                    }
-                    placeholder="e.g. Computer Science"
-                    className={inputClass}
-                  />
-                </div>
+                  <div className="group relative">
 
-                <div>
-                  <label className={labelClass}>
-                    Session
-                  </label>
+                    <BookOpen
+                      size={18}
+                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-indigo-500"
+                    />
 
-                  <input
-                    type="text"
-                    value={form.session}
-                    onChange={(e) =>
-                      updateField('session', e.target.value)
-                    }
-                    placeholder="e.g. 2021-22"
-                    className={inputClass}
-                  />
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label className={labelClass}>
-                    Last Educational Degree
-                  </label>
-
-                  <select
-                    value={form.degree}
-                    onChange={(e) =>
-                      updateField('degree', e.target.value)
-                    }
-                    className={inputClass}
-                  >
-                    <option value="">
-                      Select degree
-                    </option>
-
-                    {LAST_DEGREES.map((degree) => (
-                      <option
-                        key={degree}
-                        value={degree}
-                      >
-                        {degree}
-                      </option>
-                    ))}
-                  </select>
-
-                  {form.degree === 'Other' && (
                     <input
                       type="text"
-                      value={form.degreeOther}
+                      value={form.department}
                       onChange={(e) =>
                         updateField(
-                          'degreeOther',
+                          'department',
                           e.target.value
                         )
                       }
-                      placeholder="Type your last educational degree"
-                      className={`${inputClass} mt-2`}
+                      placeholder="e.g. Computer Science"
+                      className={`${inputClass} pl-11`}
                     />
+
+                  </div>
+
+                </div>
+
+                {/* ------------------------------------------------------- */}
+                {/* Session */}
+                {/* ------------------------------------------------------- */}
+
+                <div>
+
+                  <label className={labelClass}>
+                    Session
+                    <span className="ml-1 text-rose-500">
+                      *
+                    </span>
+                  </label>
+
+                  <div className="group relative">
+
+                    <CalendarDays
+                      size={18}
+                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-indigo-500"
+                    />
+
+                    <input
+                      type="text"
+                      value={form.session}
+                      onChange={(e) =>
+                        updateField(
+                          'session',
+                          e.target.value
+                        )
+                      }
+                      placeholder="e.g. 2021-22"
+                      className={`${inputClass} pl-11`}
+                    />
+
+                  </div>
+
+                </div>
+
+                {/* ------------------------------------------------------- */}
+                {/* Degree */}
+                {/* ------------------------------------------------------- */}
+
+                <div className="sm:col-span-2">
+
+                  <label className={labelClass}>
+                    Last Educational Degree
+                    <span className="ml-1 text-rose-500">
+                      *
+                    </span>
+                  </label>
+
+                  <div className="group relative">
+
+                    <GraduationCap
+                      size={18}
+                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    />
+
+                    <select
+                      value={form.degree}
+                      onChange={(e) => {
+                        updateField(
+                          'degree',
+                          e.target.value
+                        );
+
+                        if (
+                          e.target.value !== 'Other'
+                        ) {
+                          updateField(
+                            'degreeOther',
+                            ''
+                          );
+                        }
+                      }}
+                      className={`${inputClass} cursor-pointer appearance-none pl-11`}
+                    >
+                      <option value="">
+                        Select your last educational degree
+                      </option>
+
+                      {LAST_DEGREES.map(
+                        (degree) => (
+                          <option
+                            key={degree}
+                            value={degree}
+                          >
+                            {degree}
+                          </option>
+                        )
+                      )}
+                    </select>
+
+                  </div>
+
+                  {form.degree === 'Other' && (
+                    <div className="mt-3">
+
+                      <input
+                        type="text"
+                        value={form.degreeOther}
+                        onChange={(e) =>
+                          updateField(
+                            'degreeOther',
+                            e.target.value
+                          )
+                        }
+                        placeholder="Enter your educational degree"
+                        className={inputClass}
+                      />
+
+                    </div>
                   )}
+
                 </div>
               </div>
             </section>
 
-            {/* Personal information */}
-            <section>
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Personal Information
-              </h3>
+            {/* =========================================================== */}
+            {/* Personal Information */}
+            {/* =========================================================== */}
 
-              <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <section className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md">
+
+              <div className="relative border-b border-slate-100 px-5 py-5 sm:px-7">
+
+                <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-rose-500 to-pink-500" />
+
+                <div className="flex items-center gap-3">
+
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-50 text-rose-500 ring-1 ring-rose-100">
+                    <HeartPulse size={20} />
+                  </div>
+
+                  <div>
+                    <h2 className="text-base font-bold text-slate-900">
+                      Personal Information
+                    </h2>
+
+                    <p className="mt-0.5 text-xs text-slate-400">
+                      Additional information about you
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 sm:p-7">
+
+                {/* ------------------------------------------------------- */}
+                {/* District */}
+                {/* ------------------------------------------------------- */}
+
                 <div>
+
                   <label className={labelClass}>
                     Home District
+                    <span className="ml-1 text-rose-500">
+                      *
+                    </span>
                   </label>
 
-                  <select
-                    value={form.district}
-                    onChange={(e) =>
-                      updateField('district', e.target.value)
-                    }
-                    className={inputClass}
-                  >
-                    <option value="">
-                      Select district
-                    </option>
+                  <div className="group relative">
 
-                    {HOME_DISTRICTS.map((district) => (
-                      <option
-                        key={district}
-                        value={district}
-                      >
-                        {district}
-                      </option>
-                    ))}
-                  </select>
+                    <MapPin
+                      size={18}
+                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-indigo-500"
+                    />
+
+                    <input
+                      type="text"
+                      list="districtList"
+                      value={form.district}
+                      onChange={(e) =>
+                        updateField(
+                          'district',
+                          e.target.value
+                        )
+                      }
+                      placeholder="Type or select district"
+                      className={`${inputClass} pl-11`}
+                    />
+
+                  </div>
+
+                  <datalist id="districtList">
+                    {HOME_DISTRICTS.map(
+                      (district) => (
+                        <option
+                          key={district}
+                          value={district}
+                        />
+                      )
+                    )}
+                  </datalist>
+
                 </div>
 
+                {/* ------------------------------------------------------- */}
+                {/* Blood Group */}
+                {/* ------------------------------------------------------- */}
+
                 <div>
+
                   <label className={labelClass}>
-                    Blood Group{' '}
-                    <span className="font-normal text-slate-400">
+                    Blood Group
+                    <span className="ml-1 font-normal text-slate-400">
                       (optional)
                     </span>
                   </label>
 
-                  <select
-                    value={form.bloodGroup}
-                    onChange={(e) =>
-                      updateField(
-                        'bloodGroup',
-                        e.target.value
-                      )
-                    }
-                    className={inputClass}
-                  >
-                    <option value="">
-                      Select blood group
-                    </option>
+                  <div className="group relative">
 
-                    {BLOOD_GROUPS.map((group) => (
-                      <option
-                        key={group}
-                        value={group}
-                      >
-                        {group}
+                    <Droplets
+                      size={18}
+                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-rose-500"
+                    />
+
+                    <select
+                      value={form.bloodGroup}
+                      onChange={(e) =>
+                        updateField(
+                          'bloodGroup',
+                          e.target.value
+                        )
+                      }
+                      className={`${inputClass} cursor-pointer appearance-none pl-11`}
+                    >
+                      <option value="">
+                        Select blood group
                       </option>
-                    ))}
-                  </select>
+
+                      {BLOOD_GROUPS.map(
+                        (group) => (
+                          <option
+                            key={group}
+                            value={group}
+                          >
+                            {group}
+                          </option>
+                        )
+                      )}
+                    </select>
+
+                  </div>
+
                 </div>
+
+                <div>
+
+                  <label className={labelClass}>
+                    Select Room
+                  </label>
+
+                  <div className="group relative">
+
+                    <BedSingle
+                      size={18}
+                      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-rose-500"
+                    />
+
+                    <select
+                      value={form.room}
+                      onChange={(e) =>
+                        updateField(
+                          'room',
+                          e.target.value
+                        )
+                      }
+                      required
+                      className={`${inputClass} cursor-pointer appearance-none pl-11 capitalize`}
+                    >
+                      <option value="">
+                        Select room
+                      </option>
+
+                      {['west: If you pay ৳ 2100','east: If you pay ৳ 3100', 'dynning: If you pay ৳ 1600'].map(
+                        (group) => (
+                          <option
+                            key={group}
+                            value={group.split(":")[0]}
+                          >
+                            {group}
+                          </option>
+                        )
+                      )}
+                    </select>
+
+                  </div>
+
+                </div>
+
               </div>
             </section>
 
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="inline-flex w-full justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isSubmitting
-                  ? 'Saving...'
-                  : 'Save Profile'}
-              </button>
+            {/* =========================================================== */}
+            {/* Save Card */}
+            {/* =========================================================== */}
+
+            <div className="relative overflow-hidden rounded-3xl border border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-blue-50 p-5 shadow-sm sm:p-7">
+
+              <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-indigo-100/50" />
+
+              <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+
+                <div>
+
+                  <div className="flex items-center gap-2">
+
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                      <CheckCircle2 size={18} />
+                    </div>
+
+                    <h3 className="text-sm font-bold text-slate-900">
+                      Profile ready to update
+                    </h3>
+
+                  </div>
+
+                  <p className="mt-2 max-w-md text-xs leading-5 text-slate-500">
+                    Review your information before saving
+                    your profile changes.
+                  </p>
+
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all duration-200 hover:-translate-y-0.5 hover:from-indigo-700 hover:to-blue-700 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-indigo-200 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 sm:w-auto"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save
+                        size={17}
+                        className="transition-transform duration-200 group-hover:scale-110"
+                      />
+                      Save Changes
+                    </>
+                  )}
+                </button>
+
+              </div>
             </div>
+
           </form>
 
-          <div className="mt-6 text-xs text-slate-500">
-            <p>
-              Your information will be kept private and will not
-              be shared with non-member users.
+          {/* ============================================================= */}
+          {/* Privacy */}
+          {/* ============================================================= */}
+
+          <div className="px-3 py-6 text-center">
+
+            <p className="text-xs leading-5 text-slate-400">
+              Your profile information is private and will
+              only be available to authorized members.
             </p>
+
           </div>
+
         </div>
       </div>
 
@@ -729,4 +1112,3 @@ const UpdateProfilePage = () => {
 };
 
 export default UpdateProfilePage;
-

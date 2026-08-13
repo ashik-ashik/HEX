@@ -4,19 +4,15 @@ import { User, Wallet } from "lucide-react";
 // import Header from "./Header";
 // import DataEntryWarning from "./DataEntryWarning";
 import useAuth from "../hooks/useAuth";
+import type { UsersList } from "../services/DataTypes";
 
-interface AuthContextType {
-  userRole: string | null;
-}
-interface MemberNameList {
-  memberNameList: string[];
-}
 
-const EntryMealDeposit: React.FC<MemberNameList> = ({ memberNameList }) => {
+
+const EntryMealDeposit = () => {
   const [member, setMember] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
   const [loadingOnSubmit, setLoadingOnSubmit] = useState(false);
-  const { userRole } = useAuth() as AuthContextType;
+  const { userRole, houseMembers } = useAuth() as {userRole: string, houseMembers: UsersList};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,9 +129,9 @@ const EntryMealDeposit: React.FC<MemberNameList> = ({ memberNameList }) => {
                   onChange={(e) => setMember(e.target.value)}
                 >
                   <option value="">সদস্য নির্বাচন করুন</option>
-                  {memberNameList.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
+                  {houseMembers.map((m) => (
+                    <option key={m?.email} value={m?.email?.split("@")[0]}>
+                      {m.name}
                     </option>
                   ))}
                 </select>

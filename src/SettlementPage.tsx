@@ -48,6 +48,7 @@ type User = {
   phoneNumber: string;
   provider: string;
   lastLoginAt: string;
+  room: string;
 };
 
 type AuthContextType = {
@@ -73,6 +74,10 @@ const SettlementPage: React.FC<Props> = ({
 
   const { usersList } = useAuth() as AuthContextType;
   const FindManager = usersList?.find((u) => u?.role?.toLowerCase() === "manager");
+
+  const showMemberName = (uid: string) => {
+    return usersList.find(hm => hm.email.split('@')[0] === uid)
+  }
 
   useEffect(() => {
     const savedFixedMeal =
@@ -122,7 +127,8 @@ const SettlementPage: React.FC<Props> = ({
 
 
   const mealMap = Object.fromEntries(adjustedMeals.map((m) => [m.name, m]));
-  const settlements = members.map((member) => {
+  const settlements = members
+  .filter((member) => member.name !== "trackingID")?.map((member) => {
     const meals = mealMap[member.name]?.total || 0;
     const mealCost = meals * mealRate;
     const balance = member.total - mealCost;
@@ -248,7 +254,6 @@ const SettlementPage: React.FC<Props> = ({
   // utility
   // Utility derived stats
   const utilityTotal = utilityDeposits.reduce((sum, u) => sum + u.total, 0);
-  const utilityMax = Math.max(...utilityDeposits.map((u) => u.total), 0);
   const utilityAvg = utilityDeposits.length > 0 ? utilityTotal / utilityDeposits.length : 0;
   const sortedUtility = [...utilityDeposits].sort((a, b) => b.total - a.total);
   const topContributor = sortedUtility[0];
@@ -531,7 +536,7 @@ const SettlementPage: React.FC<Props> = ({
                     )}
 
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-slate-100 truncate">{m.name}</p>
+                      <p className="text-xs font-bold text-slate-100 truncate uppercase">{showMemberName(m.name)?.name}</p>
                       <span className={`inline-block mt-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full
                         ${isDue
                           ? "bg-red-950/60 text-red-400"
@@ -602,7 +607,6 @@ const SettlementPage: React.FC<Props> = ({
   ) : (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {sortedUtility.map((u, idx) => {
-        const pct = utilityMax > 0 ? (u.total / utilityMax) * 100 : 0;
         const isTop = u.member === topContributor?.member && u.total > 0;
 
         return (
@@ -626,7 +630,7 @@ const SettlementPage: React.FC<Props> = ({
                 >
                   <path d="M13 2 3 14h7l-1 8 11-14h-7l1-6z" />
                 </svg>
-                <p className="text-sm text-slate-200 truncate">{u.member}</p>
+                <p className="text-sm text-slate-200 truncate uppercase">{showMemberName(u.member)?.name}</p>
               </div>
               {isTop && (
                 <span className="text-[9px] font-semibold uppercase tracking-wide text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded flex-shrink-0">
@@ -641,14 +645,34 @@ const SettlementPage: React.FC<Props> = ({
             </p>
 
             {/* Relative bar */}
-            <div className="h-1.5 rounded-full bg-slate-700/60 overflow-hidden">
+            {/* <label for="progress">Progress:</label> */}
+            <div className="w-full h-2 bg-gray-200/70 rounded-full overflow-hidden shadow-inner">
+  <div
+    className="h-full rounded-full bg-gradient-to-r from-lime-400 via-green-500 to-emerald-600 transition-all duration-700 ease-out shadow-[0_0_8px_rgba(249,115,22,0.35)]"
+    style={{
+      width: `${Math.min(
+        (u.total /
+          (showMemberName(u.member)?.room === "west"
+            ? 3300
+            : showMemberName(u.member)?.room === "east"
+            ? 4300
+            : showMemberName(u.member)?.room === "dynning"
+            ? 2800
+            : 2000)) *
+          100,
+        100
+      )}%`,
+    }}
+  />
+</div>
+            {/* <div className="h-1.5 rounded-full bg-slate-700/60 overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
                   isTop ? "bg-amber-400" : "bg-teal-400/70"
                 }`}
                 style={{ width: `${pct}%` }}
               />
-            </div>
+            </div> */}
           </div>
         );
       })}

@@ -132,10 +132,10 @@ const OverviewHexa: React.FC<HomeProps> = ({
 }) => {
 
   const [memberQuery, setMemberQuery] = useState("");
-  const { usersList, userRole, houseMenbers } = useAuth() as {
+  const { usersList, userRole, houseMembers } = useAuth() as {
     usersList: UserItem[];
     userRole: string;
-    houseMenbers: { name: string; role: string; photoURL?: string; email?: string; phoneNumber?: string; lastLoginAt: string; }[];
+    houseMembers: { name: string; role: string; photoURL?: string; email?: string; phoneNumber?: string; lastLoginAt: string; }[];
   };
 
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
@@ -299,13 +299,13 @@ const OverviewHexa: React.FC<HomeProps> = ({
   // ===== NEW: Team search/filter =====
   const filteredMembers = useMemo(() => {
     const q = memberQuery.trim().toLowerCase();
-    if (!q) return houseMenbers;
-    return houseMenbers.filter(
+    if (!q) return houseMembers;
+    return houseMembers.filter(
       (p) =>
         p.name?.toLowerCase().includes(q) ||
         p.role?.toLowerCase().includes(q)
     );
-  }, [houseMenbers, memberQuery]);
+  }, [houseMembers, memberQuery]);
 
   const isSearching = memberQuery.trim().length > 0;
 
@@ -806,7 +806,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
                           <div className="bg-white/80 p-4 rounded-xl hover:shadow-md hover:border-teal-200 transition text-center border border-slate-200">
                             
                               <img
-                                src={houseMenbers[index]?.photoURL}
+                                src={houseMembers[index]?.photoURL}
                                 alt={person?.name}
                                 className="w-16 h-16 rounded-full object-cover mx-auto mb-3 ring-2 ring-teal-100 uppercase"
                               />

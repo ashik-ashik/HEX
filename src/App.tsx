@@ -37,6 +37,8 @@ import UpdateProfilePopUp from './Compo/UpdateProfilePopUp';
 import AllMembers from './Compo/AllMembers';
 import EditUtilityDeposit from './Compo/EditUtilityDeposit';
 import EditUtilityCosts from './Compo/EditUtilityCosts';
+import HexaHouseLoader from './Compo/HexaHouseLoader';
+import useAppData from './hooks/useAppData';
 
 
 
@@ -78,7 +80,7 @@ interface Notice {
 interface AuthContextType {
   userIsLoading: boolean;
   userRole: string;
-  houseMenbers: { name: string; role: string; email: string; phoneNumber: string }[];
+  houseMembers: { name: string; role: string; email: string; phoneNumber: string }[];
   user: { name: string; email: string; role: string; phoneNumber: string };
 }
 // ==============================================
@@ -97,12 +99,14 @@ function App() {
   const [managerStatus, setManagerStatus] = useState<boolean>(false);
     const {
     userIsLoading,
-    houseMenbers,
+    houseMembers,
     userRole,
     user
   } = useAuth() as AuthContextType;
 
-  const currentMember = houseMenbers.find(member => member.email === user.email);
+  const {hexaDataLoader} = useAppData() as {hexaDataLoader: boolean};
+
+  const currentMember = houseMembers.find(member => member.email === user.email);
 
   if (currentMember?.phoneNumber === "" || !currentMember?.phoneNumber) {
     <UpdateProfilePopUp />
@@ -315,31 +319,17 @@ type UtilityDeposit = {
     fetchData();
   }, []);
 
-  const memberNameList = houseMenbers.map(member => member.name);
+  const memberNameList = houseMembers.map(member => member.name);
 
 
- if(userIsLoading){
+ if(userIsLoading ){
     return <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
-        <div className="flex flex-col items-center justify-center space-y-5">
-          {/* Spinner */}
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-blue-100 rounded-full"></div>
-            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
-          </div>
-
-          {/* Brand Title */}
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-800">
-              Hexa Haven
-            </h2>
-
-            <p className="text-sm text-gray-500 mt-1">
-              Loading your dashboard...
-            </p>
-          </div>
-        </div>
-      </div>
+      <HexaHouseLoader />
+    </>
+  }
+ if(hexaDataLoader){
+    return <>
+      <HexaHouseLoader />
     </>
   }
   // ======================================================
@@ -380,8 +370,6 @@ type UtilityDeposit = {
               <PrivateRoute>
                 <Dashboard
                 members={members}
-                bazarData={bazarData}
-                mealData={mealData}
                 mealDates={mealDates}
                 grandTotalMeals={grandTotalMeals}
                 grandDeposit={grandDeposit}
@@ -419,17 +407,17 @@ type UtilityDeposit = {
           /></AdminRoute>} />
           <Route path="/manager" element={<AdminRoute><ManagerDashboard memberNameList={memberNameList} managerStatus={managerStatus} /></AdminRoute>}>
             <Route path="bazar-cost" element={<AdminRoute><EntryBazarCosts memberNameList={memberNameList} /></AdminRoute>} />
-            <Route path="meal-entry" element={<AdminRoute><MealCountEntry memberNameList={memberNameList}  /></AdminRoute>} />
-            <Route path="meal-deposit-entry" element={<AdminRoute><EntryMealDeposit memberNameList={memberNameList}  /></AdminRoute>} />
+            <Route path="meal-entry" element={<AdminRoute><MealCountEntry /></AdminRoute>} />
+            <Route path="meal-deposit-entry" element={<AdminRoute><EntryMealDeposit /></AdminRoute>} />
             <Route path="utility-costs-entry" element={<AdminRoute><UtilityCostEntry /></AdminRoute>} />
-            <Route path="utility-deposit-entry" element={<AdminRoute><EntryUtilityDeposit memberNameList={memberNameList} /></AdminRoute>} />
+            <Route path="utility-deposit-entry" element={<AdminRoute><EntryUtilityDeposit /></AdminRoute>} />
             <Route path="imanager" element={<LoginAsManager managerStatus={managerStatus} />} />
             <Route path="add-member" element={<AdminRoute><AddPersonnel /></AdminRoute>} />
             <Route path="next-manager" element={<AdminRoute><ChangeManager  /></AdminRoute>} />
             <Route path="setfixedmeal" element={<AdminRoute><SetFixedMeal  /></AdminRoute>} />
             <Route path="resetmonth" element={<AdminRoute><ResetMonth  /></AdminRoute>} />
             <Route path="edit-meal-deposit" element={<AdminRoute><EditMealDeposit /></AdminRoute>} />
-            <Route path="edit-bazar-cost" element={<AdminRoute><EditLastBazarCost memberNameList={memberNameList} /></AdminRoute>} />
+            <Route path="edit-bazar-cost" element={<AdminRoute><EditLastBazarCost /></AdminRoute>} />
             <Route path="edit-utility-deposit" element={<AdminRoute><EditUtilityDeposit /></AdminRoute>} />
             <Route path="edit-utility-costs" element={<AdminRoute><EditUtilityCosts /></AdminRoute>} />
           </Route>

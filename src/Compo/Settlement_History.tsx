@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import { ChevronDown, FileText, Home } from "lucide-react";
 import { Link } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+import type { UsersList } from "../services/DataTypes";
 
 interface MemberSettlement {
   name: string;
@@ -119,31 +121,61 @@ const HistoryHeader: React.FC<{
   onSelectMonth: (idx: number) => void;
 }> = ({ history, onSelectMonth }) => {
   const [open, setOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const monthLabel = (h: MonthHistory) => h?.month.replace(/,+$/g, "")?.trim().split("|")[0]?.trim();
+  // Keep selected index valid when history changes
+  useEffect(() => {
+    const setHistorySelectecIndexForHeader = () => {
+      if (history.length > 0 && selectedIndex >= history.length) {
+      setSelectedIndex(0);
+    }
+    }
+    setHistorySelectecIndexForHeader();
+  }, [history, selectedIndex]);
+
+  const monthLabel = (h: MonthHistory) =>
+    h?.month.replace(/,+$/g, "")?.trim().split("|")[0]?.trim();
+
+  const handleMonthSelect = (idx: number) => {
+    setSelectedIndex(idx);
+    onSelectMonth(idx);
+    setOpen(false);
+  };
 
   return (
     <header
       className="fixed top-0 left-0 w-full h-16 z-[50] flex items-center justify-between px-4 lg:px-8"
-      style={{ background: "var(--paper, #FBF7EE)", borderBottom: "1px solid var(--rule, #D8CDB4)" }}
+      style={{
+        background: "var(--paper, #FBF7EE)",
+        borderBottom: "1px solid var(--rule, #D8CDB4)",
+      }}
     >
       <Link
         to="/"
         className="flex items-center gap-2 text-sm font-semibold transition-opacity hover:opacity-70"
         style={{ color: "var(--ink, #2A2118)" }}
       >
-        <Home className="w-4 h-4" style={{ color: "var(--amber, #C2772E)" }} />
+        <Home
+          className="w-4 h-4"
+          style={{ color: "var(--amber, #C2772E)" }}
+        />
         Home
       </Link>
 
@@ -158,33 +190,64 @@ const HistoryHeader: React.FC<{
         <button
           onClick={() => setOpen((prev) => !prev)}
           className="flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-full transition-colors hover:opacity-80"
-          style={{ background: "var(--paper-line, #F2EAD8)", color: "var(--ink, #2A2118)" }}
+          style={{
+            background: "var(--paper-line, #F2EAD8)",
+            color: "var(--ink, #2A2118)",
+          }}
         >
-          {history.length > 0 ? monthLabel(history[0]) : "Months"}
-          <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+          {history.length > 0
+            ? monthLabel(history[selectedIndex] ?? history[0])
+            : "Months"}
+
+          <ChevronDown
+            className={`w-4 h-4 transition-transform duration-200 ${
+              open ? "rotate-180" : ""
+            }`}
+          />
         </button>
 
         {open && (
           <div
             className="absolute right-0 mt-2 w-56 max-h-72 overflow-y-auto rounded-lg shadow-lg py-1 z-[60]"
-            style={{ background: "var(--paper, #FBF7EE)", border: "1px solid var(--rule, #D8CDB4)" }}
+            style={{
+              background: "var(--paper, #FBF7EE)",
+              border: "1px solid var(--rule, #D8CDB4)",
+            }}
           >
             {history.length === 0 && (
-              <p className="px-4 py-2 text-xs" style={{ color: "var(--ink-soft, #6B5D4F)" }}>
+              <p
+                className="px-4 py-2 text-xs"
+                style={{ color: "var(--ink-soft, #6B5D4F)" }}
+              >
                 No months yet
               </p>
             )}
+
             {history.map((h, idx) => (
               <button
                 key={idx}
-                onClick={() => {
-                  onSelectMonth(idx);
-                  setOpen(false);
+                onClick={() => handleMonthSelect(idx)}
+                className={`w-full text-left text-sm px-4 py-2 transition-colors hover:opacity-80 ${
+                  selectedIndex === idx ? "font-semibold" : ""
+                }`}
+                style={{
+                  color: "var(--ink, #2A2118)",
+                  background:
+                    selectedIndex === idx
+                      ? "var(--paper-line, #F2EAD8)"
+                      : "transparent",
                 }}
-                className="w-full text-left text-sm px-4 py-2 transition-colors hover:opacity-80"
-                style={{ color: "var(--ink, #2A2118)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--paper-line, #F2EAD8)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                onMouseEnter={(e) => {
+                  if (selectedIndex !== idx) {
+                    e.currentTarget.style.background =
+                      "var(--paper-line, #F2EAD8)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedIndex !== idx) {
+                    e.currentTarget.style.background = "transparent";
+                  }
+                }}
               >
                 {monthLabel(h)}
               </button>
@@ -201,6 +264,11 @@ const History: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showReport, setShowReport] = useState(false);
+  const {houseMembers} = useAuth() as {houseMembers: UsersList}
+
+  const showMemberName = (uid: string) => {
+    return houseMembers.find(hm => hm.email.split('@')[0] === uid)
+  }
 
   const history_sheet_reader = import.meta.env.VITE_HISTORY_SHEET_READER;
 
@@ -611,7 +679,7 @@ const History: React.FC = () => {
                   <div className="leader-row p-3 rounded border" style={{ borderColor: "var(--rule)" }}>
                     <div>
                       <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: "var(--ink-soft)" }}>Most Meals</p>
-                      <p className="text-sm font-medium">{topMealConsumer.name}</p>
+                      <p className="text-sm font-medium capitalize">{showMemberName(topMealConsumer.name)?.name}</p>
                     </div>
                     <div className="leader-dots" />
                     <span className="ledger-figure text-sm" style={{ color: "var(--teal)" }}>{topMealConsumer.meals}</span>
@@ -621,7 +689,7 @@ const History: React.FC = () => {
                   <div className="leader-row p-3 rounded border" style={{ borderColor: "var(--rule)" }}>
                     <div>
                       <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: "var(--ink-soft)" }}>Highest Surplus</p>
-                      <p className="text-sm font-medium">{topReceiver.name}</p>
+                      <p className="text-sm font-medium capitalize">{showMemberName(topReceiver.name)?.name}</p>
                     </div>
                     <div className="leader-dots" />
                     <span className="ledger-figure text-sm" style={{ color: "var(--surplus)" }}>+৳ {topReceiver.balance.toFixed(2)}</span>
@@ -631,7 +699,7 @@ const History: React.FC = () => {
                   <div className="leader-row p-3 rounded border" style={{ borderColor: "var(--rule)" }}>
                     <div>
                       <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: "var(--ink-soft)" }}>Largest Due</p>
-                      <p className="text-sm font-medium">{topPayer.name}</p>
+                      <p className="text-sm font-medium capitalize">{showMemberName(topPayer.name)?.name}</p>
                     </div>
                     <div className="leader-dots" />
                     <span className="ledger-figure text-sm" style={{ color: "var(--due)" }}>৳ {topPayer.balance.toFixed(2)}</span>
@@ -699,9 +767,9 @@ const History: React.FC = () => {
                       )}
                       {topReceiver && topPayer && (
                         <>
-                          <span className="font-semibold">{topReceiver.name}</span> came out on top with the
+                          <span className="font-semibold capitalize">{showMemberName(topReceiver.name)?.name}</span> came out on top with the
                           biggest surplus this month, while{" "}
-                          <span className="font-semibold">{topPayer.name}</span> is left carrying the largest due.
+                          <span className="font-semibold capitalize">{showMemberName(topPayer.name)?.name}</span> is left carrying the largest due.
                         </>
                       )}
                     </p>
@@ -745,7 +813,7 @@ const History: React.FC = () => {
                     })}
                   </p>
                 </div>
-                <h4 className="text-sm font-medium" style={{ color: "var(--teal)" }}>
+                <h4 className="text-sm font-medium uppercase" style={{ color: "var(--teal)" }}>
                   Managed by: {h?.month?.replace(/,+$/g, "")?.split("|")[2] || "Not Assigned"}
                 </h4>
               </div>
@@ -817,7 +885,7 @@ const History: React.FC = () => {
                             .filter((m) => m.name && m.name.trim() !== "")
                             .map((m, i) => (
                               <tr key={i} className="ledger-row-stripe" style={{ borderBottom: "1px dotted var(--rule)" }}>
-                                <td className="px-2 py-2 font-medium">{m.name}</td>
+                                <td className="px-2 py-2 font-medium capiralize">{showMemberName(m.name)?.name}</td>
                                 <td className="px-2 py-2 ledger-figure" style={{ color: m.utility < 0 ? "var(--due)" : "var(--surplus)" }}>৳ {m.utility}</td>
                                 <td className="px-2 py-2 ledger-figure">৳ {m.deposit}</td>
                                 <td className="px-2 py-2 ledger-figure">{m.meals}</td>
@@ -837,7 +905,7 @@ const History: React.FC = () => {
                         .map((m, i) => (
                           <div key={i} className="ledger-member-card p-3">
                             <div className="flex items-center justify-between mb-3">
-                              <span className="font-semibold text-sm">{m.name}</span>
+                              <span className="font-semibold text-sm">{showMemberName(m.name)?.name}</span>
                               <StampBadge balance={m.balance} status={m.status} />
                             </div>
 

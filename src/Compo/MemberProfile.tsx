@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Footer from './Footer'
+import useAppData from '../hooks/useAppData'
 // import AddPhoneNumberPop from './UpdateMemberProfile'
 
 type AnyObj = { [k: string]: any }
@@ -87,7 +88,24 @@ const MemberProfile: React.FC<Props> = ({
   totalBazar = 0,
   utilityDeposits = [],
 }) => {
-  const { user, usersList, logout } = useAuth() as { user?: AnyObj; usersList: AnyObj[]; logout: () => void | Promise<void> }
+  const { user, houseMembers, logout } = useAuth() as { user?: AnyObj; houseMembers: AnyObj[]; logout: () => void | Promise<void> }
+
+  const showMemberName = (uid: string) => {
+    return houseMembers.find(hm => hm.email.split('@')[0] === uid)
+  }
+
+const { individualMealTotals } = useAppData() as {
+  individualMealTotals: {
+    name: string;
+    userID: string;
+    totalmeal: number;
+  }[];
+};
+
+const myTotalMeal =
+  individualMealTotals?.find(
+    (inMT) => inMT.userID === user?.email?.split("@")[0]
+  )?.totalmeal ?? 0;
 
   const [confirmingLogout, setConfirmingLogout] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
@@ -129,7 +147,7 @@ const MemberProfile: React.FC<Props> = ({
   // find current member by name or email
   const current = members.find((m) => {
     if (!user) return false
-    if (m.name && user.displayName) return String(m.name) === String(user.displayName)
+    if (m.name && user.email?.split("@")[0]) return String(m.name) === String(user.email?.split("@")[0])
     if (m.email && user.email) return String(m.email).toLowerCase() === String(user.email).toLowerCase()
     return false
   })
@@ -142,7 +160,7 @@ const MemberProfile: React.FC<Props> = ({
     )
   }
 
-  const memberId = user?.displayName ?? current.name
+  const memberId = user?.email?.split("@")[0] ?? current.name
 
   const memberMeals = mealData.find((m) => m.name === memberId)
   const mealCount = Number(memberMeals?.total) || 0
@@ -164,7 +182,7 @@ const MemberProfile: React.FC<Props> = ({
   const depositUsedPct = mealDeposit > 0 ? Math.min(100, (mealCost / mealDeposit) * 100) : mealCost > 0 ? 100 : 0
 
   const initial = (current.name || current.email || 'U').charAt(0).toUpperCase()
-  const currentUser = usersList.find((u) => u.email?.toLowerCase() === user?.email?.toLowerCase()) || current
+  const currentUser = houseMembers.find((u) => u.email?.toLowerCase() === user?.email?.toLowerCase()) || current
 
 
   // A member is "active" as long as no leaveDate has been recorded.
@@ -275,7 +293,7 @@ const MemberProfile: React.FC<Props> = ({
 
               {/* Identity block — centered */}
               <div className="flex flex-col items-center px-5 pb-4 pt-3 text-center">
-                <h2 className="truncate font-serif text-xl font-semibold text-stone-900">{current?.name}</h2>
+                <h2 className="truncate font-serif text-lg font-semibold text-stone-900 uppercase">{showMemberName(current?.name)?.name}</h2>
 
                 <div className="mt-1.5 flex flex-wrap items-center justify-center gap-1.5">
                   {currentUser?.role && (
@@ -423,10 +441,10 @@ const MemberProfile: React.FC<Props> = ({
 
                 {/* Ledger */}
                 <div className="mt-5 p-2">
-                  <LedgerRow label="Meals taken" value={mealCount.toString()} />
+                  <LedgerRow label="Meals taken" value={String(myTotalMeal)} />
                   <LedgerRow label="Meal rate" value={`৳ ${currency(mealRate)}`} hint="per meal" />
                   <LedgerRow label="Meal deposit" value={`৳ ${currency(mealDeposit)}`} />
-                  <LedgerRow label="My meal cost" value={`৳ ${currency(mealCost)}`} />
+                  <LedgerRow label="My meal cost" value={`৳ ${currency(myTotalMeal * mealRate)}`} />
                   <LedgerRow label="Utility deposit" value={`৳ ${currency(utilityDeposit)}`} />
                   <LedgerRow label="Bazar spent" value={`৳ ${currency(memberBazar)}`} />
                 </div>
@@ -434,7 +452,7 @@ const MemberProfile: React.FC<Props> = ({
                 {/* Mess-wide footer */}
                 <div className="mt-5 flex justify-between gap-3 rounded-sm bg-stone-100 px-4 py-3 text-center">
                   <div className="flex-1">
-                    <div className="font-mono text-sm font-semibold text-stone-800">{members.length}</div>
+                    <div className="font-mono text-sm font-semibold text-stone-800">{houseMembers.length}</div>
                     <div className="text-[10px] uppercase tracking-wide text-stone-500">Members</div>
                   </div>
                   <div className="flex-1 border-x border-stone-200">

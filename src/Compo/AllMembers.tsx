@@ -103,7 +103,7 @@ const Avatar = ({
 
     return (
         <div
-            className={`${dims} rounded-full bg-gradient-to-br ${roleMeta.accent} text-white font-semibold flex items-center justify-center ring-4 ring-white shadow-lg shrink-0`}
+            className={`${dims} rounded-full bg-gradient-to-br ${roleMeta.accent} text-white font-semibold flex items-center justify-center ring-4 ring-white shadow-lg shrink-0 capitalize`}
         >
             {getInitials(user.name)}
         </div>
@@ -239,7 +239,7 @@ const MemberDetailsModal = ({
                         </h3>
                         <div>
                             <InfoRow icon={Mail} label="Email" value={user.email} />
-                            <InfoRow icon={Phone} label="Phone Number" value={user.phoneNumber ? 0 + user.phoneNumber : user.phoneNumber} />
+                            <InfoRow icon={Phone} label="Phone Number" value={user.phoneNumber ? 0 + user.phoneNumber : '-'} />
                             <InfoRow icon={MapPin} label="Home District" value={user.homeDistrict} />
                         </div>
                     </section>
@@ -311,7 +311,7 @@ const MemberCard = ({
                         />
                     </div>
                     <div className="min-w-0 flex-1">
-                        <h2 className="text-sm font-semibold text-gray-800 truncate">{user.name}</h2>
+                        <h2 className="text-sm font-semibold text-gray-800 truncate capitalize">{user.name}</h2>
                         <span
                             className={`inline-block capitalize mt-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${roleMeta.badge}`}
                         >
@@ -332,7 +332,7 @@ const MemberCard = ({
                         </p>
                     </div>
                     <CardStat icon={MapPin} label="District" value={user.homeDistrict} />
-                    <CardStat icon={Phone} label="Phone" value={user.phoneNumber} />
+                    <CardStat icon={Phone} label="Phone" value={user.phoneNumber ? 0 + user.phoneNumber : "-"} />
                 </div>
 
                 <button

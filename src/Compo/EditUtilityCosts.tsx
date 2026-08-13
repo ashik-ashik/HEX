@@ -243,7 +243,7 @@ const EditUtilityCosts = () => {
     if (
       newAmount === "" ||
       isNaN(Number(newAmount)) ||
-      Number(newAmount) <= 0
+      Number(newAmount) < 0
     ) {
       toast.error(
         "সঠিক নতুন খরচের পরিমাণ দিন"
@@ -490,7 +490,7 @@ const EditUtilityCosts = () => {
 
             <input
               type="number"
-              min="1"
+              min="0"
               step="any"
               value={newAmount}
               onChange={(e) =>

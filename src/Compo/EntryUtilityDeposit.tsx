@@ -4,19 +4,17 @@ import toast, { Toaster } from "react-hot-toast";
 // import Header from "./Header";
 // import DataEntryWarning from "./DataEntryWarning";
 import useAuth from "../hooks/useAuth";
+import type { UsersList } from "../services/DataTypes";
 
 
-interface AuthContextType {
-  userRole: string | null;
-}
-interface MemberNameList{memberNameList:string[]}
 
 
-const EntryUtilityDeposit: React.FC< MemberNameList> = ({ memberNameList}) => {
+
+const EntryUtilityDeposit = () => {
   const [member, setMember] = useState("");
   const [amount, setAmount] = useState("");
   const [loadingOnSubmit, setLoadingOnSubmit] = useState(false);
-    const {userRole} = useAuth() as AuthContextType;
+    const {userRole, houseMembers} = useAuth() as {userRole:string, houseMembers: UsersList};
   
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -129,9 +127,9 @@ const EntryUtilityDeposit: React.FC< MemberNameList> = ({ memberNameList}) => {
                 >
                   <option value="">সদস্য নির্বাচন করুন</option>
 
-                  {memberNameList.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
+                  {houseMembers.map((m) => (
+                    <option key={m.email} value={m?.email?.split('@')[0]}>
+                      {m?.name}
                     </option>
                   ))}
                 </select>

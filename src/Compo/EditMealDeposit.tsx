@@ -14,6 +14,8 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
+import useAuth from "../hooks/useAuth";
+import type { UsersList } from "../services/DataTypes";
 
 interface DepositEntry {
   trackingID: string;
@@ -32,6 +34,11 @@ const EditMealDeposit = () => {
     member: "",
     amount: "",
   });
+
+  const {houseMembers} = useAuth() as {houseMembers: UsersList}
+  const showMemberName = (uid: string) => {
+    return houseMembers.find(hm => hm.email.split('@')[0] === uid)
+  }
 
   const [depositGroups, setDepositGroups] = useState<DepositGroup[]>([]);
   const [loading, setLoading] = useState(false);
@@ -361,7 +368,7 @@ const EditMealDeposit = () => {
 
     const amount = Number(formData.amount);
 
-    if (isNaN(amount) || amount <= 0) {
+    if (isNaN(amount) || amount < 0) {
       toast.error("সঠিক পরিমাণ লিখুন।");
       return;
     }
@@ -551,7 +558,7 @@ const EditMealDeposit = () => {
                     key={`${entry.trackingID}-${entry.member}`}
                     value={entry.member}
                   >
-                    {entry.member} — ৳{entry.amount}
+                    {showMemberName(entry.member)?.name}:- ৳{entry.amount}
                   </option>
                 ))}
               </select>
@@ -567,7 +574,7 @@ const EditMealDeposit = () => {
                   </p>
 
                   <p className="text-xs font-semibold text-slate-700 truncate capitalize">
-                    {formData.member}
+                    {showMemberName(formData.member)?.name}
                   </p>
                 </div>
 
@@ -604,7 +611,7 @@ const EditMealDeposit = () => {
                 onChange={handleChange}
                 placeholder="নতুন জমার পরিমাণ লিখুন"
                 disabled={!formData.member}
-                min="1"
+                min="0"
                 className="w-full p-3 rounded-xl bg-white border border-amber-200 text-slate-700 placeholder-slate-400 text-xs outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 required
               />
@@ -754,7 +761,7 @@ const EditMealDeposit = () => {
 
                           <div className="min-w-0">
                             <p className="text-xs font-semibold text-slate-700 truncate capitalize">
-                              {entry.member}
+                              {showMemberName(entry.member)?.name}
                             </p>
 
                             <p className="text-[9px] text-slate-400">
