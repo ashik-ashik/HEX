@@ -18,6 +18,28 @@ export interface IndividualMealTotal {
   totalmeal: number;
 }
 
+export interface Notice {
+  title: string;
+  content: string;
+  date: string;
+  postedBy: string;
+}
+
+export interface NoticeResponse {
+  status: "success" | "error";
+  message: string;
+  data: Notice[];
+}
+
+export interface HexaEvent {
+  date: string;
+  eventName: string;
+  eventDescription: string;
+  eventPhoto: string;
+}
+
+
+
 const HOUSEDATAREADERAPIROOT = import.meta.env.VITE_HEXA_HOUSE_DATA_READER;
 
 const AppDataProvider = ({
@@ -32,7 +54,9 @@ const AppDataProvider = ({
 
   const [bazarCosts, setbazarCosts] =
     useState<MealCountResponse>();
-    
+
+  const [notices, setNotices] = useState<NoticeResponse>();
+const [hexaEvents, setHexaEvents] = useState<HexaEvent[]>([]);    
 
   // Individual total meal
   const [individualMealTotals, setIndividualMealTotals] = useState<
@@ -97,7 +121,7 @@ const AppDataProvider = ({
             dataMealCount.data
           );
 
-          setIndividualMealTotals(totals);
+          setIndividualMealTotals(totals || []);
         }
 
         // =========================
@@ -109,7 +133,63 @@ const AppDataProvider = ({
 
         const dataBazarCosts = await responseBazarCosts.json();
 
-        setbazarCosts(dataBazarCosts);
+        setbazarCosts(dataBazarCosts  || {});
+
+
+
+        // +++++++++++++++++++++++
+        // Notice
+        // +++++++++++++++++++++++
+        const responseNotices = await fetch(
+          HOUSEDATAREADERAPIROOT + "?type=notices"
+        );
+
+        if (!responseNotices.ok) {
+          throw new Error(
+            `Failed to load notices: ${responseNotices.status}`
+          );
+        }
+
+        const dataNotices = await responseNotices.json();
+
+
+        if (dataNotices.status === "success") {
+          const notices = dataNotices || [];
+
+          setNotices(notices);
+
+          // If using state:
+          // setNotices(notices);
+
+        } else {
+          console.error(
+            "Failed to load notices:",
+            dataNotices.message
+          );
+        }
+
+
+
+        // Load Hexa Events
+          const responseHexaEvents = await fetch(
+            HOUSEDATAREADERAPIROOT + "?type=events"
+          );
+
+         
+
+          const dataHexaEvents = await responseHexaEvents.json();
+
+          setHexaEvents(dataHexaEvents || {});
+          if (dataHexaEvents.status === "success") {
+
+            // Example:
+            // setHexaEvents(dataHexaEvents.data);
+          } else {
+            console.error(
+              "Failed to load Hexa Events:",
+              dataHexaEvents.message
+            );
+          }
 
       } catch (error) {
         console.error("Error fetching meal count:", error);
@@ -131,6 +211,9 @@ const AppDataProvider = ({
     setbazarCosts,
 
     individualMealTotals,
+
+    notices,
+    hexaEvents,
   };
 
   return (

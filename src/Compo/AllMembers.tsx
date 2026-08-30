@@ -94,7 +94,7 @@ const Avatar = ({
         return (
             <img
                 src={user.photoURL}
-                alt={user.name}
+                alt={user?.name}
                 onError={() => setErrored(true)}
                 className={`${dims} rounded-full object-cover ring-4 ring-white shadow-lg shrink-0`}
             />
@@ -105,7 +105,7 @@ const Avatar = ({
         <div
             className={`${dims} rounded-full bg-gradient-to-br ${roleMeta.accent} text-white font-semibold flex items-center justify-center ring-4 ring-white shadow-lg shrink-0 capitalize`}
         >
-            {getInitials(user.name)}
+            {getInitials(user?.name)}
         </div>
     );
 };
@@ -212,7 +212,7 @@ const MemberDetailsModal = ({
                     <div className="flex items-end gap-4">
                         <Avatar user={user} size="lg" />
                         <div className="pb-1 min-w-0 pt-4">
-                            <h2 className="text-xl font-bold text-gray-700 truncate uppercase">{user.name}</h2>
+                            <h2 className="text-xl font-bold text-gray-700 truncate uppercase">{user?.name}</h2>
                             <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-0.5">
                                 <span
                                     className={`h-2 w-2 rounded-full ${
@@ -311,7 +311,7 @@ const MemberCard = ({
                         />
                     </div>
                     <div className="min-w-0 flex-1">
-                        <h2 className="text-sm font-semibold text-gray-800 truncate capitalize">{user.name}</h2>
+                        <h2 className="text-sm font-semibold text-gray-800 truncate capitalize">{user?.name}</h2>
                         <span
                             className={`inline-block capitalize mt-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${roleMeta.badge}`}
                         >
@@ -398,7 +398,7 @@ const AllMembers = () => {
         return usersList.filter((user) => {
             const matchesQuery =
                 !q ||
-                user.name?.toLowerCase().includes(q) ||
+                user?.name?.toLowerCase().includes(q) ||
                 user.email?.toLowerCase().includes(q) ||
                 user.homeDistrict?.toLowerCase().includes(q);
             const matchesRole = roleFilter === "all" || user.role === roleFilter;

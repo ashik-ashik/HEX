@@ -12,10 +12,11 @@ import {
 } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
 import useAppData from "../hooks/useAppData";
-import type { BazarCostResponse, UsersList } from "../services/DataTypes";
+import type {
+  BazarCostResponse,
+  UsersList,
+} from "../services/DataTypes";
 import useAuth from "../hooks/useAuth";
-
-
 
 interface BazarCost {
   trackingID: string;
@@ -34,18 +35,24 @@ interface AppDataContext {
 const BAZAR_COST_EDIT_URL =
   import.meta.env.VITE_BAZAR_COSTS_EDIT;
 
-const EditLastBazarCost= () => {
+const EditbazarCosts = () => {
   // =========================================================
   // APP DATA
   // =========================================================
 
   const { bazarCosts, setBazarCosts } =
     useAppData() as AppDataContext;
-    const {houseMembers} = useAuth () as {houseMembers: UsersList}
 
-    const showMemberName = (uid: string) => {
-    return houseMembers.find(hm => hm.email.split('@')[0] === uid)
-  }
+  const { houseMembers } = useAuth() as {
+    houseMembers: UsersList;
+  };
+
+  const showMemberName = (uid: string) => {
+    return houseMembers.find(
+      (member) =>
+        member.email.split("@")[0] === uid
+    );
+  };
 
   /*
    * bazarCosts.data:
@@ -60,7 +67,6 @@ const EditLastBazarCost= () => {
    *   ...
    * ]
    */
-
 
   // =========================================================
   // FORM STATE
@@ -97,9 +103,7 @@ const EditLastBazarCost= () => {
           formData.trackingID
       ) || null
     );
-  }, [
-    bazarCosts, formData
-  ]);
+  }, [bazarCosts, formData]);
 
   // =========================================================
   // TRACKING IDS
@@ -146,7 +150,7 @@ const EditLastBazarCost= () => {
       setFormData({
         trackingID: entry.trackingID,
         date: entry.date,
-        name: entry.name,
+        name: entry?.name,
         amount: String(entry.amount),
       });
     } else {
@@ -169,7 +173,7 @@ const EditLastBazarCost= () => {
     setFormData({
       trackingID: entry.trackingID,
       date: entry.date,
-      name: entry.name,
+      name: entry?.name,
       amount: String(entry.amount),
     });
 
@@ -197,32 +201,30 @@ const EditLastBazarCost= () => {
     if (
       !formData.trackingID ||
       !formData.date ||
-      !formData.name ||
+      !formData?.name ||
       !formData.amount
     ) {
       toast.error(
-        "সব প্রয়োজনীয় তথ্য পূরণ করুন"
+        "Please complete all required fields."
       );
       return;
     }
 
-    const amount = Number(
-      formData.amount
-    );
+    const amount = Number(formData.amount);
 
     if (
       Number.isNaN(amount) ||
       amount < 0
     ) {
       toast.error(
-        "সঠিক টাকার পরিমাণ দিন"
+        "Please enter a valid amount."
       );
       return;
     }
 
     if (!selectedEntry) {
       toast.error(
-        "নির্বাচিত বাজার খরচের তথ্য পাওয়া যায়নি"
+        "The selected bazar cost entry could not be found."
       );
       return;
     }
@@ -236,14 +238,12 @@ const EditLastBazarCost= () => {
     // =====================================================
 
     if (
-      selectedEntry.date ===
-        formData.date &&
-      selectedEntry.name ===
-        formData.name &&
+      selectedEntry.date === formData.date &&
+      selectedEntry?.name === formData?.name &&
       previousAmount === amount
     ) {
       toast.error(
-        "কোনো তথ্য পরিবর্তন করা হয়নি"
+        "No changes were made to the entry."
       );
       return;
     }
@@ -251,52 +251,42 @@ const EditLastBazarCost= () => {
     try {
       setLoading(true);
 
-      const loadingToast =
-        toast.loading(
-          "বাজার খরচ আপডেট হচ্ছে..."
-        );
+      const loadingToast = toast.loading(
+        "Updating bazar cost..."
+      );
 
       // =====================================================
       // SEND TO APPS SCRIPT
       // =====================================================
 
-      const params =
-        new URLSearchParams({
-          type: "handleEditBazarCost",
-          trackingID:
-            formData.trackingID,
-          Date: formData.date,
-          Doer: formData.name,
-          Amount: formData.amount,
-        });
+      const params = new URLSearchParams({
+        type: "handleEditBazarCost",
+        trackingID: formData.trackingID,
+        Date: formData.date,
+        Doer: formData?.name,
+        Amount: formData.amount,
+      });
 
-      const response =
-        await fetch(
-          BAZAR_COST_EDIT_URL,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "application/x-www-form-urlencoded",
-            },
-            body: params,
-          }
-        );
-
-      const result =
-        await response.json();
-
-      toast.dismiss(
-        loadingToast
+      const response = await fetch(
+        BAZAR_COST_EDIT_URL,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/x-www-form-urlencoded",
+          },
+          body: params,
+        }
       );
 
-      if (
-        result.status ===
-        "success"
-      ) {
+      const result = await response.json();
+
+      toast.dismiss(loadingToast);
+
+      if (result.status === "success") {
         toast.success(
           result.message ||
-            "বাজার খরচ সফলভাবে আপডেট হয়েছে"
+            "Bazar cost updated successfully."
         );
 
         // =================================================
@@ -308,41 +298,33 @@ const EditLastBazarCost= () => {
             (previousData) => ({
               ...previousData,
 
-              data:
-                previousData.data.map(
-                  (entry) =>
-                    entry.trackingID ===
-                    formData.trackingID
-                      ? {
-                          ...entry,
-                          date:
-                            formData.date,
-                          name:
-                            formData.name,
-                          amount:
-                            String(
-                              amount
-                            ),
-                        }
-                      : entry
-                ),
+              data: previousData.data.map(
+                (entry) =>
+                  entry.trackingID ===
+                  formData.trackingID
+                    ? {
+                        ...entry,
+                        date: formData.date,
+                        name: formData?.name,
+                        amount: String(amount),
+                      }
+                    : entry
+              ),
             })
           );
         }
 
         // Keep updated data visible
         setFormData({
-          trackingID:
-            formData.trackingID,
+          trackingID: formData.trackingID,
           date: formData.date,
-          name: formData.name,
-          amount:
-            formData.amount,
+          name: formData?.name,
+          amount: formData.amount,
         });
       } else {
         toast.error(
           result.message ||
-            "বাজার খরচ আপডেট করা যায়নি"
+            "Failed to update the bazar cost."
         );
       }
     } catch (error) {
@@ -351,7 +333,7 @@ const EditLastBazarCost= () => {
       toast.error(
         error instanceof Error
           ? error.message
-          : "সার্ভারে সমস্যা হয়েছে"
+          : "A server error occurred."
       );
     } finally {
       setLoading(false);
@@ -400,13 +382,13 @@ const EditLastBazarCost= () => {
           </div>
 
           <h2 className="text-lg sm:text-xl font-bold text-slate-800">
-            বাজার খরচ সম্পাদনা
+            Edit Bazar Cost
           </h2>
 
           <p className="text-[11px] leading-relaxed text-slate-600 mt-1.5 max-w-md">
-            Tracking ID নির্বাচন করে যেকোনো
-            বাজার খরচের তারিখ, সদস্য এবং
-            পরিমাণ পরিবর্তন করতে পারবেন।
+            Select a Tracking ID to modify the
+            date, member, or amount of any
+            bazar cost entry.
           </p>
         </div>
 
@@ -420,35 +402,29 @@ const EditLastBazarCost= () => {
           <div className="flex flex-col">
             <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
               <Hash className="w-3.5 h-3.5" />
-              ট্র্যাকিং আইডি
+              Tracking ID
             </label>
 
             <select
               name="trackingID"
-              value={
-                formData.trackingID
-              }
-              onChange={
-                handleTrackingIDChange
-              }
+              value={formData.trackingID}
+              onChange={handleTrackingIDChange}
               disabled={loading}
               className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all disabled:opacity-50"
               required
             >
               <option value="">
-                ট্র্যাকিং আইডি নির্বাচন করুন
+                Select Tracking ID
               </option>
 
-              {trackingIDs?.map(
-                (id) => (
-                  <option
-                    key={id}
-                    value={id}
-                  >
-                    {id}
-                  </option>
-                )
-              )}
+              {trackingIDs?.map((id) => (
+                <option
+                  key={id}
+                  value={id}
+                >
+                  {id}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -459,7 +435,7 @@ const EditLastBazarCost= () => {
 
                 <div>
                   <p className="text-[10px] text-slate-400 mb-1">
-                    বর্তমান তারিখ
+                    Current Date
                   </p>
 
                   <p className="text-xs font-semibold text-slate-700">
@@ -469,17 +445,19 @@ const EditLastBazarCost= () => {
 
                 <div>
                   <p className="text-[10px] text-slate-400 mb-1">
-                    সদস্য
+                    Member
                   </p>
 
                   <p className="text-xs font-semibold text-slate-700">
-                    {selectedEntry.name}
+                    {showMemberName(
+                      selectedEntry?.name
+                    )?.name || selectedEntry?.name}
                   </p>
                 </div>
 
                 <div>
                   <p className="text-[10px] text-slate-400 mb-1">
-                    বর্তমান খরচ
+                    Current Amount
                   </p>
 
                   <p className="text-sm font-bold text-amber-600">
@@ -500,18 +478,14 @@ const EditLastBazarCost= () => {
             <div className="flex flex-col">
               <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5" />
-                তারিখ পরিবর্তন করুন
+                Change Date
               </label>
 
               <input
                 type="date"
                 name="date"
-                value={
-                  formData.date
-                }
-                onChange={
-                  handleChange
-                }
+                value={formData.date}
+                onChange={handleChange}
                 disabled={
                   !formData.trackingID ||
                   loading
@@ -525,17 +499,13 @@ const EditLastBazarCost= () => {
             <div className="flex flex-col">
               <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5" />
-                সদস্য
+                Member
               </label>
 
               <select
                 name="name"
-                value={
-                  formData.name
-                }
-                onChange={
-                  handleChange
-                }
+                value={formData?.name}
+                onChange={handleChange}
                 disabled={
                   !formData.trackingID ||
                   loading
@@ -544,14 +514,11 @@ const EditLastBazarCost= () => {
                 required
               >
                 <option value="">
-                  সদস্য নির্বাচন করুন
+                  Select Member
                 </option>
 
                 {houseMembers?.map(
-                  (
-                    member,
-                    index
-                  ) => (
+                  (member, index) => (
                     <option
                       key={index}
                       value={member?.email?.split("@")[0]}
@@ -567,19 +534,15 @@ const EditLastBazarCost= () => {
             <div className="flex flex-col">
               <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
                 <Wallet className="w-3.5 h-3.5" />
-                পরিবর্তিত পরিমাণ (৳)
+                Updated Amount (৳)
               </label>
 
               <input
                 type="number"
                 name="amount"
-                value={
-                  formData.amount
-                }
-                onChange={
-                  handleChange
-                }
-                placeholder="নতুন টাকার পরিমাণ লিখুন"
+                value={formData.amount}
+                onChange={handleChange}
+                placeholder="Enter the new amount"
                 min="0"
                 step="0.01"
                 disabled={
@@ -593,12 +556,12 @@ const EditLastBazarCost= () => {
               {selectedEntry &&
                 formData.amount && (
                   <p className="text-[10px] text-slate-400 mt-1.5">
-                    বর্তমান ৳
+                    Current: ৳
                     {Number(
                       selectedEntry.amount
                     ).toLocaleString()}
                     {" → "}
-                    পরিবর্তিত ৳
+                    Updated: ৳
                     {Number(
                       formData.amount
                     ).toLocaleString()}
@@ -611,13 +574,11 @@ const EditLastBazarCost= () => {
 
               <button
                 type="button"
-                onClick={
-                  handleReset
-                }
+                onClick={handleReset}
                 disabled={loading}
                 className="flex-1 py-3 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-semibold transition-all disabled:opacity-50"
               >
-                রিসেট
+                Reset
               </button>
 
               <button
@@ -626,14 +587,14 @@ const EditLastBazarCost= () => {
                   loading ||
                   !formData.trackingID ||
                   !formData.date ||
-                  !formData.name ||
+                  !formData?.name ||
                   !formData.amount
                 }
                 className="flex-1 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-[0.99] transition-all text-white text-sm font-semibold shadow-md shadow-amber-200 disabled:opacity-60 disabled:active:scale-100 disabled:cursor-not-allowed"
               >
                 {loading
-                  ? "আপডেট হচ্ছে..."
-                  : "বাজার খরচ আপডেট করুন"}
+                  ? "Updating..."
+                  : "Update Bazar Cost"}
               </button>
 
             </div>
@@ -647,28 +608,26 @@ const EditLastBazarCost= () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
             <div>
               <h3 className="text-md font-bold text-slate-800">
-                সকল বাজার খরচ
+                All Bazar Costs
               </h3>
 
               <p className="text-[11px] text-slate-500 mt-1">
-                যেকোনো এন্ট্রি সম্পাদনা করতে
-                পাশে থাকা সম্পাদনা বাটনে ক্লিক করুন।
+                Click the Edit button beside any
+                entry to modify it.
               </p>
             </div>
 
             <div className="w-fit px-3 py-1 rounded-full bg-slate-100 text-xs font-medium text-slate-600">
-              মোট{" "}
-              {bazarCosts?.data.length}{" "}
-              টি এন্ট্রি
+              Total {bazarCosts?.data.length}{" "}
+              Entries
             </div>
           </div>
 
           {/* Empty */}
-          {bazarCosts?.data.length ===
-          0 ? (
+          {bazarCosts?.data.length === 0 ? (
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-8 text-center">
               <p className="text-xs text-slate-500">
-                কোনো বাজার খরচের তথ্য পাওয়া যায়নি।
+                No bazar cost entries found.
               </p>
             </div>
           ) : (
@@ -677,13 +636,13 @@ const EditLastBazarCost= () => {
               {/* Desktop Header */}
               <div className="hidden sm:grid sm:grid-cols-5 gap-3 px-4 py-3 bg-slate-50 border-b border-slate-200 text-[11px] font-semibold text-slate-500">
                 <div>Tracking ID</div>
-                <div>তারিখ</div>
-                <div>সদস্য</div>
+                <div>Date</div>
+                <div>Member</div>
                 <div className="text-right">
-                  পরিমাণ
+                  Amount
                 </div>
                 <div className="text-right">
-                  অ্যাকশন
+                  Action
                 </div>
               </div>
 
@@ -693,97 +652,88 @@ const EditLastBazarCost= () => {
                 {bazarCosts?.data
                   .slice()
                   .reverse()
-                  .map(
-                    (entry) => (
-                      <div
-                        key={
-                          entry.trackingID
-                        }
-                        className="grid grid-cols-1 sm:grid-cols-5 gap-3 px-4 py-4 sm:items-center hover:bg-slate-50/70 transition-all"
-                      >
+                  .map((entry) => (
+                    <div
+                      key={entry.trackingID}
+                      className="grid grid-cols-3 sm:grid-cols-5 gap-3 px-4 py-4 sm:items-center hover:bg-slate-50/70 transition-all"
+                    >
 
-                        {/* Tracking ID */}
-                        <div>
-                          <p className="text-[10px] text-slate-400 sm:hidden mb-1">
-                            Tracking ID
-                          </p>
+                      {/* Tracking ID */}
+                      <div>
+                        <p className="text-[10px] text-slate-400 sm:hidden mb-1">
+                          Tracking ID
+                        </p>
 
-                          <p className="text-xs font-bold text-slate-700">
-                            {
-                              entry.trackingID
-                            }
-                          </p>
-                        </div>
-
-                        {/* Date */}
-                        <div>
-                          <p className="text-[10px] text-slate-400 sm:hidden mb-1">
-                            তারিখ
-                          </p>
-
-                          <p className="text-xs font-medium text-slate-700">
-                            {entry.date}
-                          </p>
-                        </div>
-
-                        {/* Name */}
-                        <div>
-                          <p className="text-[10px] text-slate-400 sm:hidden mb-1">
-                            সদস্য
-                          </p>
-
-                          <p className="text-xs font-medium text-slate-700 capitalize">
-                            {
-                              showMemberName(entry.name)?.name
-                            }
-                          </p>
-                        </div>
-
-                        {/* Amount */}
-                        <div className="sm:text-right">
-                          <p className="text-[10px] text-slate-400 sm:hidden mb-1">
-                            পরিমাণ
-                          </p>
-
-                          <p className="text-sm font-bold text-amber-600">
-                            ৳
-                            {Number(
-                              entry.amount
-                            ).toLocaleString()}
-                          </p>
-                        </div>
-
-                        {/* Edit */}
-                        <div className="flex sm:justify-end">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleEditEntry(
-                                entry
-                              )
-                            }
-                            disabled={
-                              loading
-                            }
-                            className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-amber-600 bg-amber-50 hover:bg-amber-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="এই এন্ট্রি সম্পাদনা করুন"
-                          >
-                            <Pencil size={15} />
-                            Edit
-                          </button>
-                        </div>
-
+                        <p className="text-xs font-bold text-slate-700">
+                          {entry.trackingID}
+                        </p>
                       </div>
-                    )
-                  )}
+
+                      {/* Date */}
+                      <div>
+                        <p className="text-[10px] text-slate-400 sm:hidden mb-1">
+                          Date
+                        </p>
+
+                        <p className="text-xs font-medium text-slate-700">
+                          {entry.date}
+                        </p>
+                      </div>
+
+                      {/* Name */}
+                      <div>
+                        <p className="text-[10px] text-slate-400 sm:hidden mb-1">
+                          Member
+                        </p>
+
+                        <p className="text-xs font-medium text-slate-700 capitalize">
+                          {showMemberName(
+                            entry?.name
+                          )?.name || entry?.name}
+                        </p>
+                      </div>
+
+                      {/* Amount */}
+                      <div className="sm:text-right">
+                        <p className="text-[10px] text-slate-400 sm:hidden mb-1">
+                          Amount
+                        </p>
+
+                        <p className="text-sm font-bold text-amber-600">
+                          ৳
+                          {Number(
+                            entry.amount
+                          ).toLocaleString()}
+                        </p>
+                      </div>
+
+                      {/* Edit */}
+                      <div className="flex sm:justify-end">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleEditEntry(entry)
+                          }
+                          disabled={loading}
+                          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-amber-600 bg-amber-50 hover:bg-amber-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Edit this entry"
+                        >
+                          <Pencil size={15} />
+                          Edit
+                        </button>
+                      </div>
+
+                    </div>
+                  ))}
 
               </div>
             </div>
           )}
         </div>
+
       </div>
     </section>
   );
 };
 
-export default EditLastBazarCost;
+export default EditbazarCosts;

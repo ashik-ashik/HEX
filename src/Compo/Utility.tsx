@@ -102,10 +102,13 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
     .map((p) => ({ ...p, label: p.member }))
     .sort(sortFn);
 
-  const visibleCosts = costSummary
-    .filter((c) => c.name.toLowerCase().includes(costQuery.toLowerCase()))
-    .map((c) => ({ ...c, label: c.name }))
-    .sort(sortFn);
+  const visibleCosts = costQuery
+  ? costSummary
+      .filter((c) => c?.name.toLowerCase().includes(costQuery.toLowerCase()))
+      .map((c) => ({ ...c, label: c?.name }))
+  : [...costSummary]
+      .reverse()
+      .map((c) => ({ ...c, label: c?.name }));
 
   return (
     <>
@@ -316,7 +319,7 @@ const UtilitySummary: React.FC<UtilitySummaryProps> = ({
                             {String(i + 1).padStart(2, "0")}
                           </td>
                           <td className="px-2 py-3 text-[#1E2A38] font-medium capitalize">
-                            {showMemberName(item.name)?.name}
+                            {item?.name}
                           </td>
                           <td className="px-2 py-3 hidden sm:table-cell">
                             <div className="flex items-center gap-2">

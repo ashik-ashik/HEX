@@ -25,6 +25,8 @@ import Footer from "./Footer";
 import useAuth from "../hooks/useAuth";
 import HexaSpecialEvents from "./HexaSpecialEvents";
 import Header from "./Header";
+import useAppData from "../hooks/useAppData";
+import type { NoticeResponse } from "../context/AppDataProvider";
 
 // Type for each deposit item
 export type UtilityDeposit = {
@@ -38,16 +40,12 @@ interface HomeProps {
   totalBazar: number;
   utilityDeposits: UtilityDeposit[];
   utilityCosts: string[][];
-  notices: Notice[];
   isLoading: boolean;
   members: { name: string; total: number }[];
   setManagerThisMonth: React.Dispatch<React.SetStateAction<string>>;
 }
 
-interface Notice {
-  title: string;
-  content: string;
-}
+
 interface UserItem {
   type: string;
   email: string;
@@ -127,16 +125,24 @@ const OverviewHexa: React.FC<HomeProps> = ({
   utilityDeposits,
   utilityCosts,
   isLoading,
-  notices,
   members,
 }) => {
 
   const [memberQuery, setMemberQuery] = useState("");
-  const { usersList, userRole, houseMembers } = useAuth() as {
+  const { usersList, userRole, houseMembers, showMemberName } = useAuth() as {
     usersList: UserItem[];
     userRole: string;
     houseMembers: { name: string; role: string; photoURL?: string; email?: string; phoneNumber?: string; lastLoginAt: string; }[];
+    showMemberName: (
+    username: string
+  ) => {
+    name: string;
+    email?: string;
+  }
   };
+
+  
+  const {notices} = useAppData() as {notices: NoticeResponse}
 
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
   const [personnelLoading, setPersonnelLoading] = useState(true);
@@ -223,7 +229,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
     Math.min(100, (remainingMealCash / 2000) * 100)
   );
 
-  let systemNotice: { title: string; content: string } | null = null;
+  let systemNotice: { title: string; content: string, date: string, postedBy:string } | null = null;
 
   const today = new Date();
   const currentDate = today.getDate();
@@ -240,17 +246,29 @@ const OverviewHexa: React.FC<HomeProps> = ({
         title: "🚨 জরুরি সতর্কবার্তা: মিল ফান্ড ঘাটতিতে",
         content:
           "বর্তমানে মিল ফান্ড সম্পূর্ণ শেষ হয়ে গেছে এবং ঘাটতি চলছে। এই অবস্থায় নিয়মিত বাজার ও খাবার পরিচালনা ব্যাহত হতে পারে। সকল সদস্যকে অনুরোধ করা যাচ্ছে যত দ্রুত সম্ভব মিল ডিপোজিট প্রদান করে মিল কার্যক্রম সচল রাখতে সহযোগিতা করার জন্য। অন্যথায় সাময়িকভাবে মিল কার্যক্রম বন্ধ করার প্রয়োজন হতে পারে।",
+        postedBy: "System",
+        date: new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
       };
     } else if (remainingMealCash < 500) {
       systemNotice = {
         title: "⚠️ সতর্কবার্তা: মিল ফান্ড সীমিত",
         content:
           "মিল ফান্ড বর্তমানে সীমিত অবস্থায় রয়েছে। আসন্ন বাজার খরচ মেটাতে সমস্যা হতে পারে। সকল সদস্যকে অনুরোধ করা হচ্ছে দ্রুত মিল ডিপোজিট প্রদান করে ফান্ডের ভারসাম্য বজায় রাখতে সহযোগিতা করার জন্য।",
+          postedBy: "System",
+        date: new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
       };
     }
   }
 
-  const finalNotices = systemNotice ? [systemNotice, ...notices] : notices;
+  const finalNotices = systemNotice ? [systemNotice, ...notices.data || []] : notices?.data;
 
   // ===== NEW: Spending pace (burn rate) — compares how much of the month
   // has elapsed against how much of the meal fund has already been spent. =====
@@ -302,7 +320,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
     if (!q) return houseMembers;
     return houseMembers.filter(
       (p) =>
-        p.name?.toLowerCase().includes(q) ||
+        p?.name?.toLowerCase().includes(q) ||
         p.role?.toLowerCase().includes(q)
     );
   }, [houseMembers, memberQuery]);
@@ -372,7 +390,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
             </div>
           </div>
         ) : (
-          finalNotices.length > 0 && (
+          finalNotices?.length > 0 && (
             <section className="py-6">
               <div className="max-w-6xl mx-auto">
                 <div className="bg-white/80 border border-amber-200 rounded-xl shadow-sm overflow-hidden">
@@ -404,15 +422,24 @@ const OverviewHexa: React.FC<HomeProps> = ({
                             {isCriticalLead && (
                               <AlertTriangle size={14} className="shrink-0" />
                             )}
-                            {index + 1}. {notice.title}
+                            {index + 1}. 
+                            <p>{notice.title}</p>
                           </h3>
+                          <p className="text-[11px] mb-2 pl-3 text-gray-500 whitespace-nowrap">
+                              {new Date(notice.date).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </p>
                           <p
-                            className={`text-xs pl-4 ${
+                            className={`text-xs pl-3 ${
                               isCriticalLead ? "text-red-600/80" : "text-gray-800"
                             }`}
                           >
                             {notice.content}
                           </p>
+                          <p className="text-xs text-gray-500 text-right mt-2 uppercase">{showMemberName(notice.postedBy)?.name || "System Notice"}</p>
                         </div>
                       );
                     })}
@@ -680,47 +707,51 @@ const OverviewHexa: React.FC<HomeProps> = ({
                         const belowAverage =
                           leaderboard.avg > 0 &&
                           person.total < leaderboard.avg * 0.7;
-                        return (
-                          <div key={person.name}>
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs font-medium text-gray-800 flex items-center gap-1.5">
-                                {idx === 0 && (
-                                  <Trophy
-                                    size={12}
-                                    className="text-amber-500 capitalize"
-                                  />
-                                )}
-                                {person.name}
-                              </span>
-                              <span
-                                className={`text-xs font-semibold ${
-                                  belowAverage
-                                    ? "text-amber-600"
-                                    : "text-emerald-600"
-                                }`}
-                              >
-                                {formatBDT(person.total)}
-                                {belowAverage && (
-                                  <span className="ml-2 text-[10px] font-normal text-amber-500">
-                                    below average
+                          if(person?.name !== "trackingID"){
+                            return (
+                              <div key={person?.name}>
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-xs font-medium text-gray-800 flex items-center gap-1.5">
+                                    {idx === 0 && (
+                                      <Trophy
+                                        size={12}
+                                        className="text-amber-500 capitalize"
+                                      />
+                                    )}
+                                    {showMemberName(person?.name)?.name}
                                   </span>
-                                )}
-                              </span>
-                            </div>
-                            <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                              <div
-                                className={`h-full rounded-full ${
-                                  idx === 0
-                                    ? "bg-amber-400"
-                                    : belowAverage
-                                    ? "bg-amber-300"
-                                    : "bg-emerald-400"
-                                }`}
-                                style={{ width: `${pct}%` }}
-                              />
-                            </div>
-                          </div>
-                        );
+                                  <span
+                                    className={`text-xs font-semibold ${
+                                      belowAverage
+                                        ? "text-amber-600"
+                                        : "text-emerald-600"
+                                    }`}
+                                  >
+                                    {formatBDT(person.total)}
+                                    {belowAverage && (
+                                      <span className="ml-2 text-[10px] font-normal text-amber-500">
+                                        below average
+                                      </span>
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full ${
+                                      idx === 0
+                                        ? "bg-amber-400"
+                                        : belowAverage
+                                        ? "bg-amber-300"
+                                        : "bg-emerald-400"
+                                    }`}
+                                    style={{ width: `${pct}%` }}
+                                  />
+                                </div>
+                              </div>
+                            );                            
+                          }else{
+                            return null
+                          }
                       })}
                     </div>
                   </div>
@@ -755,8 +786,17 @@ const OverviewHexa: React.FC<HomeProps> = ({
                         </span>
 
                         <h3 className="text-xl uppercase md:text-3xl font-bold tracking-tight mb-1 text-slate-900">
-                          {manager.name}
+                          {manager?.name}
                         </h3>
+
+                        <div className="flex justify-center">
+                            <a href={`tel:+880${manager?.phoneNumber}`}>
+                              <div className="flex gap-2 items-center bg-green-400 py-2 px-6 text-white text-sm font-semibold rounded-md hover:bg-green-600">
+                                <PhoneCall size={16} />
+                                  +880{manager?.phoneNumber}
+                              </div>
+                            </a>
+                        </div>
 
                         <p className="text-gray-800 text-sm max-w-md text-center">
                           Responsible for managing monthly meals, expenses, and
@@ -794,10 +834,10 @@ const OverviewHexa: React.FC<HomeProps> = ({
                       </div>
                     )}
                     {filteredMembers.map((person, index) => {
-                      const key = `${person.name}-${index}`;
+                      const key = `${person?.name}-${index}`;
                       return (
                         <React.Fragment key={key}>
-                          {!isSearching && index === 6 && (
+                          {!isSearching && index === 600 && (
                             <div className="col-span-full text-center text-teal-600 italic text-sm py-2 bg-teal-50/60 border border-slate-200 rounded-xl">
                               Essential Service Providers
                             </div>
@@ -819,16 +859,10 @@ const OverviewHexa: React.FC<HomeProps> = ({
 
                             {/* Then role */}
                             <h4 className="text-xs text-teal-600 font-semibold mb-2 capitalize">
-                              {person?.role === "assist_manamer" ? "Assistant Manager" : person?.role}
+                              {person?.role === "assist_manager" ? "Assistant Manager" : person?.role}
                             </h4>
                             <h4 className="text-[11px] text-orange-700 mb-2">
-                              {person.lastLoginAt ? `Since: ${
-                                new Date(person?.lastLoginAt?.split(',')[0]).toLocaleDateString("en-US", {
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                              })
-                              }` : "Never Logged In"}
+                              {person.lastLoginAt || "N/A" }
                             </h4>
 
                             <div className="flex flex- items-center justify-center gap-2 mt-4 p-4">
@@ -887,12 +921,12 @@ const OverviewHexa: React.FC<HomeProps> = ({
                 <div className="mt-8">
                   {/* Section header */}
                   <div className="col-span-full mb-3 text-center text-teal-600 italic text-sm py-2 bg-teal-50/60 border border-slate-200 rounded-xl">
-                        Essential Members
+                        Essential Service Providers
                       </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6">
                     {personnel.map((person) => {
-                      const initials = person.name
+                      const initials = person?.name
                         .split(" ")
                         .map((n) => n[0])
                         .slice(0, 2)
@@ -901,7 +935,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
 
                       return (
                         <div
-                          key={person.name}
+                          key={person?.name}
                           className="group bg-white/70 p-5 rounded-xl shadow-sm flex flex-col items-center text-center border border-slate-200 hover:shadow-lg hover:border-teal-200 hover:-translate-y-0.5 transition-all duration-200"
                         >
                           {/* Avatar */}
@@ -910,7 +944,7 @@ const OverviewHexa: React.FC<HomeProps> = ({
                           </div>
 
                           <h4 className="text-base font-bold text-gray-900 leading-tight">
-                            {person.name}
+                            {person?.name}
                           </h4>
                           <p className="text-xs text-slate-800 mt-0.5 uppercase tracking-wide">
                             {person.designation}

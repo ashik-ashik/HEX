@@ -1,4 +1,3 @@
-
 import { Pencil } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
@@ -47,7 +46,7 @@ const EditUtilityCosts = () => {
 
       if (!response.ok) {
         throw new Error(
-          "Failed to fetch utility cost data"
+          "Failed to fetch utility cost data."
         );
       }
 
@@ -71,14 +70,7 @@ const EditUtilityCosts = () => {
       // trackingID,Cost Section,Amount
       // =====================================================
 
-      const headers = lines[0]
-        .split(",")
-        .map((header) => header.trim());
-
-      console.log(
-        "Utility Cost Headers:",
-        headers
-      );
+      
 
       const formattedData: UtilityCost[] = [];
 
@@ -126,7 +118,7 @@ const EditUtilityCosts = () => {
       );
 
       toast.error(
-        "ইউটিলিটি খরচের তথ্য লোড করা যায়নি"
+        "Failed to load utility cost information."
       );
     } finally {
       setIsLoading(false);
@@ -229,13 +221,15 @@ const EditUtilityCosts = () => {
     e.preventDefault();
 
     if (!selectedTrackingID) {
-      toast.error("Tracking ID নির্বাচন করুন");
+      toast.error(
+        "Please select a Tracking ID."
+      );
       return;
     }
 
     if (!selectedCost) {
       toast.error(
-        "নির্বাচিত Tracking ID-এর তথ্য পাওয়া যায়নি"
+        "No information was found for the selected Tracking ID."
       );
       return;
     }
@@ -246,7 +240,7 @@ const EditUtilityCosts = () => {
       Number(newAmount) < 0
     ) {
       toast.error(
-        "সঠিক নতুন খরচের পরিমাণ দিন"
+        "Please enter a valid new cost amount."
       );
       return;
     }
@@ -257,13 +251,13 @@ const EditUtilityCosts = () => {
       selectedCost.amount
     ) {
       toast.error(
-        "নতুন পরিমাণ বর্তমান পরিমাণের সমান"
+        "The new amount is the same as the current amount."
       );
       return;
     }
 
     const loadingToast = toast.loading(
-      "ইউটিলিটি খরচ আপডেট হচ্ছে..."
+      "Updating utility cost..."
     );
 
     try {
@@ -289,7 +283,7 @@ const EditUtilityCosts = () => {
 
       if (!response.ok) {
         throw new Error(
-          "Update request failed"
+          "Update request failed."
         );
       }
 
@@ -298,14 +292,14 @@ const EditUtilityCosts = () => {
       if (result.status !== "success") {
         throw new Error(
           result.message ||
-            "Failed to update utility cost"
+            "Failed to update the utility cost."
         );
       }
 
       toast.dismiss(loadingToast);
 
       toast.success(
-        "ইউটিলিটি খরচ সফলভাবে আপডেট হয়েছে"
+        "Utility cost updated successfully."
       );
 
       // =====================================================
@@ -334,7 +328,7 @@ const EditUtilityCosts = () => {
       toast.error(
         error instanceof Error
           ? error.message
-          : "ইউটিলিটি খরচ আপডেট করা যায়নি"
+          : "Failed to update the utility cost."
       );
     } finally {
       setIsSubmitting(false);
@@ -402,12 +396,12 @@ const EditUtilityCosts = () => {
 
       <div className="mb-6">
         <h1 className="text-lg font-bold text-[#2B2117]">
-          ইউটিলিটি খরচ সম্পাদনা
+          Edit Utility Cost
         </h1>
 
         <p className="mt-1 text-xs text-gray-500">
-          Tracking ID নির্বাচন করে নির্দিষ্ট
-          ইউটিলিটি খরচের পরিমাণ পরিবর্তন করুন।
+          Select a Tracking ID to update the
+          amount of a specific utility cost.
         </p>
       </div>
 
@@ -440,7 +434,7 @@ const EditUtilityCosts = () => {
               className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-xs outline-none transition focus:border-[#2B2117] focus:ring-1 focus:ring-[#2B2117] disabled:cursor-not-allowed disabled:bg-gray-100"
             >
               <option value="">
-                Tracking ID নির্বাচন করুন
+                Select Tracking ID
               </option>
 
               {trackingIDs.map(
@@ -459,33 +453,33 @@ const EditUtilityCosts = () => {
           {/* Cost Section */}
           <div>
             <label className="mb-2 block text-xs font-medium text-gray-700">
-              খরচের বিভাগ
+              Cost Category
             </label>
 
             <div className="flex min-h-[42px] items-center rounded-lg border border-gray-200 bg-gray-100 px-3 text-xs font-semibold text-gray-700">
               {selectedCost
                 ? selectedCost.costSection
-                : "Tracking ID নির্বাচন করুন"}
+                : "Select a Tracking ID"}
             </div>
           </div>
 
           {/* Current Amount */}
           <div>
             <label className="mb-2 block text-xs font-medium text-gray-700">
-              বর্তমান খরচ
+              Current Cost
             </label>
 
             <div className="flex min-h-[42px] items-center rounded-lg border border-gray-200 bg-gray-100 px-3 text-xs font-semibold text-gray-700">
               {selectedCost
-                ? `${selectedCost.amount.toLocaleString()} টাকা`
-                : "Tracking ID নির্বাচন করুন"}
+                ? `${selectedCost.amount.toLocaleString()} BDT`
+                : "Select a Tracking ID"}
             </div>
           </div>
 
           {/* New Amount */}
           <div>
             <label className="mb-2 block text-xs font-medium text-gray-700">
-              নতুন খরচের পরিমাণ
+              Updated Cost Amount
             </label>
 
             <input
@@ -502,7 +496,7 @@ const EditUtilityCosts = () => {
                 !selectedCost ||
                 isSubmitting
               }
-              placeholder="নতুন পরিমাণ লিখুন"
+              placeholder="Enter the new amount"
               className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-xs outline-none transition focus:border-[#2B2117] focus:ring-1 focus:ring-[#2B2117] disabled:cursor-not-allowed disabled:bg-gray-100"
             />
           </div>
@@ -513,6 +507,7 @@ const EditUtilityCosts = () => {
           <div className="mt-5 rounded-lg border border-[#2B2117]/10 bg-white p-4">
             <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-4">
 
+              {/* Tracking ID */}
               <div>
                 <p className="text-gray-500 text-xs">
                   Tracking ID
@@ -523,9 +518,10 @@ const EditUtilityCosts = () => {
                 </p>
               </div>
 
+              {/* Cost Category */}
               <div>
                 <p className="text-gray-500 text-xs">
-                  খরচের বিভাগ
+                  Cost Category
                 </p>
 
                 <p className="font-semibold text-[#2B2117]">
@@ -533,20 +529,22 @@ const EditUtilityCosts = () => {
                 </p>
               </div>
 
+              {/* Current Cost */}
               <div>
                 <p className="text-gray-500 text-xs">
-                  বর্তমান খরচ
+                  Current Cost
                 </p>
 
                 <p className="font-semibold text-[#2B2117]">
                   {selectedCost.amount.toLocaleString()}{" "}
-                  টাকা
+                  BDT
                 </p>
               </div>
 
+              {/* Updated Cost */}
               <div>
                 <p className="text-gray-500 text-xs">
-                  পরিবর্তিত খরচ
+                  Updated Cost
                 </p>
 
                 <p className="font-semibold text-orange-600">
@@ -554,11 +552,10 @@ const EditUtilityCosts = () => {
                   !isNaN(Number(newAmount))
                     ? `${Number(
                         newAmount
-                      ).toLocaleString()} টাকা`
+                      ).toLocaleString()} BDT`
                     : "—"}
                 </p>
               </div>
-
             </div>
           </div>
         )}
@@ -566,15 +563,17 @@ const EditUtilityCosts = () => {
         {/* Buttons */}
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
 
+          {/* Reset */}
           <button
             type="button"
             onClick={handleReset}
             disabled={isSubmitting}
             className="rounded-md border border-red-300 bg-red-50 px-5 py-2.5 text-xs font-medium text-gray-700 transition hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
-            রিসেট
+            Reset
           </button>
 
+          {/* Submit */}
           <button
             type="submit"
             disabled={
@@ -585,10 +584,9 @@ const EditUtilityCosts = () => {
             className="rounded-md bg-orange-600 px-5 py-2.5 text-xs font-medium text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting
-              ? "আপডেট হচ্ছে..."
-              : "খরচ আপডেট করুন"}
+              ? "Updating..."
+              : "Update Cost"}
           </button>
-
         </div>
       </form>
 
@@ -597,33 +595,37 @@ const EditUtilityCosts = () => {
       ====================================================== */}
 
       <div className="mt-8">
+
+        {/* Section Header */}
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 
           <div>
             <h2 className="text-md font-bold text-[#2B2117]">
-              সকল ইউটিলিটি খরচ
+              All Utility Costs
             </h2>
 
             <p className="mt-1 text-xs text-gray-500">
-              সর্বশেষ খরচটি প্রথমে দেখানো হচ্ছে
+              The most recent cost is displayed
+              first.
             </p>
           </div>
 
           <div className="w-fit rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-            মোট {utilityCostData.length} টি
-            এন্ট্রি
+            {utilityCostData.length}{" "}
+            {utilityCostData.length === 1
+              ? "Entry"
+              : "Entries"}
           </div>
-
         </div>
 
         {/* Loading */}
         {isLoading ? (
           <div className="rounded-md border border-gray-200 bg-gray-50 p-8 text-center text-xs text-gray-500">
-            ইউটিলিটি খরচের তথ্য লোড হচ্ছে...
+            Loading utility cost information...
           </div>
         ) : utilityCostData.length === 0 ? (
           <div className="rounded-md border border-gray-200 bg-gray-50 p-8 text-center text-xs text-gray-500">
-            কোনো ইউটিলিটি খরচের তথ্য পাওয়া যায়নি।
+            No utility cost records found.
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -632,12 +634,10 @@ const EditUtilityCosts = () => {
             <div className="hidden grid-cols-4 border-b border-gray-200 bg-gray-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500 sm:grid">
               <div>Tracking ID</div>
 
-              <div>
-                খরচের বিভাগ
-              </div>
+              <div>Cost Category</div>
 
               <div className="text-right">
-                পরিমাণ
+                Amount
               </div>
 
               <div className="text-right">
@@ -668,10 +668,10 @@ const EditUtilityCosts = () => {
                       </p>
                     </div>
 
-                    {/* Cost Section */}
+                    {/* Cost Category */}
                     <div>
                       <p className="text-xs text-gray-400 sm:hidden">
-                        খরচের বিভাগ
+                        Cost Category
                       </p>
 
                       <p className="text-sm font-medium text-gray-800">
@@ -682,12 +682,12 @@ const EditUtilityCosts = () => {
                     {/* Amount */}
                     <div className="sm:text-right">
                       <p className="text-xs text-gray-400 sm:hidden">
-                        পরিমাণ
+                        Amount
                       </p>
 
                       <p className="text-sm font-bold text-[#2B2117]">
                         {cost.amount.toLocaleString()}{" "}
-                        টাকা
+                        BDT
                       </p>
                     </div>
 
@@ -700,18 +700,17 @@ const EditUtilityCosts = () => {
                         }
                         disabled={isSubmitting}
                         className="inline-flex items-center justify-center gap-1.5 rounded-md bg-orange-50 px-3 py-2 text-xs font-medium text-orange-600 transition hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-50"
-                        title="এই খরচ সম্পাদনা করুন"
+                        title="Edit this utility cost"
                       >
                         <span className="text-sm">
                           <Pencil size={15} />
                         </span>
+
                         Edit
                       </button>
                     </div>
-
                   </div>
                 ))}
-
             </div>
           </div>
         )}

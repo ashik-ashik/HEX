@@ -250,7 +250,7 @@ const HomeInitial = () => {
                 </div>
                 <h3 className="font-semibold text-gray-100 mb-1">{name}</h3>
                 <p className="text-sm text-gray-400 mb-4">
-                  {seats} {seats > 1 ? "seats" : "seat"} available
+                  {seats} {seats > 1 ? "seats" : "seat"} in this room
                 </p>
 
                 <div className="mt-auto space-y-3 border-t border-gray-700 pt-4">

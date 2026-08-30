@@ -7,9 +7,12 @@ import {
   UtensilsCrossed,
   Lock,
   Loader2,
+  PowerOff,
+  Eye,
 } from "lucide-react";
 import type { UsersList } from "../services/DataTypes";
 import useAppData from "../hooks/useAppData";
+import { Link } from "react-router-dom";
 
 /* ==========================================
    Types
@@ -17,6 +20,10 @@ import useAppData from "../hooks/useAppData";
 
 interface MealEntry {
   [username: string]: number;
+}
+
+interface MealOffMap {
+  [username: string]: boolean;
 }
 
 interface MealCountRow {
@@ -31,6 +38,16 @@ interface MealCountResponse {
 
 /* ==========================================
    Component
+
+   IMPORTANT:
+   This component is ENTRY-ONLY.
+
+   If the selected date already has a
+   submitted entry, the form switches to a
+   READ-ONLY view of what was entered —
+   editing an already-entered date is not
+   allowed here (use the separate Edit Meal
+   Entry component for that).
 ========================================== */
 
 const MealCountEntry: React.FC = () => {
@@ -112,7 +129,7 @@ const MealCountEntry: React.FC = () => {
   const members = useMemo(() => {
     return (houseMembers || [])
       .map((member) => ({
-        name: member.name,
+        name: member?.name,
         username: member.email
           .split("@")[0]
           .trim()
@@ -146,6 +163,75 @@ const MealCountEntry: React.FC = () => {
   };
 
   /* ==========================================
+     LocalStorage helpers for "Meal Off"
+
+     IMPORTANT:
+     Meal Off is GLOBAL per member, NOT scoped
+     to a single date. Once a manager marks a
+     member off, that member stays marked off
+     on every date they open next — the entry
+     field stays disabled and pinned to 0 —
+     until a manager explicitly unchecks them.
+     There is no daily reset.
+
+     Key: mealOff:members
+     Value: ["mdashika989", "jamalhossain"]
+  ========================================== */
+
+  const MEAL_OFF_STORAGE_KEY =
+    "mealOff:members";
+
+  const loadMealOffFromStorage =
+    (): MealOffMap => {
+      try {
+        const raw = window.localStorage.getItem(
+          MEAL_OFF_STORAGE_KEY
+        );
+
+        if (!raw) return {};
+
+        const usernames: string[] =
+          JSON.parse(raw);
+
+        return usernames.reduce(
+          (acc, username) => {
+            acc[username] = true;
+            return acc;
+          },
+          {} as MealOffMap
+        );
+      } catch (err) {
+        console.log(err)
+        /* localStorage unavailable / corrupted — ignore */
+        return {};
+      }
+    };
+
+  const saveMealOffToStorage = (
+    offMap: MealOffMap
+  ) => {
+    try {
+      const usernames = Object.keys(
+        offMap
+      ).filter((username) => offMap[username]);
+
+      if (usernames.length === 0) {
+        window.localStorage.removeItem(
+          MEAL_OFF_STORAGE_KEY
+        );
+      } else {
+        window.localStorage.setItem(
+          MEAL_OFF_STORAGE_KEY,
+          JSON.stringify(usernames)
+        );
+      }
+    } catch (err) {
+      console.log(err)
+      /* localStorage unavailable — ignore */
+    }
+  };
+
+  /* ==========================================
      State
   ========================================== */
 
@@ -153,6 +239,18 @@ const MealCountEntry: React.FC = () => {
     useState<MealEntry>(
       createEmptyMealData()
     );
+
+  const [mealOff, setMealOff] =
+    useState<MealOffMap>({});
+
+  /*
+   * Remembers each member's last typed value
+   * so turning "Meal Off" back off restores
+   * what was there instead of leaving it at 0.
+   */
+
+  const [preOffValues, setPreOffValues] =
+    useState<MealEntry>({});
 
   const [date, setDate] =
     useState<string>(
@@ -163,6 +261,32 @@ const MealCountEntry: React.FC = () => {
     useState(false);
 
   /* ==========================================
+     Existing entry for the selected date
+
+     If this exists, the date is already
+     submitted, so the component renders in
+     READ-ONLY mode instead of an editable
+     form.
+  ========================================== */
+
+  const existingEntry = useMemo(() => {
+    const rows =
+      Array.isArray(readMealCount?.data)
+        ? readMealCount.data
+        : [];
+
+    return (
+      rows.find(
+        (row) =>
+          String(row.date).trim() ===
+          String(date).trim()
+      ) || null
+    );
+  }, [readMealCount?.data, date]);
+
+  const isReadOnly = !!existingEntry;
+
+  /* ==========================================
      Filled Count
   ========================================== */
 
@@ -170,108 +294,110 @@ const MealCountEntry: React.FC = () => {
     Object.keys(mealData).filter(
       (username) =>
         mealData[username] !== undefined &&
-        mealData[username] !== null
+        mealData[username] !== null &&
+        !Number.isNaN(mealData[username])
     ).length;
 
+  const offCount = Object.keys(
+    mealOff
+  ).filter((username) => mealOff[username])
+    .length;
+
   /* ==========================================
-     Load Existing Meal Data
+     Load Data For Selected Date
 
-     readMealCount already contains:
+     Two cases:
 
-     {
-       date: "2026-08-01",
+     1) Date already has a submitted entry
+        -> populate mealData from it (read-only
+           view), Meal Off is irrelevant here.
 
-       meals: {
-         mdashika989: 2.5,
-         jamalhossain: 0
-       }
-     }
-
-     We simply use the username to populate
-     the input.
-
-     We DO NOT modify readMealCount.
+     2) Date is open for entry
+        -> start from a blank sheet, then
+           restore any Meal Off selections
+           saved locally for this date and
+           zero those members out.
   ========================================== */
 
   useEffect(() => {
-    const rows =
-      Array.isArray(readMealCount?.data)
-        ? readMealCount.data
-        : [];
+    if (existingEntry) {
+      const existingMeals =
+        existingEntry.meals || {};
 
-    /* Find selected date */
+      const loadedMealData =
+        members.reduce(
+          (acc, member) => {
+            const value =
+              existingMeals[
+                member.username
+              ];
 
-    const existingEntry =
-      rows.find(
-        (row) =>
-          String(row.date).trim() ===
-          String(date).trim()
-      );
+            acc[member.username] =
+              value !== undefined &&
+              value !== null
+                ? Number(value)
+                : 0;
 
-    /* ========================================
-       No entry for selected date
-    ======================================== */
+            return acc;
+          },
+          {} as MealEntry
+        );
 
-    if (!existingEntry) {
-      setMealData(
-        createEmptyMealData()
-      );
+      setMealData(loadedMealData);
+      setMealOff({});
+      setPreOffValues({});
 
       return;
     }
 
     /* ========================================
-       Existing entry found
+       Open date — start fresh, then reapply
+       whichever members are globally marked
+       Meal Off (persisted across every date
+       until a manager unchecks them).
     ======================================== */
 
-    const existingMeals =
-      existingEntry.meals || {};
+    const savedOffMap =
+      loadMealOffFromStorage();
 
-    /*
-     * Create form data using usernames.
-     *
-     * Example:
-     *
-     * {
-     *   mdashika989: 2.5,
-     *   jamalhossain: 0
-     * }
-     */
+    const freshMealData =
+      createEmptyMealData();
 
-    const updatedMealData =
-      members.reduce(
-        (acc, member) => {
-          const username =
-            member.username;
+    members.forEach((member) => {
+      if (savedOffMap[member.username]) {
+        freshMealData[member.username] = 0;
+      }
+    });
 
-          const value =
-            existingMeals[
-              username
-            ];
-
-          /*
-           * 0 is a valid meal value.
-           */
-
-          acc[username] =
-            value !== undefined &&
-            value !== null
-              ? Number(value)
-              : 0;
-
-          return acc;
-        },
-        {} as MealEntry
-      );
-
-    setMealData(
-      updatedMealData
-    );
+    setMealData(freshMealData);
+    setMealOff(savedOffMap);
+    setPreOffValues({});
   }, [
     date,
-    readMealCount?.data,
+    existingEntry,
     members,
   ]);
+
+  /* ==========================================
+     NOTE on persistence:
+
+     Meal Off is saved to localStorage directly
+     inside toggleMealOff (below) — NOT via a
+     useEffect keyed on the mealOff state.
+
+     An effect-based "resave on every change"
+     approach is racy: on mount, the load effect
+     above calls setMealOff(savedOffMap), but
+     that update hasn't committed yet when this
+     same render's effects run, so a persist
+     effect would still see the OLD (empty)
+     mealOff and immediately overwrite the
+     freshly loaded data with nothing — which is
+     exactly what was wiping out off-members when
+     navigating back to this route. Saving
+     directly in the click handler avoids that
+     entirely.
+  ========================================== */
 
   /* ==========================================
      Handle Meal Input Change
@@ -314,6 +440,75 @@ const MealCountEntry: React.FC = () => {
   };
 
   /* ==========================================
+     Toggle "Meal Off" For A Member
+
+     Turning it ON:
+     - remembers the current value in
+       preOffValues
+     - forces the field to 0 and disables it
+     - saves the updated off-list to
+       localStorage immediately (computed
+       synchronously, not read back from state)
+
+     Turning it OFF:
+     - restores whatever value was there
+       before (falls back to 0)
+     - re-enables the field
+     - removes this member from the stored
+       off-list immediately
+  ========================================== */
+
+  const toggleMealOff = (
+    username: string
+  ) => {
+    if (isReadOnly) return;
+
+    const turningOff = !mealOff[username];
+
+    /*
+     * Compute the next map directly instead of
+     * relying on the functional setState form,
+     * so we have the exact final value to hand
+     * to saveMealOffToStorage in this same call
+     * — no effect, no race, no stale closure.
+     */
+
+    const nextMealOff: MealOffMap = {
+      ...mealOff,
+      [username]: turningOff,
+    };
+
+    setMealOff(nextMealOff);
+    saveMealOffToStorage(nextMealOff);
+
+    if (turningOff) {
+      setPreOffValues((prev) => ({
+        ...prev,
+        [username]: mealData[username],
+      }));
+
+      setMealData((prev) => ({
+        ...prev,
+        [username]: 0,
+      }));
+    } else {
+      setMealData((prev) => {
+        const restored =
+          preOffValues[username];
+
+        return {
+          ...prev,
+          [username]:
+            restored !== undefined &&
+            !Number.isNaN(restored)
+              ? restored
+              : 0,
+        };
+      });
+    }
+  };
+
+  /* ==========================================
      Submit Meal Data
 
      POST uses username:
@@ -324,12 +519,20 @@ const MealCountEntry: React.FC = () => {
      NOT:
 
      Md Ashik Ali=2.5
+
+     Members marked "Meal Off" are always
+     posted as 0, regardless of what's in
+     mealData (defensive — the field is
+     already disabled/zeroed, this just makes
+     sure a stale value can never sneak in).
   ========================================== */
 
   const handleSubmit = async (
     e: React.FormEvent
   ) => {
     e.preventDefault();
+
+    if (isReadOnly) return;
 
     setLoadingOnSubmit(true);
 
@@ -348,24 +551,27 @@ const MealCountEntry: React.FC = () => {
           date
         )}&` +
         members
-          .map(
-            (member) =>
-              `${encodeURIComponent(
-                member.username
-              )}=${encodeURIComponent(
-                Number.isNaN(
+          .map((member) => {
+            const value = mealOff[
+              member.username
+            ]
+              ? 0
+              : Number.isNaN(
                   mealData[
                     member.username
                   ]
                 )
-                  ? "0"
-                  : String(
-                      mealData[
-                        member.username
-                      ] ?? 0
-                    )
-              )}`
-          )
+              ? 0
+              : mealData[
+                  member.username
+                ] ?? 0;
+
+            return `${encodeURIComponent(
+              member.username
+            )}=${encodeURIComponent(
+              String(value)
+            )}`;
+          })
           .join("&");
 
       const response = await fetch(
@@ -415,30 +621,35 @@ const MealCountEntry: React.FC = () => {
         date,
 
         meals: Object.fromEntries(
-          members.map(
-            (member) => [
-              member.username,
-
-              Number.isNaN(
-                mealData[
-                  member.username
-                ]
-              )
-                ? 0
-                : Number(
-                    mealData[
-                      member.username
-                    ] ?? 0
-                  ),
+          members.map((member) => {
+            const value = mealOff[
+              member.username
             ]
-          )
+              ? 0
+              : Number.isNaN(
+                  mealData[
+                    member.username
+                  ]
+                )
+              ? 0
+              : Number(
+                  mealData[
+                    member.username
+                  ] ?? 0
+                );
+
+            return [member.username, value];
+          })
         ),
       };
 
       /* ========================================
          Immediately update Context
 
-         No page refresh required.
+         No page refresh required. This will
+         also flip the component into read-only
+         mode for this date on the next render,
+         since existingEntry will now be found.
       ======================================== */
 
       setReadMealCount((prev) => {
@@ -480,6 +691,20 @@ const MealCountEntry: React.FC = () => {
           data: updatedData,
         };
       });
+
+      /*
+       * IMPORTANT: we deliberately do NOT clear
+       * the global Meal Off list here. A member
+       * marked off stays off for every future
+       * date they're opened on — only an
+       * explicit uncheck by a manager removes
+       * them from the list. Local component
+       * state is reset only because this date
+       * is about to flip into read-only mode.
+       */
+
+      setMealOff({});
+      setPreOffValues({});
 
       toast.success(
         "Meal counts saved successfully!",
@@ -573,17 +798,15 @@ const MealCountEntry: React.FC = () => {
               </h2>
 
               <p className="text-[11px] text-indigo-100">
-                Record today&apos;s meal count
-                for every member
+                {isReadOnly
+                  ? "Viewing an already-submitted entry"
+                  : "Record meal count for every member"}
               </p>
             </div>
           </div>
 
           {canEnter ? (
-            <form
-              onSubmit={handleSubmit}
-              className="p-5 space-y-4"
-            >
+            <div className="p-5 space-y-4">
 
               {/* ====================================
                   Date + Progress
@@ -610,113 +833,197 @@ const MealCountEntry: React.FC = () => {
                   />
                 </div>
 
-                <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full whitespace-nowrap">
-                  {filledCount}/
-                  {members.length} entered
-                </span>
+                <div className="flex items-center gap-1.5">
+                  {offCount > 0 &&
+                    !isReadOnly && (
+                      <span className="text-[11px] font-semibold text-red-600 bg-red-50 px-2 py-1 rounded-full whitespace-nowrap">
+                        {offCount} meal(s) off
+                      </span>
+                    )}
+
+                  <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full whitespace-nowrap">
+                    {filledCount}/
+                    {members.length} entered
+                  </span>
+                </div>
               </div>
 
               {/* ====================================
-                  Member List
+                  Read-only notice
               ==================================== */}
 
-              <div className="divide-y divide-gray-100 border border-gray-100 rounded-xl overflow-hidden">
+              {isReadOnly && (
+                <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 text-amber-700 text-xs rounded-xl p-3">
+                  <Eye
+                    size={14}
+                    className="shrink-0 mt-0.5"
+                  />
 
-                {members.map(
-                  (member) => (
-                    <div
-                      key={member.username}
-                      className="flex justify-between items-center gap-3 px-3 py-2.5 bg-white hover:bg-gray-50 transition-colors"
-                    >
+                  <span>
+                    This date already has a
+                    submitted entry, so it&apos;s
+                    shown here read-only. Go to 
+                    <Link to='/manager/edit-meal-count-entry' className="font-bold text-blue-500 "> Edit Meal Entry</Link> to make
+                    changes.
+                  </span>
+                </div>
+              )}
 
-                      {/* 
-                        UI SHOWS REAL NAME
+              <form onSubmit={handleSubmit}>
 
-                        Example:
-                        Md Ashik Ali
+                {/* ====================================
+                    Member List
+                ==================================== */}
 
-                        But internally this member
-                        is identified by:
+                <div className="divide-y divide-gray-100 border border-gray-100 rounded-xl overflow-hidden">
 
-                        mdashika989
-                      */}
+                  {members.map(
+                    (member) => {
+                      const isOff =
+                        !!mealOff[
+                          member.username
+                        ];
 
-                      <label className="text-sm font-medium text-gray-700 truncate capitalize">
-                        {member.name}
-                      </label>
+                      return (
+                        <div
+                          key={member.username}
+                          className={`flex justify-between items-center gap-3 px-3 py-2.5 transition-colors ${
+                            isOff
+                              ? "bg-red-50/60"
+                              : "bg-white hover:bg-gray-50"
+                          }`}
+                        >
 
-                      <input
-                        list="meal-options"
-                        type="number"
-                        step="0.5"
-                        min="0"
-                        value={
-                          Number.isNaN(
-                            mealData[
-                              member.username
-                            ]
-                          )
-                            ? ""
-                            : mealData[
-                                member.username
-                              ] ?? ""
-                        }
-                        required
-                        onChange={(e) =>
-                          handleChange(
-                            member.username,
-                            e.target.value
-                          )
-                        }
-                        className="w-24 p-1.5 text-xs border border-gray-200 rounded-md text-center focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition"
-                        placeholder="0"
-                      />
-                    </div>
-                  )
+                          {/*
+                            UI SHOWS REAL NAME
+                            but internally this
+                            member is identified
+                            by member.username
+                          */}
+
+                          <label
+                            className={`text-sm font-medium truncate capitalize ${
+                              isOff
+                                ? "text-red-400 "
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {member?.name}
+                          </label>
+
+                          <div className="flex items-center gap-2 shrink-0">
+
+                            {!isReadOnly && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  toggleMealOff(
+                                    member.username
+                                  )
+                                }
+                                aria-pressed={isOff}
+                                title={
+                                  isOff
+                                    ? "Meal off on every date until you turn it back on"
+                                    : "Tap to mark off, stays off on every date until unchecked"
+                                }
+                                className={`flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full border transition-colors ${
+                                  isOff
+                                    ? "bg-red-500 border-red-500 text-white"
+                                    : "bg-white border-gray-200 text-gray-400 hover:border-red-300 hover:text-red-500"
+                                }`}
+                              >
+                                <PowerOff
+                                  size={11}
+                                />
+                                Meal Off
+                              </button>
+                            )}
+
+                            <input
+                              list="meal-options"
+                              type="number"
+                              step="0.5"
+                              min="0"
+                              value={
+                                Number.isNaN(
+                                  mealData[
+                                    member.username
+                                  ]
+                                )
+                                  ? ""
+                                  : mealData[
+                                      member.username
+                                    ] ?? ""
+                              }
+                              required={
+                                !isReadOnly &&
+                                !isOff
+                              }
+                              disabled={
+                                isReadOnly ||
+                                isOff
+                              }
+                              onChange={(e) =>
+                                handleChange(
+                                  member.username,
+                                  e.target.value
+                                )
+                              }
+                              className="w-20 p-1.5 text-xs border border-gray-200 rounded-md text-center focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition disabled:bg-gray-100 disabled:text-gray-400"
+                              placeholder="0"
+                            />
+                          </div>
+                        </div>
+                      );
+                    }
+                  )}
+
+                  {/* Suggested Values */}
+
+                  <datalist id="meal-options">
+                    <option value="0" />
+                    <option value="0.5" />
+                    <option value="1" />
+                    <option value="1.5" />
+                    <option value="2" />
+                    <option value="2.5" />
+                    <option value="3" />
+                    <option value="3.5" />
+                    <option value="4" />
+                    <option value="4.5" />
+                    <option value="5" />
+                  </datalist>
+                </div>
+
+                {/* ====================================
+                    Submit
+                ==================================== */}
+
+                {!isReadOnly && (
+                  <button
+                    type="submit"
+                    disabled={
+                      loadingOnSubmit
+                    }
+                    className="mt-4 w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 rounded-lg font-medium text-sm hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {loadingOnSubmit ? (
+                      <>
+                        <Loader2
+                          size={16}
+                          className="animate-spin"
+                        />
+
+                        Saving...
+                      </>
+                    ) : (
+                      "Entry Meals"
+                    )}
+                  </button>
                 )}
-
-                {/* Suggested Values */}
-
-                <datalist id="meal-options">
-                  <option value="0" />
-                  <option value="0.5" />
-                  <option value="1" />
-                  <option value="1.5" />
-                  <option value="2" />
-                  <option value="2.5" />
-                  <option value="3" />
-                  <option value="3.5" />
-                  <option value="4" />
-                  <option value="4.5" />
-                  <option value="5" />
-                </datalist>
-              </div>
-
-              {/* ====================================
-                  Submit
-              ==================================== */}
-
-              <button
-                type="submit"
-                disabled={
-                  loadingOnSubmit
-                }
-                className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 rounded-lg font-medium text-sm hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-              >
-                {loadingOnSubmit ? (
-                  <>
-                    <Loader2
-                      size={16}
-                      className="animate-spin"
-                    />
-
-                    Saving...
-                  </>
-                ) : (
-                  "Entry Meals"
-                )}
-              </button>
-            </form>
+              </form>
+            </div>
           ) : (
             <div className="p-8 flex flex-col items-center text-center gap-2">
               <div className="bg-gray-100 rounded-full p-3">

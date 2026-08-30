@@ -20,11 +20,11 @@ const HexaHouseLoader: React.FC = () => {
       ========================================================== */}
 
       {/* Main radial glow */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/[0.035] blur-[100px]" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[340px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/[0.035] blur-[80px]" />
 
-      <div className="pointer-events-none absolute left-[20%] top-[20%] h-48 w-48 animate-[orbFloat_7s_ease-in-out_infinite] rounded-full bg-blue-500/[0.06] blur-[90px]" />
+      <div className="pointer-events-none absolute left-[20%] top-[20%] h-32 w-32 animate-[orbFloat_7s_ease-in-out_infinite] rounded-full bg-blue-500/[0.06] blur-[70px]" />
 
-      <div className="pointer-events-none absolute bottom-[15%] right-[15%] h-56 w-56 animate-[orbFloat_9s_ease-in-out_infinite_reverse] rounded-full bg-purple-500/[0.05] blur-[100px]" />
+      <div className="pointer-events-none absolute bottom-[15%] right-[15%] h-36 w-36 animate-[orbFloat_9s_ease-in-out_infinite_reverse] rounded-full bg-purple-500/[0.05] blur-[80px]" />
 
       {/* Moving background grid */}
       <div className="pointer-events-none absolute inset-0 opacity-[0.035] [background-image:linear-gradient(rgba(34,211,238,.8)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,.8)_1px,transparent_1px)] [background-size:45px_45px] animate-[gridMove_12s_linear_infinite]" />
@@ -62,9 +62,9 @@ const HexaHouseLoader: React.FC = () => {
             HOUSE
         ======================================================== */}
 
-        <div className="relative h-[280px] w-[320px]">
+        <div className="relative h-[100px] w-[117px]">
           {/* House aura */}
-          <div className="absolute left-1/2 top-[48%] h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400/[0.045] blur-[50px] animate-[houseAura_3s_ease-in-out_infinite]" />
+          <div className="absolute left-1/2 top-[48%] h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-400/[0.045] blur-[36px] animate-[houseAura_3s_ease-in-out_infinite]" />
 
           <svg
             viewBox="0 0 320 280"
@@ -455,12 +455,12 @@ const HexaHouseLoader: React.FC = () => {
         </div>
 
         {/* =======================================================
-            CRAZY TEXT
+            TEXT
         ======================================================== */}
 
-        <div className="relative mt-0 flex items-center justify-center">
-          {/* Large background glow */}
-          <div className="absolute inset-x-0 top-1/2 h-12 -translate-y-1/2 bg-cyan-400/10 blur-2xl" />
+        <div className="relative mt-1 flex items-center justify-center">
+          {/* Background glow */}
+          <div className="absolute inset-x-0 top-1/2 h-8 -translate-y-1/2 bg-cyan-400/10 blur-xl" />
 
           <div className="relative flex items-center justify-center">
             {/* HEXA */}
@@ -472,7 +472,7 @@ const HexaHouseLoader: React.FC = () => {
                     relative
                     inline-block
                     select-none
-                    text-[34px]
+                    text-[20px]
                     font-black
                     leading-none
                     tracking-tight
@@ -482,7 +482,7 @@ const HexaHouseLoader: React.FC = () => {
                     via-cyan-400
                     to-blue-500
                     bg-clip-text
-                    drop-shadow-[0_0_10px_rgba(34,211,238,0.45)]
+                    drop-shadow-[0_0_6px_rgba(34,211,238,0.4)]
                     animate-[letterDance_2.4s_ease-in-out_infinite]
                   "
                   style={{
@@ -516,7 +516,7 @@ const HexaHouseLoader: React.FC = () => {
             </div>
 
             {/* Space */}
-            <span className="w-4" />
+            <span className="w-2.5" />
 
             {/* HOUSE */}
             <div className="flex">
@@ -527,7 +527,7 @@ const HexaHouseLoader: React.FC = () => {
                     relative
                     inline-block
                     select-none
-                    text-[34px]
+                    text-[20px]
                     font-black
                     leading-none
                     tracking-tight
@@ -537,7 +537,7 @@ const HexaHouseLoader: React.FC = () => {
                     via-indigo-400
                     to-purple-600
                     bg-clip-text
-                    drop-shadow-[0_0_10px_rgba(139,92,246,0.5)]
+                    drop-shadow-[0_0_6px_rgba(139,92,246,0.45)]
                     animate-[letterDance_2.4s_ease-in-out_infinite]
                   "
                   style={{
@@ -593,14 +593,14 @@ const HexaHouseLoader: React.FC = () => {
             LOADING INDICATOR
         ======================================================== */}
 
-        <div className="mt-7 flex items-center gap-3">
+        <div className="mt-4 flex items-center gap-2.5">
           <div className="relative h-1.5 w-1.5">
             <span className="absolute inset-0 rounded-full bg-cyan-400 animate-ping" />
             <span className="relative block h-1.5 w-1.5 rounded-full bg-cyan-300" />
           </div>
 
-          <div className="relative h-[2px] w-28 overflow-hidden rounded-full bg-slate-800">
-            <div className="absolute inset-y-0 left-0 w-8 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 animate-[loadingBar_1.6s_ease-in-out_infinite]" />
+          <div className="relative h-[2px] w-20 overflow-hidden rounded-full bg-slate-800">
+            <div className="absolute inset-y-0 left-0 w-6 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500 animate-[loadingBar_1.6s_ease-in-out_infinite]" />
           </div>
 
           <div className="relative h-1.5 w-1.5">
@@ -609,7 +609,7 @@ const HexaHouseLoader: React.FC = () => {
           </div>
         </div>
 
-        <p className="mt-4 text-[9px] font-semibold uppercase tracking-[0.55em] text-slate-500 animate-[subtleFade_2s_ease-in-out_infinite]">
+        <p className="mt-3 text-[8px] font-semibold uppercase tracking-[0.45em] text-slate-500 animate-[subtleFade_2s_ease-in-out_infinite]">
           Entering the house
         </p>
       </div>
@@ -852,7 +852,7 @@ const HexaHouseLoader: React.FC = () => {
         }
 
         /* ================================================
-           CRAZY LETTER ANIMATION
+           LETTER ANIMATION
         ================================================= */
 
         @keyframes letterDance {
@@ -866,21 +866,21 @@ const HexaHouseLoader: React.FC = () => {
 
           15% {
             transform:
-              translateY(-7px)
+              translateY(-5px)
               rotate(-4deg)
               scale(1.05);
           }
 
           30% {
             transform:
-              translateY(3px)
+              translateY(2px)
               rotate(3deg)
               scale(0.97);
           }
 
           45% {
             transform:
-              translateY(-11px)
+              translateY(-8px)
               rotate(-2deg)
               scale(1.09);
           }
@@ -894,7 +894,7 @@ const HexaHouseLoader: React.FC = () => {
 
           75% {
             transform:
-              translateY(-5px)
+              translateY(-4px)
               rotate(-3deg)
               scale(1.04);
           }
@@ -1017,15 +1017,15 @@ const HexaHouseLoader: React.FC = () => {
 
         @keyframes loadingBar {
           0% {
-            transform: translateX(-45px);
+            transform: translateX(-32px);
           }
 
           50% {
-            transform: translateX(80px);
+            transform: translateX(56px);
           }
 
           100% {
-            transform: translateX(-45px);
+            transform: translateX(-32px);
           }
         }
       `}</style>

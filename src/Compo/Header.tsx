@@ -121,7 +121,7 @@ const Header = () => {
                   to={link.path}
                   className={navLinkClass}
                 >
-                  {link.name}
+                  {link?.name}
                 </NavLink>
               ))}
 
@@ -132,7 +132,7 @@ const Header = () => {
                   to={link.path}
                   className={navLinkClass}
                 >
-                  {link.name}
+                  {link?.name}
                 </NavLink>
               ))}
 
@@ -143,7 +143,7 @@ const Header = () => {
                   to={link.path}
                   className={navLinkClass}
                 >
-                  {link.name}
+                  {link?.name}
                 </NavLink>
               ))}
 
@@ -155,7 +155,7 @@ const Header = () => {
                   to={link.path}
                   className={navLinkClass}
                 >
-                  {link.name}
+                  {link?.name}
                 </NavLink>
               ))}
 
@@ -194,7 +194,7 @@ const Header = () => {
                   className={navLinkClass}
                 >
                   {link.icon && <link.icon size={16} />}
-                  {link.name}
+                  {link?.name}
                 </NavLink>
               ))}
 
@@ -206,7 +206,7 @@ const Header = () => {
                   className={navLinkClass}
                 >
                   {link.icon && <link.icon size={16} />}
-                  {link.name}
+                  {link?.name}
                 </NavLink>
               ))}
 
@@ -218,7 +218,7 @@ const Header = () => {
                   className={navLinkClass}
                 >
                   {link.icon && <link.icon size={16} />}
-                  {link.name}
+                  {link?.name}
                 </NavLink>
               ))}
 
@@ -229,7 +229,7 @@ const Header = () => {
                   className={navLinkClass}
                 >
                   {link.icon && <link.icon size={16} />}
-                  {link.name}
+                  {link?.name}
                 </NavLink>
               ))}
             {/* Developer profile — visible to all users, logged in or not */}

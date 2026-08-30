@@ -35,17 +35,26 @@ const EditMealDeposit = () => {
     amount: "",
   });
 
-  const {houseMembers} = useAuth() as {houseMembers: UsersList}
-  const showMemberName = (uid: string) => {
-    return houseMembers.find(hm => hm.email.split('@')[0] === uid)
-  }
+  const { houseMembers } = useAuth() as {
+    houseMembers: UsersList;
+  };
 
-  const [depositGroups, setDepositGroups] = useState<DepositGroup[]>([]);
+  const showMemberName = (uid: string) => {
+    return houseMembers.find(
+      (hm) => hm.email.split("@")[0] === uid
+    );
+  };
+
+  const [depositGroups, setDepositGroups] = useState<
+    DepositGroup[]
+  >([]);
+
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
 
   // Ref for the edit form container
-  const formSectionRef = useRef<HTMLDivElement>(null);
+  const formSectionRef =
+    useRef<HTMLDivElement>(null);
 
   // Google Sheet CSV URL
   const MEAL_DEPOSIT_SHEET =
@@ -78,7 +87,10 @@ const EditMealDeposit = () => {
         i++;
       } else if (char === '"') {
         insideQuotes = !insideQuotes;
-      } else if (char === "," && !insideQuotes) {
+      } else if (
+        char === "," &&
+        !insideQuotes
+      ) {
         row.push(value.trim());
         value = "";
       } else if (
@@ -122,11 +134,12 @@ const EditMealDeposit = () => {
     try {
       setFetching(true);
 
-      const response = await fetch(MEAL_DEPOSIT_SHEET);
+      const response = await fetch(
+        MEAL_DEPOSIT_SHEET
+      );
+
       const text = await response.text();
-
       const rows = parseCSV(text);
-
 
       if (rows.length < 1) {
         setDepositGroups([]);
@@ -135,11 +148,13 @@ const EditMealDeposit = () => {
 
       // First column = trackingID
       const headers = rows[0];
-
       const trackingIDIndex = 0;
 
       // Store entries grouped by trackingID
-      const grouped: Record<string, DepositEntry[]> = {};
+      const grouped: Record<
+        string,
+        DepositEntry[]
+      > = {};
 
       rows.slice(1).forEach((row) => {
         const trackingID = (
@@ -188,12 +203,13 @@ const EditMealDeposit = () => {
         }
       });
 
-      const groups: DepositGroup[] = Object.entries(
-        grouped
-      ).map(([trackingID, entries]) => ({
-        trackingID,
-        entries,
-      }));
+      const groups: DepositGroup[] =
+        Object.entries(grouped).map(
+          ([trackingID, entries]) => ({
+            trackingID,
+            entries,
+          })
+        );
 
       // Newest/latest tracking IDs first
       groups.reverse();
@@ -205,7 +221,9 @@ const EditMealDeposit = () => {
         error
       );
 
-      toast.error("মিল জমার তথ্য লোড করা যায়নি।");
+      toast.error(
+        "Failed to load meal deposit information."
+      );
     } finally {
       setFetching(false);
     }
@@ -362,14 +380,18 @@ const EditMealDeposit = () => {
       !formData.member ||
       !formData.amount
     ) {
-      toast.error("অনুগ্রহ করে সব তথ্য পূরণ করুন।");
+      toast.error(
+        "Please complete all required fields."
+      );
       return;
     }
 
     const amount = Number(formData.amount);
 
     if (isNaN(amount) || amount < 0) {
-      toast.error("সঠিক পরিমাণ লিখুন।");
+      toast.error(
+        "Please enter a valid amount."
+      );
       return;
     }
 
@@ -377,7 +399,7 @@ const EditMealDeposit = () => {
       setLoading(true);
 
       const loadingToast = toast.loading(
-        "মিল জমা আপডেট হচ্ছে..."
+        "Updating meal deposit..."
       );
 
       const params = new URLSearchParams({
@@ -406,7 +428,7 @@ const EditMealDeposit = () => {
       if (result.status === "success") {
         toast.success(
           result.message ||
-            "মিল জমা সফলভাবে আপডেট হয়েছে।"
+            "Meal deposit updated successfully."
         );
 
         setFormData({
@@ -424,12 +446,12 @@ const EditMealDeposit = () => {
       } else {
         toast.error(
           result.message ||
-            "মিল জমা আপডেট করা যায়নি।"
+            "Failed to update the meal deposit."
         );
       }
     } catch (error) {
       toast.error(
-        "সার্ভার সমস্যা হয়েছে। আবার চেষ্টা করুন। " +
+        "A server error occurred. Please try again. " +
           (error as Error).message
       );
     } finally {
@@ -440,41 +462,43 @@ const EditMealDeposit = () => {
   return (
     <section className="flex flex-col items-center px-3 py-8 sm:py-10">
       <Toaster
-          position="top-right"
-          containerStyle={{
-            position: "fixed",
-            top: 100,
-            right: 20,
-            zIndex: 9999,
-          }}
-          toastOptions={{
-            className: "text-xs px-3 py-2 rounded-lg shadow-md",
-            style: {
-              background: "#1f2937",
-              color: "#fff",
+        position="top-right"
+        containerStyle={{
+          position: "fixed",
+          top: 100,
+          right: 20,
+          zIndex: 9999,
+        }}
+        toastOptions={{
+          className:
+            "text-xs px-3 py-2 rounded-lg shadow-md",
+          style: {
+            background: "#1f2937",
+            color: "#fff",
+          },
+          success: {
+            className:
+              "bg-green-600 text-white text-xs px-3 py-2 rounded-lg shadow-md",
+            iconTheme: {
+              primary: "#fff",
+              secondary: "#16a34a",
             },
-            success: {
-              className:
-                "bg-green-600 text-white text-xs px-3 py-2 rounded-lg shadow-md",
-              iconTheme: {
-                primary: "#fff",
-                secondary: "#16a34a",
-              },
+          },
+          error: {
+            className:
+              "bg-red-600 text-white text-xs px-3 py-2 rounded-lg shadow-md",
+            iconTheme: {
+              primary: "#fff",
+              secondary: "#dc2626",
             },
-            error: {
-              className:
-                "bg-red-600 text-white text-xs px-3 py-2 rounded-lg shadow-md",
-              iconTheme: {
-                primary: "#fff",
-                secondary: "#dc2626",
-              },
-            },
-            loading: {
-              className:
-                "bg-indigo-600 text-white text-xs px-3 py-2 rounded-lg shadow-md",
-            },
-          }}
-        />
+          },
+          loading: {
+            className:
+              "bg-indigo-600 text-white text-xs px-3 py-2 rounded-lg shadow-md",
+          },
+        }}
+      />
+
       {/* ======================================================
           FORM SECTION
           ====================================================== */}
@@ -484,6 +508,7 @@ const EditMealDeposit = () => {
         className="w-full max-w-4xl scroll-mt-5"
       >
         <div className="bg-white rounded-xl shadow-xl border border-slate-100 p-5 sm:p-8">
+
           {/* Header */}
           <div className="flex flex-col items-center text-center mb-2">
             <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center mb-3">
@@ -491,13 +516,13 @@ const EditMealDeposit = () => {
             </div>
 
             <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
-              মিল জমা সম্পাদনা
+              Edit Meal Deposit
             </h2>
 
             <p className="text-[11px] leading-relaxed text-slate-600 mt-1.5 max-w-md">
-              প্রথমে ট্র্যাকিং আইডি নির্বাচন করুন।
-              এরপর ঐ আইডির সদস্য নির্বাচন করে জমার
-              পরিমাণ পরিবর্তন করুন।
+              First, select a Tracking ID. Then
+              select a member associated with that
+              ID and update the deposit amount.
             </p>
           </div>
 
@@ -510,7 +535,7 @@ const EditMealDeposit = () => {
             <div className="flex flex-col">
               <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
                 <Hash className="w-3.5 h-3.5" />
-                ট্র্যাকিং আইডি
+                Tracking ID
               </label>
 
               <select
@@ -521,11 +546,14 @@ const EditMealDeposit = () => {
                 required
               >
                 <option value="">
-                  ট্র্যাকিং আইডি নির্বাচন করুন
+                  Select Tracking ID
                 </option>
 
                 {trackingIDs.map((id) => (
-                  <option key={id} value={id}>
+                  <option
+                    key={id}
+                    value={id}
+                  >
                     {id}
                   </option>
                 ))}
@@ -536,7 +564,7 @@ const EditMealDeposit = () => {
             <div className="flex flex-col">
               <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5" />
-                সদস্যের নাম
+                Member
               </label>
 
               <select
@@ -549,8 +577,8 @@ const EditMealDeposit = () => {
               >
                 <option value="">
                   {formData.trackingID
-                    ? "সদস্য নির্বাচন করুন"
-                    : "প্রথমে ট্র্যাকিং আইডি নির্বাচন করুন"}
+                    ? "Select Member"
+                    : "Select a Tracking ID first"}
                 </option>
 
                 {selectedMembers.map((entry) => (
@@ -558,7 +586,9 @@ const EditMealDeposit = () => {
                     key={`${entry.trackingID}-${entry.member}`}
                     value={entry.member}
                   >
-                    {showMemberName(entry.member)?.name}:- ৳{entry.amount}
+                    {showMemberName(entry.member)?.name ||
+                      entry.member}{" "}
+                    — ৳{entry.amount}
                   </option>
                 ))}
               </select>
@@ -567,21 +597,24 @@ const EditMealDeposit = () => {
             {/* Selected Member & Current Amount */}
             {formData.member && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
                 {/* Selected Member */}
                 <div className="rounded-xl bg-slate-50 border border-slate-200 p-3">
                   <p className="text-[10px] font-medium text-slate-400 mb-1">
-                    নির্বাচিত সদস্য
+                    Selected Member
                   </p>
 
                   <p className="text-xs font-semibold text-slate-700 truncate capitalize">
-                    {showMemberName(formData.member)?.name}
+                    {showMemberName(
+                      formData.member
+                    )?.name || formData.member}
                   </p>
                 </div>
 
                 {/* Current Amount */}
                 <div className="rounded-xl bg-slate-50 border border-slate-200 p-3">
                   <p className="text-[10px] font-medium text-slate-400 mb-1">
-                    বর্তমান জমা
+                    Current Deposit
                   </p>
 
                   <p className="text-sm font-bold text-amber-600">
@@ -589,11 +622,14 @@ const EditMealDeposit = () => {
                     {selectedMembers
                       .find(
                         (entry) =>
-                          entry.member === formData.member
+                          entry.member ===
+                          formData.member
                       )
-                      ?.amount?.toLocaleString() || "0"}
+                      ?.amount?.toLocaleString() ||
+                      "0"}
                   </p>
                 </div>
+
               </div>
             )}
 
@@ -601,7 +637,7 @@ const EditMealDeposit = () => {
             <div className="flex flex-col">
               <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
                 <Wallet className="w-3.5 h-3.5" />
-                পরিবর্তিত জমার পরিমাণ (৳)
+                Updated Deposit Amount (৳)
               </label>
 
               <input
@@ -609,26 +645,31 @@ const EditMealDeposit = () => {
                 name="amount"
                 value={formData.amount}
                 onChange={handleChange}
-                placeholder="নতুন জমার পরিমাণ লিখুন"
+                placeholder="Enter the new deposit amount"
                 disabled={!formData.member}
                 min="0"
                 className="w-full p-3 rounded-xl bg-white border border-amber-200 text-slate-700 placeholder-slate-400 text-xs outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 required
               />
 
-              {formData.member && formData.amount && (
-                <p className="text-[10px] text-slate-400 mt-1.5">
-                  বর্তমান ৳
-                  {selectedMembers
-                    .find(
-                      (entry) =>
-                        entry.member === formData.member
-                    )
-                    ?.amount?.toLocaleString() || "0"}{" "}
-                  → পরিবর্তিত ৳
-                  {Number(formData.amount).toLocaleString()}
-                </p>
-              )}
+              {formData.member &&
+                formData.amount && (
+                  <p className="text-[10px] text-slate-400 mt-1.5">
+                    Current: ৳
+                    {selectedMembers
+                      .find(
+                        (entry) =>
+                          entry.member ===
+                          formData.member
+                      )
+                      ?.amount?.toLocaleString() ||
+                      "0"}{" "}
+                    → Updated: ৳
+                    {Number(
+                      formData.amount
+                    ).toLocaleString()}
+                  </p>
+                )}
             </div>
 
             {/* Submit */}
@@ -643,11 +684,10 @@ const EditMealDeposit = () => {
               className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-[0.99] transition-all text-white text-sm font-semibold shadow-md shadow-amber-200 disabled:opacity-60 disabled:active:scale-100 disabled:cursor-not-allowed"
             >
               {loading
-                ? "আপডেট হচ্ছে..."
-                : "মিল জমা আপডেট করুন"}
+                ? "Updating..."
+                : "Update Meal Deposit"}
             </button>
           </form>
-
 
           {/* Refresh */}
           <button
@@ -663,8 +703,8 @@ const EditMealDeposit = () => {
             />
 
             {fetching
-              ? "তথ্য লোড হচ্ছে..."
-              : "তথ্য রিফ্রেশ করুন"}
+              ? "Loading..."
+              : "Refresh Data"}
           </button>
         </div>
       </div>
@@ -677,41 +717,43 @@ const EditMealDeposit = () => {
         <div className="flex items-center justify-between mb-3 px-1">
           <div>
             <h3 className="text-sm font-bold text-slate-800">
-              সকল মিল জমার এন্ট্রি
+              All Meal Deposit Entries
             </h3>
 
             <p className="text-[10px] text-slate-500 mt-0.5">
-              ট্র্যাকিং আইডি অনুযায়ী জমাগুলো দেখানো হচ্ছে
+              Deposits are grouped by Tracking ID.
             </p>
           </div>
 
           <span className="text-[10px] font-medium bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">
-            {depositGroups.length} টি এন্ট্রি
+            {depositGroups.length} Entries
           </span>
         </div>
 
-        {fetching && depositGroups.length === 0 ? (
+        {fetching &&
+        depositGroups.length === 0 ? (
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 text-center">
             <RefreshCw className="w-5 h-5 mx-auto text-amber-500 animate-spin" />
 
             <p className="text-xs text-slate-500 mt-2">
-              মিল জমার তথ্য লোড হচ্ছে...
+              Loading meal deposit information...
             </p>
           </div>
         ) : depositGroups.length === 0 ? (
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 text-center">
             <p className="text-xs text-slate-500">
-              কোনো মিল জমার এন্ট্রি পাওয়া যায়নি।
+              No meal deposit entries found.
             </p>
           </div>
         ) : (
           <div className="space-y-3">
             {depositGroups.map((group) => {
-              const groupTotal = group.entries.reduce(
-                (sum, entry) =>
-                  sum + entry.amount,
-                0
-              );
+              const groupTotal =
+                group.entries.reduce(
+                  (sum, entry) =>
+                    sum + entry.amount,
+                  0
+                );
 
               return (
                 <div
@@ -738,56 +780,65 @@ const EditMealDeposit = () => {
 
                     <div className="text-right shrink-0">
                       <p className="text-[9px] text-slate-400">
-                        মোট
+                        Total
                       </p>
 
                       <p className="text-xs font-bold text-amber-600">
-                        ৳{groupTotal.toLocaleString()}
+                        ৳
+                        {groupTotal.toLocaleString()}
                       </p>
                     </div>
                   </div>
 
                   {/* Entries */}
                   <div className="divide-y divide-slate-100">
-                    {group.entries.map((entry) => (
-                      <div
-                        key={`${entry.trackingID}-${entry.member}`}
-                        className="px-4 py-3 flex items-center justify-between gap-3"
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                            <User className="w-4 h-4 text-slate-500" />
+                    {group.entries.map(
+                      (entry) => (
+                        <div
+                          key={`${entry.trackingID}-${entry.member}`}
+                          className="px-4 py-3 flex items-center justify-between gap-3"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                              <User className="w-4 h-4 text-slate-500" />
+                            </div>
+
+                            <div className="min-w-0">
+                              <p className="text-xs font-semibold text-slate-700 truncate capitalize">
+                                {showMemberName(
+                                  entry.member
+                                )?.name ||
+                                  entry.member}
+                              </p>
+
+                              <p className="text-[9px] text-slate-400">
+                                {entry.trackingID}
+                              </p>
+                            </div>
                           </div>
 
-                          <div className="min-w-0">
-                            <p className="text-xs font-semibold text-slate-700 truncate capitalize">
-                              {showMemberName(entry.member)?.name}
-                            </p>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-xs font-bold text-slate-700">
+                              ৳
+                              {entry.amount.toLocaleString()}
+                            </span>
 
-                            <p className="text-[9px] text-slate-400">
-                              {entry.trackingID}
-                            </p>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleEditEntry(
+                                  entry
+                                )
+                              }
+                              className="p-1.5 rounded-lg text-amber-600 bg-amber-50 hover:bg-amber-100 transition-all"
+                              title="Edit this amount"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
                           </div>
                         </div>
-
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-xs font-bold text-slate-700">
-                            ৳{entry.amount.toLocaleString()}
-                          </span>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleEditEntry(entry)
-                            }
-                            className="p-1.5 rounded-lg text-amber-600 bg-amber-50 hover:bg-amber-100 transition-all"
-                            title="Edit this Amount"
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    )}
                   </div>
                 </div>
               );

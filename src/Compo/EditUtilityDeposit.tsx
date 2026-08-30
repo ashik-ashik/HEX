@@ -1,4 +1,3 @@
-
 import { Pencil } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
@@ -18,7 +17,9 @@ interface UtilityDeposit {
 }
 
 const EditUtilityDeposit = () => {
-  const [utilityDepositData, setUtilityDepositData] = useState<UtilityDeposit[]>([]);
+  const [utilityDepositData, setUtilityDepositData] = useState<
+    UtilityDeposit[]
+  >([]);
 
   const [selectedTrackingID, setSelectedTrackingID] = useState("");
 
@@ -28,15 +29,17 @@ const EditUtilityDeposit = () => {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  const [isSubmitting, setIsSubmitting] =
-    useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const {houseMembers} = useAuth() as {houseMembers: UsersList}
+  const { houseMembers } = useAuth() as {
+    houseMembers: UsersList;
+  };
 
-    const showMemberName = (uid: string) => {
-    return houseMembers.find(hm => hm.email.split('@')[0] === uid)
-  }
-    
+  const showMemberName = (uid: string) => {
+    return houseMembers.find(
+      (hm) => hm.email.split("@")[0] === uid
+    );
+  };
 
   // =========================================================
   // FORM REF
@@ -85,8 +88,7 @@ const EditUtilityDeposit = () => {
       // Skip trackingID
       const members = headers.slice(1);
 
-      const formattedData: UtilityDeposit[] =
-        [];
+      const formattedData: UtilityDeposit[] = [];
 
       // Every row = separate tracking ID
       for (
@@ -126,9 +128,7 @@ const EditUtilityDeposit = () => {
         );
       }
 
-      setUtilityDepositData(
-        formattedData
-      );
+      setUtilityDepositData(formattedData);
     } catch (error) {
       console.error(
         "Error fetching utility deposit data:",
@@ -136,7 +136,7 @@ const EditUtilityDeposit = () => {
       );
 
       toast.error(
-        "ইউটিলিটি জমার তথ্য লোড করা যায়নি"
+        "Failed to load utility deposit information."
       );
     } finally {
       setIsLoading(false);
@@ -212,12 +212,9 @@ const EditUtilityDeposit = () => {
   const handleTrackingIDChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    const trackingID =
-      e.target.value;
+    const trackingID = e.target.value;
 
-    setSelectedTrackingID(
-      trackingID
-    );
+    setSelectedTrackingID(trackingID);
 
     // Reset member and amount
     // when tracking ID changes
@@ -232,8 +229,7 @@ const EditUtilityDeposit = () => {
   const handleMemberChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    const member =
-      e.target.value;
+    const member = e.target.value;
 
     setSelectedMember(member);
 
@@ -246,9 +242,7 @@ const EditUtilityDeposit = () => {
       );
 
     if (deposit) {
-      setNewAmount(
-        String(deposit.amount)
-      );
+      setNewAmount(String(deposit.amount));
     } else {
       setNewAmount("");
     }
@@ -282,12 +276,10 @@ const EditUtilityDeposit = () => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         if (formRef.current) {
-          formRef.current.scrollIntoView(
-            {
-              behavior: "smooth",
-              block: "start",
-            }
-          );
+          formRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
         }
       });
     });
@@ -304,14 +296,14 @@ const EditUtilityDeposit = () => {
 
     if (!selectedTrackingID) {
       toast.error(
-        "Tracking ID নির্বাচন করুন"
+        "Please select a Tracking ID."
       );
       return;
     }
 
     if (!selectedMember) {
       toast.error(
-        "সদস্য নির্বাচন করুন"
+        "Please select a member."
       );
       return;
     }
@@ -321,14 +313,14 @@ const EditUtilityDeposit = () => {
       Number(newAmount) < 0
     ) {
       toast.error(
-        "সঠিক নতুন জমার পরিমাণ দিন"
+        "Please enter a valid new deposit amount."
       );
       return;
     }
 
     if (!selectedDeposit) {
       toast.error(
-        "নির্বাচিত জমার তথ্য পাওয়া যায়নি"
+        "The selected deposit information could not be found."
       );
       return;
     }
@@ -339,14 +331,14 @@ const EditUtilityDeposit = () => {
       selectedDeposit.amount
     ) {
       toast.error(
-        "নতুন পরিমাণ বর্তমান পরিমাণের সমান"
+        "The new amount is the same as the current amount."
       );
       return;
     }
 
     const loadingToast =
       toast.loading(
-        "জমার তথ্য আপডেট হচ্ছে..."
+        "Updating deposit information..."
       );
 
     try {
@@ -375,7 +367,7 @@ const EditUtilityDeposit = () => {
 
       if (!response.ok) {
         throw new Error(
-          "Update request failed"
+          "Update request failed."
         );
       }
 
@@ -387,16 +379,14 @@ const EditUtilityDeposit = () => {
       ) {
         throw new Error(
           result.message ||
-            "Failed to update utility deposit"
+            "Failed to update the utility deposit."
         );
       }
 
-      toast.dismiss(
-        loadingToast
-      );
+      toast.dismiss(loadingToast);
 
       toast.success(
-        `${selectedMember}-এর জমা সফলভাবে আপডেট হয়েছে`
+        `${showMemberName(selectedMember)?.name || selectedMember}'s deposit was updated successfully.`
       );
 
       // =====================================================
@@ -427,14 +417,12 @@ const EditUtilityDeposit = () => {
         error
       );
 
-      toast.dismiss(
-        loadingToast
-      );
+      toast.dismiss(loadingToast);
 
       toast.error(
         error instanceof Error
           ? error.message
-          : "জমার তথ্য আপডেট করা যায়নি"
+          : "Failed to update the deposit information."
       );
     } finally {
       setIsSubmitting(false);
@@ -532,12 +520,12 @@ const EditUtilityDeposit = () => {
 
       <div className="mb-6">
         <h1 className="text-lg font-bold text-[#2B2117]">
-          ইউটিলিটি জমা সম্পাদনা
+          Edit Utility Deposit
         </h1>
 
         <p className="mt-1 text-xs text-gray-500">
-          Tracking ID এবং সদস্য নির্বাচন করে
-          জমার পরিমাণ পরিবর্তন করুন।
+          Select a Tracking ID and member to
+          update the deposit amount.
         </p>
       </div>
 
@@ -559,9 +547,7 @@ const EditUtilityDeposit = () => {
             </label>
 
             <select
-              value={
-                selectedTrackingID
-              }
+              value={selectedTrackingID}
               onChange={
                 handleTrackingIDChange
               }
@@ -572,7 +558,7 @@ const EditUtilityDeposit = () => {
               className="w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-xs outline-none transition focus:border-[#2B2117] focus:ring-1 focus:ring-[#2B2117] disabled:cursor-not-allowed disabled:bg-gray-100"
             >
               <option value="">
-                Tracking ID নির্বাচন করুন
+                Select Tracking ID
               </option>
 
               {trackingIDs.map(
@@ -591,7 +577,7 @@ const EditUtilityDeposit = () => {
           {/* Member */}
           <div>
             <label className="mb-2 block text-xs font-medium text-gray-700">
-              সদস্য
+              Member
             </label>
 
             <select
@@ -606,7 +592,7 @@ const EditUtilityDeposit = () => {
               className="w-full capitalize rounded-md border border-gray-300 bg-white px-3 py-2.5 text-xs outline-none transition focus:border-[#2B2117] focus:ring-1 focus:ring-[#2B2117] disabled:cursor-not-allowed disabled:bg-gray-100"
             >
               <option value="">
-                সদস্য নির্বাচন করুন
+                Select Member
               </option>
 
               {membersForSelectedTracking.map(
@@ -615,7 +601,9 @@ const EditUtilityDeposit = () => {
                     key={`${item.trackingID}-${item.member}`}
                     value={item.member}
                   >
-                    {showMemberName(item.member)?.name}:- ৳
+                    {showMemberName(item.member)?.name ||
+                      item.member}{" "}
+                    — ৳
                     {item.amount.toLocaleString()}
                   </option>
                 )
@@ -626,20 +614,20 @@ const EditUtilityDeposit = () => {
           {/* Current Amount */}
           <div>
             <label className="mb-2 block text-xs font-medium text-gray-700">
-              বর্তমান জমার পরিমাণ
+              Current Deposit Amount
             </label>
 
             <div className="flex h-[42px] items-center rounded-md border border-gray-200 bg-gray-100 px-3 text-xs font-semibold text-gray-700">
               {selectedDeposit
-                ? `${selectedDeposit.amount.toLocaleString()} টাকা`
-                : "সদস্য নির্বাচন করুন"}
+                ? `${selectedDeposit.amount.toLocaleString()} BDT`
+                : "Select a member"}
             </div>
           </div>
 
           {/* New Amount */}
           <div>
             <label className="mb-2 block text-xs font-medium text-gray-700">
-              পরিবর্তিত জমার পরিমাণ
+              Updated Deposit Amount
             </label>
 
             <input
@@ -656,7 +644,7 @@ const EditUtilityDeposit = () => {
                 !selectedDeposit ||
                 isSubmitting
               }
-              placeholder="নতুন পরিমাণ লিখুন"
+              placeholder="Enter the new amount"
               className="w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-xs outline-none transition focus:border-[#2B2117] focus:ring-1 focus:ring-[#2B2117] disabled:cursor-not-allowed disabled:bg-gray-100"
             />
           </div>
@@ -683,12 +671,15 @@ const EditUtilityDeposit = () => {
               {/* Member */}
               <div>
                 <p className="text-gray-500 text-xs">
-                  সদস্য
+                  Member
                 </p>
 
                 <p className="font-semibold text-[#2B2117] capitalize">
                   {
-                    showMemberName(selectedDeposit.member)?.name
+                    showMemberName(
+                      selectedDeposit.member
+                    )?.name ||
+                    selectedDeposit.member
                   }
                 </p>
               </div>
@@ -696,19 +687,19 @@ const EditUtilityDeposit = () => {
               {/* Current Amount */}
               <div>
                 <p className="text-gray-500 text-xs">
-                  বর্তমান জমা
+                  Current Deposit
                 </p>
 
                 <p className="font-semibold text-[#2B2117]">
                   {selectedDeposit.amount.toLocaleString()}{" "}
-                  টাকা
+                  BDT
                 </p>
               </div>
 
               {/* Changed Amount */}
               <div>
                 <p className="text-gray-500 text-xs">
-                  পরিবর্তিত জমা
+                  Updated Deposit
                 </p>
 
                 <p className="font-semibold text-orange-600">
@@ -718,7 +709,7 @@ const EditUtilityDeposit = () => {
                   )
                     ? `${Number(
                         newAmount
-                      ).toLocaleString()} টাকা`
+                      ).toLocaleString()} BDT`
                     : "—"}
                 </p>
               </div>
@@ -738,7 +729,7 @@ const EditUtilityDeposit = () => {
             }
             className="rounded-md border border-red-300 bg-red-50 px-5 py-2.5 text-xs font-medium text-red-700 transition hover:bg-red-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
-            রিসেট
+            Reset
           </button>
 
           {/* Submit */}
@@ -752,8 +743,8 @@ const EditUtilityDeposit = () => {
             className="rounded-md bg-orange-600 px-5 py-2.5 text-xs font-medium text-white transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting
-              ? "আপডেট হচ্ছে..."
-              : "জমা আপডেট করুন"}
+              ? "Updating..."
+              : "Update Deposit"}
           </button>
         </div>
       </form>
@@ -769,33 +760,31 @@ const EditUtilityDeposit = () => {
 
           <div>
             <h2 className="text-md font-bold text-[#2B2117]">
-              সকল ইউটিলিটি জমা
+              All Utility Deposits
             </h2>
 
             <p className="mt-1 text-xs text-gray-500">
-              Tracking ID অনুযায়ী সকল জমার তথ্য
+              All deposit records grouped by
+              Tracking ID.
             </p>
           </div>
 
           <div className="w-fit rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-            মোট{" "}
-            {
-              utilityDepositData.length
-            }{" "}
-            টি এন্ট্রি
+            {utilityDepositData.length}{" "}
+            Entries
           </div>
         </div>
 
         {/* Loading */}
         {isLoading ? (
           <div className="rounded-xl border border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500">
-            তথ্য লোড হচ্ছে...
+            Loading information...
           </div>
         ) : Object.keys(
             groupedData
           ).length === 0 ? (
           <div className="rounded-xl border border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500">
-            কোনো ইউটিলিটি জমার তথ্য পাওয়া যায়নি।
+            No utility deposit records found.
           </div>
         ) : (
           <div className="space-y-4">
@@ -828,7 +817,10 @@ const EditUtilityDeposit = () => {
                       </div>
 
                       <div className="text-sm text-gray-500">
-                        {deposits.length} টি জমা
+                        {deposits.length}{" "}
+                        {deposits.length === 1
+                          ? "Deposit"
+                          : "Deposits"}
                       </div>
                     </div>
 
@@ -846,7 +838,10 @@ const EditUtilityDeposit = () => {
                             <div>
                               <p className="text-sm font-medium text-gray-800 capitalize">
                                 {
-                                  showMemberName(deposit.member)?.name
+                                  showMemberName(
+                                    deposit.member
+                                  )?.name ||
+                                  deposit.member
                                 }
                               </p>
 
@@ -863,7 +858,7 @@ const EditUtilityDeposit = () => {
                               <div className="text-sm font-bold text-[#2B2117]">
                                 {deposit.amount.toLocaleString()}{" "}
                                 <span className="text-xs font-normal text-gray-500">
-                                  টাকা
+                                  BDT
                                 </span>
                               </div>
 
@@ -879,7 +874,7 @@ const EditUtilityDeposit = () => {
                                   isSubmitting
                                 }
                                 className="inline-flex items-center justify-center gap-1.5 rounded-md bg-orange-50 px-3 py-2 text-xs font-medium text-orange-600 transition hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-50"
-                                title="এই জমা সম্পাদনা করুন"
+                                title="Edit this deposit"
                               >
                                 <span className="text-sm">
                                   <Pencil size={15} />

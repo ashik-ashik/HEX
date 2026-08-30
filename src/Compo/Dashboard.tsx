@@ -60,16 +60,20 @@ const Dashboard: React.FC<DashboardProps> = ({
       bazarCosts: BazarCostResponse;
       hexaDataLoader: boolean;
     };
-  const { houseMembers } = useAuth() as {
+  const { houseMembers, userRole } = useAuth() as {
     houseMembers: {
       name: string;
       role: string;
       photoURL?: string;
       email: string;
     }[];
+    userRole: string;
   };
-    
 
+
+  const showMemberName = (uid: string) => {
+    return houseMembers.find(hm => hm.email.split('@')[0] === uid)
+  }
   const [bazarFilter, setBazarFilter] =
     useState("");
 
@@ -132,6 +136,39 @@ const Dashboard: React.FC<DashboardProps> = ({
 
 
   /*
+ * ============================================================
+ * BAZAR FREQUENCY (how many times + total per member)
+ * ============================================================
+ */
+
+const bazarFrequency = useMemo(() => {
+  const grouped = bazarData.reduce<Record<string, { count: number; total: number }>
+  >((acc, item) => {
+    if (!item.person) {
+      return acc;
+    }
+
+    if (!acc[item.person]) {
+      acc[item.person] = { count: 0, total: 0 };
+    }
+
+    acc[item.person].count += 1;
+    acc[item.person].total += item.amount;
+
+    return acc;
+  }, {});
+
+  return Object.entries(grouped)
+    .map(([person, stats]) => ({
+      person,
+      count: stats.count,
+      total: stats.total,
+    }))
+    .sort((a, b) => b.total - a.total);
+}, [bazarData]);
+
+
+  /*
    * ============================================================
    * MEAL DATA
    * ============================================================
@@ -161,7 +198,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       return houseMembers
         .filter(
           (member) =>
-            member.name !== "trackingID"
+            member?.name !== "trackingID"
         )
         .map((member) => {
           const meals = data.map((entry) => {
@@ -179,7 +216,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           );
 
           return {
-            name: member.name,
+            name: member?.name,
             meals,
             total,
           };
@@ -196,6 +233,30 @@ const Dashboard: React.FC<DashboardProps> = ({
         0
       );
     },
+    [mealDataFromContext]
+  );
+
+  /*
+   * ============================================================
+   * REVERSED MEAL VIEW (last date first)
+   * ============================================================
+   *
+   * Non-mutating: builds new arrays instead of calling
+   * .reverse() directly on memoized data, which would mutate
+   * it in place on every render.
+   */
+
+  const reversedMealDates = useMemo(
+    () => [...mealDatesFromContext].reverse(),
+    [mealDatesFromContext]
+  );
+
+  const reversedMealData = useMemo(
+    () =>
+      mealDataFromContext.map((member) => ({
+        ...member,
+        meals: [...member.meals].reverse(),
+      })),
     [mealDataFromContext]
   );
 
@@ -231,16 +292,16 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   const settlements = useMemo(() => {
     return members
-      .filter(
-        (member) =>
-          member.name !== "trackingID"
-      )
-      .map((member) => {
-        const mealMember =
-          mealDataFromContext.find(
-            (meal) =>
-              meal.name === member.name
-          );
+    .filter(
+      (member) =>
+        member?.name !== "trackingID"
+    )
+    .map((member) => {
+      const mealMember =
+      mealDataFromContext.find(
+        (meal) =>
+          meal?.name === showMemberName(member?.name)?.name
+      );
 
         const totalMeals =
           mealMember?.total ?? 0;
@@ -252,7 +313,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           member.total - mealCost;
 
         return {
-          name: member.name,
+          name: member?.name,
           deposit: member.total,
           meals: totalMeals,
           mealCost,
@@ -271,7 +332,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   ) => {
     const member =
       settlements.find(
-        (s) => s.name === name
+        (s) => s?.name === name
       );
 
     return member
@@ -305,15 +366,13 @@ const Dashboard: React.FC<DashboardProps> = ({
     )[0];
 
     const topBazar =
-      bazarData.reduce<
-        Record<string, number>
-      >((acc, b) => {
-        acc[b.person] =
-          (acc[b.person] || 0) +
-          b.amount;
+  bazarData.reduce<Record<string, number>>((acc, b) => {
+    acc[b.person] =
+      (acc[b.person] || 0) +
+      b.amount;
 
-        return acc;
-      }, {});
+    return acc;
+  }, {});
 
     const topBazarPerson =
       Object.entries(topBazar).sort(
@@ -390,8 +449,8 @@ const Dashboard: React.FC<DashboardProps> = ({
             break;
 
           default:
-            av = a.name;
-            bv = b.name;
+            av = a?.name;
+            bv = b?.name;
         }
 
         if (
@@ -483,9 +542,6 @@ const Dashboard: React.FC<DashboardProps> = ({
     );
   }
 
-  const showMemberName = (uid: string) => {
-    return houseMembers.find(hm => hm.email.split('@')[0] === uid)
-  }
 
   if(hexaDataLoader){
     return <HexaHouseLoader />
@@ -590,7 +646,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 </p>
 
                 <p className="font-['Fraunces'] text-base text-[#2B2117] capitalize">
-                  {showMemberName(insights.mostDue.name)?.name}
+                  {showMemberName(insights.mostDue?.name)?.name}
                 </p>
 
                 <p className="font-['JetBrains_Mono'] text-sm text-[#B23A2E] font-bold">
@@ -608,7 +664,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 </p>
 
                 <p className="font-['Fraunces'] text-base text-[#2B2117] capitalize">
-                  {showMemberName(insights.mostCredit.name)?.name}
+                  {showMemberName(insights.mostCredit?.name)?.name}
                 </p>
 
                 <p className="font-['JetBrains_Mono'] text-sm text-[#4F7A5A] font-bold">
@@ -659,7 +715,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 .map((member, idx) => {
                   const balance =
                     getMemberBalance(
-                      member.name
+                      member?.name
                     );
 
                   const isDue =
@@ -681,7 +737,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                               houseMembers?.find(
                                 (hm) =>
                                   hm?.email?.split('@')[0] ===
-                                  member.name
+                                  member?.name
                               );
 
                             return houseMember?.photoURL ? (
@@ -690,7 +746,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                                   houseMember.photoURL
                                 }
                                 alt={
-                                  member.name
+                                  member?.name
                                 }
                                 className="w-12 h-12 rounded-full object-cover border border-[#E4D9C5]"
                               />
@@ -698,7 +754,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                               <div className="w-12 h-12 rounded-full bg-[#2B2117]/5 flex items-center justify-center text-[#2B2117] font-semibold font-['Fraunces'] capitalize">
                                 {
                                   showMemberName(member
-                                    .name?.[0])?.name
+                                    ?.name?.[0])?.name
                                 }
                               </div>
                             );
@@ -718,7 +774,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
                         <div className="min-w-0">
                           <h3 className="font-medium text-sm text-[#2B2117] truncate capitalize">
-                            {showMemberName(member.name)?.name}
+                            {showMemberName(member?.name)?.name}
                           </h3>
 
                           <p className="text-xs text-[#6B5E50] font-['JetBrains_Mono']">
@@ -788,8 +844,9 @@ const Dashboard: React.FC<DashboardProps> = ({
                 </thead>
 
                 <tbody>
-                  {filteredBazar
+                  {[...filteredBazar]
                     .slice(1)
+                    .reverse()
                     .map(
                       (
                         item,
@@ -850,6 +907,75 @@ const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </section>
 
+          {/* ======================  Show How did how many times Bazar   ======================== */}
+            {/* ================= BAZAR FREQUENCY ================= */}
+
+            {
+            userRole === "manager" || userRole === "assist_manager" &&
+              <section className="mb-12">
+              <h2 className="font-['Fraunces'] text-xl font-semibold text-[#2B2117] mb-4 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#C0573B]" />
+                Bazar Frequency
+              </h2>
+
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-4">
+                {bazarFrequency.map((entry, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white rounded-lg border border-[#E4D9C5] p-4 transition-shadow hover:shadow-md"
+                  >
+                    <div className="flex items-center gap-3">
+                      {(() => {
+                        const houseMember = houseMembers?.find(
+                          (hm) => hm?.email?.split("@")[0] === entry.person
+                        );
+
+                        return houseMember?.photoURL ? (
+                          <img
+                            src={houseMember.photoURL}
+                            alt={entry.person}
+                            className="w-12 h-12 rounded-full object-cover border border-[#E4D9C5] shrink-0"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-[#2B2117]/5 flex items-center justify-center text-[#2B2117] font-semibold font-['Fraunces'] capitalize shrink-0">
+                            {showMemberName(entry.person)?.name?.[0]}
+                          </div>
+                        );
+                      })()}
+
+                      <div className="min-w-0">
+                        <h3 className="font-medium text-sm text-[#2B2117] truncate capitalize">
+                          {showMemberName(entry.person)?.name ?? entry.person}
+                        </h3>
+
+                        <p className="text-xs text-[#6B5E50] font-['JetBrains_Mono']">
+                          {entry.count} {entry.count === 1 ? "time" : "times"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-3 border-t border-dashed border-[#E4D9C5] flex items-center justify-between">
+                      <span className="text-[10px] uppercase tracking-wider text-[#6B5E50] font-medium">
+                        Total Spent
+                      </span>
+
+                      <span className="text-sm font-['JetBrains_Mono'] font-semibold text-[#C0573B]">
+                        ৳ {entry.total.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+
+                {bazarFrequency.length === 0 && (
+                  <p className="text-xs text-[#6B5E50] col-span-full text-center py-6">
+                    No bazar entries yet this month.
+                  </p>
+                )}
+              </div>
+              </section>
+            }
+          {/* ======================  Show How did how many times Bazar   ======================== */}
+
           {/* ================= MEAL COUNTS ================= */}
 
           <section className="mb-12">
@@ -873,7 +999,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                       Total
                     </th>
 
-                    {mealDatesFromContext.map(
+                    {reversedMealDates.map(
                       (date, idx) => (
                         <th
                           key={idx}
@@ -887,14 +1013,14 @@ const Dashboard: React.FC<DashboardProps> = ({
                 </thead>
 
                 <tbody>
-                  {mealDataFromContext.map(
+                  {reversedMealData.map(
                     (member, idx) => (
                       <tr
                         key={idx}
                         className="border-t border-[#E4D9C5] hover:bg-[#FAF5EB] text-center text-nowrap text-xs"
                       >
                         <td className="p-3 sticky left-0 bg-[#2B2117] text-white z-10 text-left font-medium capitalize">
-                          {member.name}
+                          {member?.name}
                         </td>
 
                         <td className="p-3 bg-[#2B2117]/95 text-white font-['JetBrains_Mono'] font-semibold">
@@ -1073,7 +1199,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                           className="border-t border-[#E4D9C5] hover:bg-[#FAF5EB] text-nowrap text-xs"
                         >
                           <td className="p-4 font-medium text-left sticky left-0 bg-white text-[#2B2117] capitalize">
-                            {item.name}
+                            {showMemberName(item?.name)?.name}
                           </td>
 
                           <td className="p-4 text-right font-['JetBrains_Mono'] text-[#2B2117]">

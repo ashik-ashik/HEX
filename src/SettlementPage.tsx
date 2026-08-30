@@ -73,6 +73,15 @@ const SettlementPage: React.FC<Props> = ({
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
   const { usersList } = useAuth() as AuthContextType;
+    const { houseMembers } = useAuth() as {
+    houseMembers: {
+      name: string;
+      role: string;
+      photoURL?: string;
+      email: string;
+    }[];
+  };
+
   const FindManager = usersList?.find((u) => u?.role?.toLowerCase() === "manager");
 
   const showMemberName = (uid: string) => {
@@ -115,7 +124,7 @@ const SettlementPage: React.FC<Props> = ({
   const adjustedMeals = mealData.map((m) => {
     const actual = Number(m.total || 0);
     return {
-      name: m.name,
+      name: m?.name,
       total: fixedMeals && actual >= 5 && actual < fixedMeals ? fixedMeals : actual,
     };
   });
@@ -126,13 +135,13 @@ const SettlementPage: React.FC<Props> = ({
   const mealRate = adjustedGrandTotalMeals > 0 ? totalBazar / adjustedGrandTotalMeals : 0;
 
 
-  const mealMap = Object.fromEntries(adjustedMeals.map((m) => [m.name, m]));
+  const mealMap = Object.fromEntries(adjustedMeals.map((m) => [m?.name, m]));
   const settlements = members
-  .filter((member) => member.name !== "trackingID")?.map((member) => {
-    const meals = mealMap[member.name]?.total || 0;
+  .filter((member) => member?.name !== "trackingID")?.map((member) => {
+    const meals = mealMap[member?.name]?.total || 0;
     const mealCost = meals * mealRate;
     const balance = member.total - mealCost;
-    return { name: member.name, image: member.image, deposit: member.total, meals, mealCost, balance };
+    return { name: member?.name, image: member.image, deposit: member.total, meals, mealCost, balance };
   });
 
   const today = new Date();
@@ -165,7 +174,8 @@ const SettlementPage: React.FC<Props> = ({
         totalMeal: adjustedGrandTotalMeals,
         mealRate, 
         members: memberForHistory,
-        utilityDeposits:utilityDeposits
+        utilityDeposits:utilityDeposits,
+        houseMembers: houseMembers
       };
       toast.loading("Sending data to Google Sheet...", { id: "saveHistory" });
       const res = await fetch(import.meta.env.VITE_STORE_SUMMARY_API_SHEET, {
@@ -179,7 +189,7 @@ const SettlementPage: React.FC<Props> = ({
       });
       toast.loading("Saving monthly history...", { id: "saveHistory" });
       const result = await res.json();
-      if (result.status === "success") {
+      if (result === "success") {
         toast.success("Monthly settlement saved successfully", { id: "saveHistory" });
         setHistorySaved(true);
       } else throw new Error("Save failed");
@@ -521,7 +531,7 @@ const SettlementPage: React.FC<Props> = ({
                     {m.image ? (
                       <img
                         src={m.image}
-                        alt={m.name}
+                        alt={m?.name}
                         className={`w-11 h-11 rounded-full object-cover shrink-0 border-2
                           ${isDue ? "border-red-400" : "border-emerald-400"}`}
                       />
@@ -531,12 +541,12 @@ const SettlementPage: React.FC<Props> = ({
                           ? "bg-red-950 text-red-300 border-red-400"
                           : "bg-emerald-950 text-emerald-300 border-emerald-400"
                         }`}>
-                        {m.name[0]}
+                        {m?.name[0]}
                       </div>
                     )}
 
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-slate-100 truncate uppercase">{showMemberName(m.name)?.name}</p>
+                      <p className="text-xs font-bold text-slate-100 truncate uppercase">{showMemberName(m?.name)?.name}</p>
                       <span className={`inline-block mt-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full
                         ${isDue
                           ? "bg-red-950/60 text-red-400"

@@ -679,7 +679,7 @@ const History: React.FC = () => {
                   <div className="leader-row p-3 rounded border" style={{ borderColor: "var(--rule)" }}>
                     <div>
                       <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: "var(--ink-soft)" }}>Most Meals</p>
-                      <p className="text-sm font-medium capitalize">{showMemberName(topMealConsumer.name)?.name}</p>
+                      <p className="text-sm font-medium capitalize">{showMemberName(topMealConsumer?.name)?.name}</p>
                     </div>
                     <div className="leader-dots" />
                     <span className="ledger-figure text-sm" style={{ color: "var(--teal)" }}>{topMealConsumer.meals}</span>
@@ -689,7 +689,7 @@ const History: React.FC = () => {
                   <div className="leader-row p-3 rounded border" style={{ borderColor: "var(--rule)" }}>
                     <div>
                       <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: "var(--ink-soft)" }}>Highest Surplus</p>
-                      <p className="text-sm font-medium capitalize">{showMemberName(topReceiver.name)?.name}</p>
+                      <p className="text-sm font-medium capitalize">{showMemberName(topReceiver?.name)?.name}</p>
                     </div>
                     <div className="leader-dots" />
                     <span className="ledger-figure text-sm" style={{ color: "var(--surplus)" }}>+৳ {topReceiver.balance.toFixed(2)}</span>
@@ -699,7 +699,7 @@ const History: React.FC = () => {
                   <div className="leader-row p-3 rounded border" style={{ borderColor: "var(--rule)" }}>
                     <div>
                       <p className="text-[10px] uppercase tracking-wide mb-1" style={{ color: "var(--ink-soft)" }}>Largest Due</p>
-                      <p className="text-sm font-medium capitalize">{showMemberName(topPayer.name)?.name}</p>
+                      <p className="text-sm font-medium capitalize">{showMemberName(topPayer?.name)?.name}</p>
                     </div>
                     <div className="leader-dots" />
                     <span className="ledger-figure text-sm" style={{ color: "var(--due)" }}>৳ {topPayer.balance.toFixed(2)}</span>
@@ -767,9 +767,9 @@ const History: React.FC = () => {
                       )}
                       {topReceiver && topPayer && (
                         <>
-                          <span className="font-semibold capitalize">{showMemberName(topReceiver.name)?.name}</span> came out on top with the
+                          <span className="font-semibold capitalize">{showMemberName(topReceiver?.name)?.name}</span> came out on top with the
                           biggest surplus this month, while{" "}
-                          <span className="font-semibold capitalize">{showMemberName(topPayer.name)?.name}</span> is left carrying the largest due.
+                          <span className="font-semibold capitalize">{showMemberName(topPayer?.name)?.name}</span> is left carrying the largest due.
                         </>
                       )}
                     </p>
@@ -882,10 +882,10 @@ const History: React.FC = () => {
                         </thead>
                         <tbody>
                           {h.members
-                            .filter((m) => m.name && m.name.trim() !== "")
+                            .filter((m) => m?.name && m?.name.trim() !== "")
                             .map((m, i) => (
                               <tr key={i} className="ledger-row-stripe" style={{ borderBottom: "1px dotted var(--rule)" }}>
-                                <td className="px-2 py-2 font-medium capiralize">{showMemberName(m.name)?.name}</td>
+                                <td className="px-2 py-2 font-medium capiralize">{showMemberName(m?.name)?.name}</td>
                                 <td className="px-2 py-2 ledger-figure" style={{ color: m.utility < 0 ? "var(--due)" : "var(--surplus)" }}>৳ {m.utility}</td>
                                 <td className="px-2 py-2 ledger-figure">৳ {m.deposit}</td>
                                 <td className="px-2 py-2 ledger-figure">{m.meals}</td>
@@ -901,11 +901,11 @@ const History: React.FC = () => {
                     {/* Mobile member cards — each value gets its own labeled cell */}
                     <div className="md:hidden space-y-3">
                       {h.members
-                        .filter((m) => m.name && m.name.trim() !== "")
+                        .filter((m) => m?.name && m?.name.trim() !== "")
                         .map((m, i) => (
                           <div key={i} className="ledger-member-card p-3">
                             <div className="flex items-center justify-between mb-3">
-                              <span className="font-semibold text-sm">{showMemberName(m.name)?.name}</span>
+                              <span className="font-semibold text-sm">{showMemberName(m?.name)?.name}</span>
                               <StampBadge balance={m.balance} status={m.status} />
                             </div>
 

@@ -32,7 +32,7 @@ const FOOTER_LINKS: FooterLink[] = [
 
 const Footer: React.FC = () => {
     return (
-        <footer className="relative bg-white/70 backdrop-blur-md border-t border-gray-100">
+        <footer className="relative bg-[#0B0F0E]/95 backdrop-blur-md border-t border-white/10">
             {/* subtle top accent line */}
             <div className="h-0.5 w-full bg-gradient-to-r from-teal-500 via-emerald-500 to-teal-500" />
 
@@ -44,11 +44,11 @@ const Footer: React.FC = () => {
                             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white shadow-sm">
                                 <Sparkles size={15} />
                             </span>
-                            <span className="text-sm font-semibold text-gray-700">
+                            <span className="text-sm font-semibold text-gray-100">
                                 The Hexa House Meal Manager
                             </span>
                         </div>
-                        <p className="text-xs text-gray-500 leading-relaxed max-w-xs">
+                        <p className="text-xs text-gray-400 leading-relaxed max-w-xs">
                             Smart monthly meal management system for modern bachelor living —
                             track meals, costs, and members in one place.
                         </p>
@@ -56,7 +56,7 @@ const Footer: React.FC = () => {
 
                     {/* Quick Links */}
                     <div>
-                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
                             Quick Links
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -64,20 +64,20 @@ const Footer: React.FC = () => {
                                 <Link
                                     key={href}
                                     to={href}
-                                    className="group flex items-start gap-2.5 rounded-xl border border-gray-100 bg-white/80 px-3.5 py-3 shadow-sm hover:border-teal-200 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                                    className="group flex items-start gap-2.5 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 shadow-sm hover:border-teal-500/40 hover:bg-white/[0.06] hover:-translate-y-0.5 transition-all duration-200"
                                 >
-                                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-teal-500/10 text-teal-400 group-hover:bg-teal-600 group-hover:text-white transition-colors">
                                         <Icon size={15} />
                                     </span>
                                     <span className="min-w-0">
-                                        <span className="flex items-center gap-1 text-[13px] font-medium text-gray-700 group-hover:text-teal-700 transition-colors">
+                                        <span className="flex items-center gap-1 text-[13px] font-medium text-gray-200 group-hover:text-teal-400 transition-colors">
                                             {label}
                                             <ArrowUpRight
                                                 size={12}
-                                                className="text-gray-300 group-hover:text-teal-500 transition-colors"
+                                                className="text-gray-500 group-hover:text-teal-500 transition-colors"
                                             />
                                         </span>
-                                        <span className="block text-[11px] text-gray-400 truncate">
+                                        <span className="block text-[11px] text-gray-500 truncate">
                                             {description}
                                         </span>
                                     </span>
@@ -88,11 +88,11 @@ const Footer: React.FC = () => {
                 </div>
 
                 {/* Bottom Section */}
-                <div className="mt-8 pt-5 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-                    <p className="text-[11px] text-gray-400">
+                <div className="mt-8 pt-5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+                    <p className="text-[11px] text-gray-500">
                         © {new Date().getFullYear()} The Hexa Bachelors House • Built with care
                     </p>
-                    <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
+                    <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                         Version {import.meta.env.VITE_APP_VERSION || "1.0.0"}
                     </div>

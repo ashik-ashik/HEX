@@ -316,7 +316,7 @@ function changeManager(e) {
     const values = sheet.getDataRange().getValues();
 
     // Trim incoming name
-    const newManagerName = (e.parameter.name || "").trim();
+    const newManagerName = (e.parameter?.name || "").trim();
 
     if (!newManagerName) {
       throw new Error("Manager name missing");

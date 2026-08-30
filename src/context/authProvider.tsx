@@ -119,7 +119,7 @@ const [userRole, setUserRole] = useState<string>("");
           },
           body: new URLSearchParams({
             type: "user",
-            name: userData.name,
+            name: userData?.name,
             role: userData.role,
             email: userData.email,
             photoURL: userData.photoURL,
@@ -282,7 +282,9 @@ const [userRole, setUserRole] = useState<string>("");
   /* Context Value */
   /* -------------------------------- */
   const houseMembers = usersList.filter(user => user?.role === "member" || user?.role === "manager" || user?.role === "assist_manager");
-
+  const showMemberName = (username: string) => {
+    return houseMembers.find(hm => hm.email.split("@")[0] === username)
+  }
   const authInfo = {
     user,
     usersList,
@@ -292,6 +294,7 @@ const [userRole, setUserRole] = useState<string>("");
     logout,
     userRole,
     houseMembers,
+    showMemberName
   };
   return (
     <AuthContext.Provider value={authInfo}>

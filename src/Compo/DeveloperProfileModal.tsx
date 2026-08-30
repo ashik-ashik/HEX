@@ -87,7 +87,7 @@ const DeveloperProfileModal = ({ isOpen, onClose }: DeveloperProfileModalProps) 
               <div className="w-32 h-32 rounded-full p-[3px] bg-gradient-to-br from-amber-400 via-teal-400 to-amber-400">
                 <img
                   src={DEVELOPER.photo}
-                  alt={DEVELOPER.name}
+                  alt={DEVELOPER?.name}
                   className="w-full h-full rounded-full object-cover border-2 border-slate-900"
                 />
               </div>
@@ -95,7 +95,7 @@ const DeveloperProfileModal = ({ isOpen, onClose }: DeveloperProfileModalProps) 
 
             {/* Name */}
             <h2 className="text-2xl font-bold text-slate-50 tracking-wide">
-              {DEVELOPER.name}
+              {DEVELOPER?.name}
             </h2>
 
             {/* Designation badge */}

@@ -25,7 +25,7 @@ import PrivateRoute from './Compo/ProvateRoute';
 // import { Toaster } from 'react-hot-toast';
 import HomeInitial from './Compo/HomeInitial';
 import EditMealDeposit from './Compo/EditMealDeposit';
-import EditLastBazarCost from './Compo/EditBazarCosts';
+import EditbazarCosts from './Compo/EditBazarCosts';
 import AllEvents from './Compo/AllEvents';
 import PageNotFound from './Compo/PageNotFound';
 import FundWarningModal from './Compo/FundWarningModal';
@@ -39,6 +39,7 @@ import EditUtilityDeposit from './Compo/EditUtilityDeposit';
 import EditUtilityCosts from './Compo/EditUtilityCosts';
 import HexaHouseLoader from './Compo/HexaHouseLoader';
 import useAppData from './hooks/useAppData';
+import EditMealCountEntry from './Compo/EditMealCountEntry';
 
 
 
@@ -50,7 +51,6 @@ const MEAL_CSV = import.meta.env.VITE_MEAL_COUNTS_SHEET_READER;
 const UTILITY_DEPOSIT_SHEET = import.meta.env.VITE_UTILITY_DEPOSIT_SHEET_READER;
 const UTILITY_COST_SHEET_URL = import.meta.env.VITE_UTILITY_COSTS_SHEET_READER;
 
-  const NOTICE_URL = import.meta.env.VITE_NOTICE_SHEET_READER;
 
 interface MealRow {
   name: string;
@@ -71,10 +71,7 @@ interface BazarItem {
   amount: number;
 }
 
-interface Notice {
-  title: string;
-  content: string;
-}
+
 
 
 interface AuthContextType {
@@ -119,7 +116,6 @@ type UtilityDeposit = {
 
   const [utilityDeposits, setUtilityDeposits] = useState<UtilityDeposit[]>([]);
   const [utilityCosts, setUtilityCosts] = useState<string[][]>([]);
-    const [notices, setNotices] = useState<Notice[]>([]);
   
   
   const parseCSV = (text: string): string[][] => {
@@ -223,22 +219,7 @@ type UtilityDeposit = {
         setIsLoading(true);
         setIsError(false);
 
-        // Fetch Notice
-        fetch(NOTICE_URL)
-        .then((res) => res.text())
-        .then((text) => {
-          const rows = text.split("\n").slice(1);
-
-          const parsed = rows
-            .map((row) => row.split(","))
-            .filter((row) => row[0])
-            .map((row) => ({
-              title: row[0]?.trim(),
-              content: row[1]?.trim(),
-            }));
-
-          setNotices(parsed);
-        })
+       
 
         // ===== DEPOSITS =====
         const depositRes = await fetch(MEAL_DEPOSIT_SHEET);
@@ -319,7 +300,7 @@ type UtilityDeposit = {
     fetchData();
   }, []);
 
-  const memberNameList = houseMembers.map(member => member.name);
+  const memberNameList = houseMembers.map(member => member?.name);
 
 
  if(userIsLoading ){
@@ -342,7 +323,7 @@ type UtilityDeposit = {
             <Route path="/" element={<HomeInitial />} />
            <Route path="/overview" element={<PrivateRoute>
             <OverviewHexa setManagerThisMonth={setManagerThisMonth} grandDeposit={grandDeposit} totalBazar={totalBazar} utilityDeposits={utilityDeposits}
-                utilityCosts={utilityCosts} isLoading={isLoading} notices={notices} members={members} />
+                utilityCosts={utilityCosts} isLoading={isLoading} members={members} />
           </PrivateRoute>} />
           <Route path="/login" element={<GoogleLogin />} />
           <Route
@@ -417,7 +398,8 @@ type UtilityDeposit = {
             <Route path="setfixedmeal" element={<AdminRoute><SetFixedMeal  /></AdminRoute>} />
             <Route path="resetmonth" element={<AdminRoute><ResetMonth  /></AdminRoute>} />
             <Route path="edit-meal-deposit" element={<AdminRoute><EditMealDeposit /></AdminRoute>} />
-            <Route path="edit-bazar-cost" element={<AdminRoute><EditLastBazarCost /></AdminRoute>} />
+            <Route path="edit-bazar-cost" element={<AdminRoute><EditbazarCosts /></AdminRoute>} />
+            <Route path="edit-meal-count-entry" element={<AdminRoute><EditMealCountEntry /></AdminRoute>} />
             <Route path="edit-utility-deposit" element={<AdminRoute><EditUtilityDeposit /></AdminRoute>} />
             <Route path="edit-utility-costs" element={<AdminRoute><EditUtilityCosts /></AdminRoute>} />
           </Route>

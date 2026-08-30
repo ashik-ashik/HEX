@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React, { useEffect, useState } from "react";
 import {
   UserPlus,
@@ -12,6 +13,7 @@ import {
   User,
   Phone,
   Repeat,
+  Info,
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -22,63 +24,136 @@ interface Personnel {
   photo?: string;
 }
 
-const DEFAULT_MEMBER_PHOTO = "https://i.postimg.cc/yN6zyD1X/member.jpg";
-const DEFAULT_PERSONNEL_PHOTO = "https://i.postimg.cc/yN6zyD1X/member.jpg";
+
+
+const DEFAULT_MEMBER_PHOTO =
+  "https://i.postimg.cc/yN6zyD1X/member.jpg";
+
+const DEFAULT_PERSONNEL_PHOTO =
+  "https://i.postimg.cc/yN6zyD1X/member.jpg";
 
 const AddPersonnel: React.FC = () => {
-  // Existing personnel list, used only for the "replace by mobile" dropdown
+  // ============================================================
+  // EXISTING PERSONNEL
+  // ============================================================
+
   const [personnelList, setPersonnelList] = useState<Personnel[]>([]);
   const [loadingPersonnel, setLoadingPersonnel] = useState(true);
 
+  // ============================================================
+  // TYPE
+  // ============================================================
+
   const [type, setType] = useState<"member" | "personnel">("member");
 
-  // ----- Member (add) fields -----
+  // ============================================================
+  // MEMBER FIELDS
+  // ============================================================
+
   const [memberName, setMemberName] = useState("");
   const [memberEmail, setMemberEmail] = useState("");
-  const [memberRole, setMemberRole] = useState<"member" | "manager" | "assist_manager">("member");
+
+  const [memberRole, setMemberRole] = useState<
+    "member" | "manager" | "assist_manager"
+  >("member");
+
   const [memberPhoto, setMemberPhoto] = useState("");
 
-  // ----- Personnel (add / replace) fields -----
+  // ============================================================
+  // PERSONNEL FIELDS
+  // ============================================================
+
   const [replaceExisting, setReplaceExisting] = useState(false);
-  const [selectedPersonnelMobile, setSelectedPersonnelMobile] = useState("");
-  const [personnelDesignation, setPersonnelDesignation] = useState("");
+
+  const [
+    selectedPersonnelMobile,
+    setSelectedPersonnelMobile,
+  ] = useState("");
+
+  const [
+    personnelDesignation,
+    setPersonnelDesignation,
+  ] = useState("");
+
   const [personnelName, setPersonnelName] = useState("");
+
   const [personnelMobile, setPersonnelMobile] = useState("");
+
   const [personnelPhoto, setPersonnelPhoto] = useState("");
+
+  // ============================================================
+  // LOADING
+  // ============================================================
 
   const [loading, setLoading] = useState(false);
 
-  // Load existing personnel (for the replace-by-mobile dropdown only)
+  // ============================================================
+  // LOAD EXISTING PERSONNEL
+  // ============================================================
+
   useEffect(() => {
-    const fetchPersonnel = () => {
-      fetch(import.meta.env.VITE_PERSONNEL_SHEET_READER)
-        .then((res) => res.text())
-        .then((text) => {
-          const rows = text.split("\n").slice(1);
+    const fetchPersonnel = async () => {
+      try {
+        setLoadingPersonnel(true);
 
-          const parsed = rows
-            .map((row) => row.split(","))
-            .filter((row) => row[1])
-            .map((row) => ({
-              designation: row[0]?.trim(),
-              name: row[1]?.trim(),
-              mobile: row[2]?.trim(),
-              photo: row[3]?.trim(),
-            }))
-            // Only "other" personnel (not dynamic members) are replaceable here,
-            // and they need a mobile number to be matched against on the backend
-            .filter((p) => p.designation !== "Member" && p.designation !== "Manager" && p.mobile);
+        const url =
+          import.meta.env.VITE_PERSONNEL_SHEET_READER;
 
-          setPersonnelList(parsed);
-          setLoadingPersonnel(false);
-        })
-        .catch(() => {
-          setLoadingPersonnel(false);
-        });
+        if (!url) {
+          throw new Error(
+            "Personnel reader API URL is missing."
+          );
+        }
+
+        const res = await fetch(url);
+
+        if (!res.ok) {
+          throw new Error(
+            `Failed to load personnel: ${res.status}`
+          );
+        }
+
+        const text = await res.text();
+
+        const rows = text
+          .split("\n")
+          .slice(1);
+
+        const parsed = rows
+          .map((row) => row.split(","))
+          .filter((row) => row[1])
+          .map((row) => ({
+            designation: row[0]?.trim() || "",
+            name: row[1]?.trim() || "",
+            mobile: row[2]?.trim() || "",
+            photo: row[3]?.trim() || "",
+          }))
+          .filter(
+            (p) =>
+              p.designation !== "Member" &&
+              p.designation !== "Manager" &&
+              p.mobile
+          );
+
+        setPersonnelList(parsed);
+      } catch (error) {
+        console.error(
+          "Failed to load personnel:",
+          error
+        );
+
+        setPersonnelList([]);
+      } finally {
+        setLoadingPersonnel(false);
+      }
     };
 
     fetchPersonnel();
   }, []);
+
+  // ============================================================
+  // RESET FORMS
+  // ============================================================
 
   const resetMemberForm = () => {
     setMemberName("");
@@ -96,145 +171,338 @@ const AddPersonnel: React.FC = () => {
     setPersonnelPhoto("");
   };
 
-  const postPayload = async (payload: Record<string, any>) => {
+  // ============================================================
+  // POST DATA
+  // ============================================================
+
+  const postPayload = async (
+    payload: Record<string, any>
+  ) => {
+    const apiUrl =
+      import.meta.env.VITE_PERSONNEL_INSERT_API;
+
+    if (!apiUrl) {
+      throw new Error(
+        "Personnel insert API URL is missing."
+      );
+    }
+
     const body = new URLSearchParams();
-    Object.entries(payload).forEach(([key, value]) => {
-      body.append(key, String(value ?? ""));
-    });
 
-    toast.loading("Saving...", { id: "personnel" });
+    Object.entries(payload).forEach(
+      ([key, value]) => {
+        body.append(
+          key,
+          String(value ?? "")
+        );
+      }
+    );
 
-    const res = await fetch(import.meta.env.VITE_PERSONNEL_INSERT_API, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body,
-    });
+    const controller =
+      new AbortController();
 
-    const data = await res.json();
-    toast.dismiss("personnel");
+    const timeoutId =
+      window.setTimeout(() => {
+        controller.abort();
+      }, 20000);
 
-    if (data.status === "success") {
-      toast.success(data.message);
-    } else {
-      toast.error(data.message);
+    try {
+      console.log(
+        "Sending payload:",
+        Object.fromEntries(body.entries())
+      );
+
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/x-www-form-urlencoded;charset=UTF-8",
+        },
+        body: body.toString(),
+        signal: controller.signal,
+      });
+
+      // Read as TEXT first.
+      // This prevents immediate JSON parsing errors.
+      const text = await res.text();
+
+      console.log(
+        "Apps Script response status:",
+        res.status
+      );
+
+      console.log(
+        "Apps Script response text:",
+        text
+      );
+
+      if (!res.ok) {
+        throw new Error(
+          `Server returned error ${res.status}`
+        );
+      }
+
+      if (!text.trim()) {
+        throw new Error(
+          "Server returned an empty response."
+        );
+      }
+
+      let data: string;
+
+      try {
+        data = JSON.parse(text);
+        console.log(data)
+      } catch (parseError) {
+        console.error(
+          "JSON parsing failed:",
+          parseError
+        );
+
+        console.error(
+          "Raw server response:",
+          text
+        );
+
+        throw new Error(
+          "Server response is not valid JSON."
+        );
+      }
+
+      console.log(
+        "Parsed response:",
+        data
+      );
+
+      if (
+        data &&
+        data.toLowerCase() === "success"
+      ) {
+        return data;
+      }
+
+      
+    } catch (error: any) {
+      console.error(
+        "Personnel API error:",
+        error
+      );
+
+      if (error?.name === "AbortError") {
+        throw new Error(
+          "Request timed out. The server may be busy."
+        );
+      }
+
+      if (error instanceof Error) {
+        throw error;
+      }
+
+      throw new Error(
+        "Cannot connect to server."
+      );
+    } finally {
+      window.clearTimeout(timeoutId);
     }
   };
 
-  // ----- Submit: Member -----
+  // ============================================================
+  // SUBMIT MEMBER
+  // ============================================================
+
   const handleSubmitMember = async () => {
-    if (!memberName) {
-      toast.error("Please enter member name");
-      return;
-    }
-    if (!memberEmail) {
-      toast.error("Please enter member email");
+    // Prevent duplicate request
+    if (loading) return;
+
+    if (!memberName.trim()) {
+      toast.error(
+        "Please enter the member name."
+      );
       return;
     }
 
-    // POST payload structure (backend: type === "addMember")
-    // {
-    //   type: "addMember",
-    //   name: string,
-    //   email: string,
-    //   role: "member" | "manager" | "assist_manager",
-    //   photo: string
-    // }
+    if (!memberEmail.trim()) {
+      toast.error(
+        "Please enter the member email."
+      );
+      return;
+    }
+
     const payload = {
       type: "addMember",
-      name: memberName,
-      email: memberEmail,
+      name: memberName.trim(),
+      email: memberEmail.trim(),
       role: memberRole,
-      photo: memberPhoto || DEFAULT_MEMBER_PHOTO,
+      photo:
+        memberPhoto.trim() ||
+        DEFAULT_MEMBER_PHOTO,
     };
+
+    const toastId = "personnel";
 
     try {
       setLoading(true);
-      await postPayload(payload);
+
+      toast.loading("Saving member...", {
+        id: toastId,
+      });
+
+      const result = await postPayload(payload);
+      console.log(result)
+      toast.success(        
+          "Member added successfully.",
+        {
+          id: toastId,
+        }
+      );
+
+      // Reset only after confirmed success
       resetMemberForm();
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to Add Member");
+    } catch (error: any) {
+      console.error(
+        "Failed to add member:",
+        error
+      );
+
+      toast.error(
+        error?.message ||
+          "Failed to add member.",
+        {
+          id: toastId,
+        }
+      );
     } finally {
+      // ALWAYS stop button spinner
       setLoading(false);
     }
   };
 
-  // ----- Submit: Personnel (add or replace) -----
+  // ============================================================
+  // SUBMIT PERSONNEL
+  // ============================================================
+
   const handleSubmitPersonnel = async () => {
-    if (!personnelName) {
-      toast.error("Please enter personnel name");
+    // Prevent duplicate request
+    if (loading) return;
+
+    if (!personnelName.trim()) {
+      toast.error(
+        "Please enter the personnel name."
+      );
       return;
     }
 
-    if (replaceExisting && !selectedPersonnelMobile) {
-      toast.error("Select the personnel to replace");
+    if (
+      replaceExisting &&
+      !selectedPersonnelMobile.trim()
+    ) {
+      toast.error(
+        "Please select the personnel to replace."
+      );
       return;
     }
 
-    // POST payload structure:
-    //
-    // Replace existing (backend: type === "replacePersonnel")
-    // Backend should look up the row where `mobile` === targetMobile and overwrite it.
-    // {
-    //   type: "replacePersonnel",
-    //   targetMobile: string,   // mobile of the personnel being replaced (lookup key)
-    //   designation: string,
-    //   name: string,
-    //   mobile: string,         // new mobile number
-    //   photo: string
-    // }
-    //
-    // Add new (backend: type === "addPersonnel")
-    // {
-    //   type: "addPersonnel",
-    //   designation: string,
-    //   name: string,
-    //   mobile: string,
-    //   photo: string
-    // }
     const payload = replaceExisting
       ? {
           type: "replacePersonnel",
-          targetMobile: selectedPersonnelMobile,
-          designation: personnelDesignation,
-          name: personnelName,
-          mobile: personnelMobile,
-          photo: personnelPhoto || DEFAULT_PERSONNEL_PHOTO,
+          targetMobile:
+            selectedPersonnelMobile.trim(),
+          designation:
+            personnelDesignation.trim(),
+          name: personnelName.trim(),
+          mobile: personnelMobile.trim(),
+          photo:
+            personnelPhoto.trim() ||
+            DEFAULT_PERSONNEL_PHOTO,
         }
       : {
           type: "addPersonnel",
-          designation: personnelDesignation,
-          name: personnelName,
-          mobile: personnelMobile,
-          photo: personnelPhoto || DEFAULT_PERSONNEL_PHOTO,
+          designation:
+            personnelDesignation.trim(),
+          name: personnelName.trim(),
+          mobile: personnelMobile.trim(),
+          photo:
+            personnelPhoto.trim() ||
+            DEFAULT_PERSONNEL_PHOTO,
         };
+
+    const toastId = "personnel";
 
     try {
       setLoading(true);
-      await postPayload(payload);
+
+      toast.loading(
+        replaceExisting
+          ? "Replacing personnel..."
+          : "Saving personnel...",
+        {
+          id: toastId,
+        }
+      );
+
+      const result =
+        await postPayload(payload);
+        console.log(result)
+
+      toast.success(
+        result ||
+          (replaceExisting
+            ? "Personnel replaced successfully."
+            : "Personnel added successfully."),
+        {
+          id: toastId,
+        }
+      );
+
+      // Reset only after confirmed success
       resetPersonnelForm();
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to Add Personnel");
+    } catch (error: any) {
+      console.error(
+        "Failed to save personnel:",
+        error
+      );
+
+      toast.error(
+        error?.message ||
+          "Failed to save personnel.",
+        {
+          id: toastId,
+        }
+      );
     } finally {
+      // ALWAYS stop button spinner
       setLoading(false);
     }
   };
 
-  const handleSubmit = () => {
+  // ============================================================
+  // MAIN SUBMIT
+  // ============================================================
+
+  const handleSubmit = async () => {
+    if (loading) return;
+
     if (type === "member") {
-      handleSubmitMember();
+      await handleSubmitMember();
     } else {
-      handleSubmitPersonnel();
+      await handleSubmitPersonnel();
     }
   };
+
+  // ============================================================
+  // UI
+  // ============================================================
 
   return (
     <section className="flex items-center justify-center px-3 py-10 sm:py-12">
       <Toaster
         position="top-right"
+        containerStyle={{
+          position: "fixed",
+          top: 100,
+          right: 20,
+          zIndex: 9999,
+        }}
         toastOptions={{
           duration: 3000,
           style: {
@@ -244,265 +512,420 @@ const AddPersonnel: React.FC = () => {
         }}
       />
 
-      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-xl border border-slate-100 p-5 sm:p-8">
-        {/* Header */}
-        <div className="flex flex-col items-center text-center mb-2">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center mb-3">
-            <UserPlus className="w-6 h-6 text-indigo-600" />
+      <div className="w-full max-w-3xl rounded-3xl border border-slate-100 bg-white p-5 shadow-xl sm:p-8">
+
+        {/* HEADER */}
+
+        <div className="mb-2 flex flex-col items-center text-center">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50">
+            <UserPlus className="h-6 w-6 text-indigo-600" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">
-            সদস্য / কর্মী যুক্ত করুন
+
+          <h2 className="text-xl font-bold text-slate-800 sm:text-2xl">
+            Add Member / Personnel
           </h2>
-        </div>
 
-        {/* Type Selection */}
-        <div className="grid grid-cols-2 gap-3 mt-6 mb-2">
-          <button
-            type="button"
-            onClick={() => setType("member")}
-            className={`p-3.5 rounded-xl border-2 flex items-center gap-2 justify-center text-sm font-semibold transition-all ${
-              type === "member"
-                ? "bg-indigo-50 border-indigo-500 text-indigo-700"
-                : "border-slate-200 text-slate-500 hover:bg-slate-50"
-            }`}
-          >
-            <Users className="w-4 h-4" /> সদস্য
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setType("personnel")}
-            className={`p-3.5 rounded-xl border-2 flex items-center gap-2 justify-center text-sm font-semibold transition-all ${
-              type === "personnel"
-                ? "bg-teal-50 border-teal-500 text-teal-700"
-                : "border-slate-200 text-slate-500 hover:bg-slate-50"
-            }`}
-          >
-            <Briefcase className="w-4 h-4" /> অন্যান্য কর্মী
-          </button>
-        </div>
-
-        {/* Tab description */}
-        {type === "member" ? (
-          <p className="text-[10px] leading-relaxed text-slate-400 text-center max-w-lg mx-auto mb-6">
-            ম্যানুয়ালি সদস্য যুক্ত করার অপশনটি সবার জন্য উন্মুক্ত নয়, এটি শুধু
-            হিসাব-নিকাশ ঠিক রাখার উদ্দেশ্যে ব্যবহৃত হয়।
+          <p className="mt-1.5 max-w-lg text-[11px] leading-relaxed text-slate-500">
+            Add a house member or manage other
+            personnel associated with the house.
           </p>
+        </div>
+
+        {/* TYPE SELECTION */}
+
+        <div className="mb-2 mt-6 grid grid-cols-2 gap-3">
+
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() =>
+              setType("member")
+            }
+            className={`flex items-center justify-center gap-2 rounded-xl border-2 p-3.5 text-sm font-semibold transition-all disabled:opacity-60 ${
+              type === "member"
+                ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                : "border-slate-200 text-slate-500 hover:bg-slate-50"
+            }`}
+          >
+            <Users className="h-4 w-4" />
+            Member
+          </button>
+
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() =>
+              setType("personnel")
+            }
+            className={`flex items-center justify-center gap-2 rounded-xl border-2 p-3.5 text-sm font-semibold transition-all disabled:opacity-60 ${
+              type === "personnel"
+                ? "border-teal-500 bg-teal-50 text-teal-700"
+                : "border-slate-200 text-slate-500 hover:bg-slate-50"
+            }`}
+          >
+            <Briefcase className="h-4 w-4" />
+            Other Personnel
+          </button>
+        </div>
+
+        {/* TAB DESCRIPTION */}
+
+        {type === "member" ? (
+          <div className="mb-6 mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3.5">
+            <div className="flex items-start gap-2.5">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+
+              <div>
+                <p className="text-xs font-semibold text-amber-800">
+                  Important: Member Registration
+                </p>
+
+                <p className="mt-1 text-[10px] leading-relaxed text-amber-700">
+                  Manually adding a member is not the
+                  recommended way to register a house
+                  member. Members should normally
+                  participate through the login system
+                  using their own account.
+                </p>
+
+                <p className="mt-2 text-[10px] leading-relaxed text-amber-700">
+                  However, if a person is currently
+                  unable to log in or does not use a
+                  digital device, the manager may
+                  create a{" "}
+                  <span className="font-semibold">
+                    shadow member
+                  </span>{" "}
+                  on their behalf.
+                </p>
+
+                <p className="mt-2 text-[10px] font-medium leading-relaxed text-amber-800">
+                  Shadow members are used only for
+                  calculations and accounting
+                  purposes. They do not represent an
+                  active digital user of the system.
+                </p>
+              </div>
+            </div>
+          </div>
         ) : (
-          <p className="text-[10px] leading-relaxed text-slate-400 text-center max-w-lg mx-auto mb-6">
-            নতুন কর্মী যুক্ত করুন, অথবা চাইলে বিদ্যমান কাউকে পরিবর্তন করতে
-            পারবেন। কাউকে পরিবর্তন করতে চাইলে চেকবক্স নির্বাচন করে নতুন কর্মীর
-            তথ্য পূরণ করুন।
+          <p className="mx-auto mb-6 max-w-lg text-center text-[10px] leading-relaxed text-slate-400">
+            Add new personnel, or replace an
+            existing personnel record if necessary.
+            To replace someone, enable the
+            replacement option and provide the new
+            personnel information.
           </p>
         )}
 
-        {/* Member Form */}
+        {/* MEMBER FORM */}
+
         {type === "member" && (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
               <div className="flex flex-col">
-                <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5" />
-                  নাম
+                <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                  <User className="h-3.5 w-3.5" />
+                  Member Name
                 </label>
+
                 <input
                   type="text"
+                  disabled={loading}
                   value={memberName}
-                  onChange={(e) => setMemberName(e.target.value.trim())}
-                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 placeholder-slate-400 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                  placeholder="সদস্যের নাম লিখুন"
+                  onChange={(e) =>
+                    setMemberName(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+                  placeholder="Enter member name"
                 />
               </div>
 
               <div className="flex flex-col">
-                <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
-                  <Mail className="w-3.5 h-3.5" />
-                  ইমেইল
+                <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                  <Mail className="h-3.5 w-3.5" />
+                  Email
                 </label>
+
                 <input
                   type="email"
+                  disabled={loading}
                   value={memberEmail}
-                  onChange={(e) => setMemberEmail(e.target.value.trim())}
-                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 placeholder-slate-400 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                  onChange={(e) =>
+                    setMemberEmail(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
                   placeholder="member@example.com"
                 />
               </div>
             </div>
 
             <div className="flex flex-col">
-              <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                রোল
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Role
               </label>
+
               <select
-                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                disabled={loading}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
                 value={memberRole}
                 onChange={(e) =>
-                  setMemberRole(e.target.value as "member" | "manager" | "assist_manager")
+                  setMemberRole(
+                    e.target
+                      .value as "member"
+                  )
                 }
               >
-                <option value="member">Member</option>
-                <option value="manager">Manager</option>
-                <option value="assist_manager">Assistant Manager</option>
+                <option value="">
+                  Select Role
+                </option>
+
+                <option value="member">
+                  Member
+                </option>
               </select>
             </div>
 
             <div className="flex flex-col">
-              <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
-                <ImageIcon className="w-3.5 h-3.5" />
-                ছবির লিংক
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                <ImageIcon className="h-3.5 w-3.5" />
+                Photo URL
               </label>
+
               <input
                 type="text"
+                disabled={loading}
                 value={memberPhoto}
-                onChange={(e) => setMemberPhoto(e.target.value.trim())}
-                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 placeholder-slate-400 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                placeholder="ঐচ্ছিক"
+                onChange={(e) =>
+                  setMemberPhoto(
+                    e.target.value
+                  )
+                }
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+                placeholder="Optional"
               />
-              <p className="text-[10px] text-slate-400 mt-2">
-                ছবি আপলোড করে সরাসরি লিংক নিন{" "}
+
+              <p className="mt-2 text-[10px] text-slate-400">
+                Upload a photo and get a direct link{" "}
                 <a
                   href="https://postimg.cc/gallery/BH8xHfn"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-indigo-500 underline"
                 >
-                  এখানে
+                  here
                 </a>
+                .
               </p>
             </div>
           </div>
         )}
 
-        {/* Personnel Form */}
+        {/* PERSONNEL FORM */}
+
         {type === "personnel" && (
           <div className="space-y-4">
-            <label className="flex items-center gap-2.5 p-3.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:bg-slate-100 transition-all">
+
+            <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-slate-200 bg-slate-50 p-3.5 transition-all hover:bg-slate-100">
               <input
                 type="checkbox"
+                disabled={loading}
                 checked={replaceExisting}
                 onChange={(e) => {
-                  setReplaceExisting(e.target.checked);
+                  setReplaceExisting(
+                    e.target.checked
+                  );
+
                   setSelectedPersonnelMobile("");
                 }}
-                className="w-4 h-4 accent-teal-600"
+                className="h-4 w-4 accent-teal-600"
               />
-              <span className="text-xs font-medium text-slate-600 flex items-center gap-1.5">
-                <Repeat className="w-3.5 h-3.5" />
-                বিদ্যমান কর্মী পরিবর্তন করতে চান?
+
+              <span className="flex items-center gap-1.5 text-xs font-medium text-slate-600">
+                <Repeat className="h-3.5 w-3.5" />
+                Replace an existing personnel?
               </span>
             </label>
 
             {replaceExisting && (
               <div className="flex flex-col">
-                <label className="text-xs font-medium text-slate-500 mb-1.5">
-                  পরিবর্তনের জন্য কর্মী নির্বাচন করুন
+                <label className="mb-1.5 text-xs font-medium text-slate-500">
+                  Select Personnel to Replace
                 </label>
 
                 {loadingPersonnel ? (
-                  <div className="flex items-center gap-2 p-3 text-slate-400 text-xs">
-                    <Loader2 className="animate-spin" size={14} /> লোড হচ্ছে...
+                  <div className="flex items-center gap-2 p-3 text-xs text-slate-400">
+                    <Loader2
+                      className="animate-spin"
+                      size={14}
+                    />
+                    Loading personnel...
                   </div>
                 ) : (
                   <select
-                    className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-sm outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
-                    value={selectedPersonnelMobile}
-                    onChange={(e) => setSelectedPersonnelMobile(e.target.value.trim())}
+                    disabled={loading}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 outline-none transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500 disabled:opacity-60"
+                    value={
+                      selectedPersonnelMobile
+                    }
+                    onChange={(e) =>
+                      setSelectedPersonnelMobile(
+                        e.target.value
+                      )
+                    }
                   >
-                    <option value="">মোবাইল নম্বর অনুযায়ী নির্বাচন করুন</option>
-                    {personnelList.map((p, index) => (
-                      <option key={index} value={p.mobile}>
-                        {p.name} ({p.designation}) - {p.mobile}
-                      </option>
-                    ))}
+                    <option value="">
+                      Select by mobile number
+                    </option>
+
+                    {personnelList.map(
+                      (p, index) => (
+                        <option
+                          key={`${p.mobile}-${index}`}
+                          value={p.mobile || ""}
+                        >
+                          {p.name} (
+                          {p.designation}) -{" "}
+                          {p.mobile}
+                        </option>
+                      )
+                    )}
                   </select>
                 )}
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
               <div className="flex flex-col">
-                <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
-                  <Tag className="w-3.5 h-3.5" />
-                  পদবি
+                <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                  <Tag className="h-3.5 w-3.5" />
+                  Designation
                 </label>
+
                 <input
                   type="text"
-                  placeholder="খালা / পেপার বয় / ওয়াটার ম্যান"
-                  value={personnelDesignation}
-                  onChange={(e) => setPersonnelDesignation(e.target.value.trim())}
-                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 placeholder-slate-400 text-sm outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                  disabled={loading}
+                  placeholder="Maid / Paper Boy / Water Man"
+                  value={
+                    personnelDesignation
+                  }
+                  onChange={(e) =>
+                    setPersonnelDesignation(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500 disabled:opacity-60"
                 />
               </div>
 
               <div className="flex flex-col">
-                <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5" />
-                  কর্মীর নাম
+                <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                  <User className="h-3.5 w-3.5" />
+                  Personnel Name
                 </label>
+
                 <input
                   type="text"
+                  disabled={loading}
                   value={personnelName}
-                  onChange={(e) => setPersonnelName(e.target.value.trim())}
-                  className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 placeholder-slate-400 text-sm outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
-                  placeholder="কর্মীর নাম লিখুন"
+                  onChange={(e) =>
+                    setPersonnelName(
+                      e.target.value
+                    )
+                  }
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500 disabled:opacity-60"
+                  placeholder="Enter personnel name"
                 />
               </div>
             </div>
 
             <div className="flex flex-col">
-              <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5" />
-                মোবাইল
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                <Phone className="h-3.5 w-3.5" />
+                Mobile Number
               </label>
+
               <input
                 type="text"
+                disabled={loading}
                 value={personnelMobile}
-                onChange={(e) => setPersonnelMobile(e.target.value.trim())}
-                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 placeholder-slate-400 text-sm outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                onChange={(e) =>
+                  setPersonnelMobile(
+                    e.target.value
+                  )
+                }
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500 disabled:opacity-60"
                 placeholder="01XXXXXXXXX"
               />
             </div>
 
             <div className="flex flex-col">
-              <label className="text-xs font-medium text-slate-500 mb-1.5 flex items-center gap-1.5">
-                <ImageIcon className="w-3.5 h-3.5" />
-                ছবির লিংক
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                <ImageIcon className="h-3.5 w-3.5" />
+                Photo URL
               </label>
+
               <input
                 type="text"
+                disabled={loading}
                 value={personnelPhoto}
-                onChange={(e) => setPersonnelPhoto(e.target.value.trim())}
-                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 placeholder-slate-400 text-sm outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
-                placeholder="ঐচ্ছিক"
+                onChange={(e) =>
+                  setPersonnelPhoto(
+                    e.target.value
+                  )
+                }
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500 disabled:opacity-60"
+                placeholder="Optional"
               />
-              <p className="text-[10px] text-slate-400 mt-2">
-                ছবি আপলোড করে সরাসরি লিংক নিন{" "}
+
+              <p className="mt-2 text-[10px] text-slate-400">
+                Upload a photo and get a direct link{" "}
                 <a
                   href="https://postimg.cc/gallery/BH8xHfn"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-teal-600 underline"
                 >
-                  এখানে
+                  here
                 </a>
+                .
               </p>
             </div>
           </div>
         )}
 
+        {/* SUBMIT BUTTON */}
+
         <button
           type="button"
           onClick={handleSubmit}
           disabled={loading}
-          className={`w-full mt-6 py-3.5 rounded-xl text-white text-sm font-semibold shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.99] disabled:active:scale-100 disabled:opacity-60 ${
+          className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold text-white shadow-md transition-all active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 ${
             type === "member"
-              ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200"
-              : "bg-teal-600 hover:bg-teal-700 shadow-teal-200"
+              ? "bg-indigo-600 shadow-indigo-200 hover:bg-indigo-700"
+              : "bg-teal-600 shadow-teal-200 hover:bg-teal-700"
           }`}
         >
-          {loading && <Loader2 className="animate-spin" size={16} />}
-          {type === "member" ? "সদস্য সংরক্ষণ করুন" : "কর্মী সংরক্ষণ করুন"}
+          {loading && (
+            <Loader2
+              className="animate-spin"
+              size={16}
+            />
+          )}
+
+          {loading
+            ? "Saving..."
+            : type === "member"
+            ? "Save Member"
+            : "Save Personnel"}
         </button>
       </div>
     </section>

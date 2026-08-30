@@ -147,7 +147,7 @@ const myTotalMeal =
   // find current member by name or email
   const current = members.find((m) => {
     if (!user) return false
-    if (m.name && user.email?.split("@")[0]) return String(m.name) === String(user.email?.split("@")[0])
+    if (m?.name && user.email?.split("@")[0]) return String(m?.name) === String(user.email?.split("@")[0])
     if (m.email && user.email) return String(m.email).toLowerCase() === String(user.email).toLowerCase()
     return false
   })
@@ -160,9 +160,9 @@ const myTotalMeal =
     )
   }
 
-  const memberId = user?.email?.split("@")[0] ?? current.name
+  const memberId = user?.email?.split("@")[0] ?? current?.name
 
-  const memberMeals = mealData.find((m) => m.name === memberId)
+  const memberMeals = mealData.find((m) => m?.name === memberId)
   const mealCount = Number(memberMeals?.total) || 0
 
   const memberBazar = bazarData
@@ -181,7 +181,7 @@ const myTotalMeal =
 
   const depositUsedPct = mealDeposit > 0 ? Math.min(100, (mealCost / mealDeposit) * 100) : mealCost > 0 ? 100 : 0
 
-  const initial = (current.name || current.email || 'U').charAt(0).toUpperCase()
+  const initial = (current?.name || current.email || 'U').charAt(0).toUpperCase()
   const currentUser = houseMembers.find((u) => u.email?.toLowerCase() === user?.email?.toLowerCase()) || current
 
 
@@ -271,7 +271,7 @@ const myTotalMeal =
                   {user?.photoURL ? (
                     <img
                       src={user.photoURL}
-                      alt={current.name || 'Profile'}
+                      alt={current?.name || 'Profile'}
                       className="h-24 w-24 rounded-full object-cover ring-4 ring-white shadow-lg"
                     />
                   ) : (

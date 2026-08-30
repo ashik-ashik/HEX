@@ -88,6 +88,7 @@ const { usersList, userIsLoading, setUsersList, user } = useAuth() as {
     params.append("type", "userRole");
     params.append("email", email);
     params.append("role", role);
+    params.append("currentManagerEmail", currentManagerEmail);
 
     const response = await fetch(API_URL, {
       method: "POST",
@@ -204,7 +205,7 @@ const { usersList, userIsLoading, setUsersList, user } = useAuth() as {
       {/* Header */}
       <div className="mb-6 text-center">
         <h2 className="text-2xl font-bold text-gray-800">
-          Update User Role
+          Manage Members
         </h2>
 
         <p className="text-sm text-gray-500 mt-1">
@@ -242,7 +243,7 @@ const { usersList, userIsLoading, setUsersList, user } = useAuth() as {
                   value={item.email }
                   className="capitalize text-[12px]"
                 >
-                  {item.name + ":- " + item.email}
+                  {item?.name + ":- " + item.email}
                 </option>
               )
             )}
@@ -312,7 +313,7 @@ const { usersList, userIsLoading, setUsersList, user } = useAuth() as {
             <div className="w-14 h-14 rounded-full overflow-hidden border">
               <img
                 src={u.photoURL || "https://via.placeholder.com/150"}
-                alt={u.name}
+                alt={u?.name}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -320,7 +321,7 @@ const { usersList, userIsLoading, setUsersList, user } = useAuth() as {
             {/* User Info */}
             <div>
               <h2 className="text-md font-semibold text-gray-800 capitalize">
-                {u.name}
+                {u?.name}
               </h2>
               <p className="text-sm text-gray-500 capitalize">
                 {u.role === "assist_manager" ? "Assistant Manager" : u.role}
